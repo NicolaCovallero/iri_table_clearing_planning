@@ -31,6 +31,7 @@
 // [publisher subscriber headers]
 
 // [service client headers]
+#include <iri_table_clearing_predicates/Predicates.h>
 
 // [action server client headers]
 
@@ -46,6 +47,12 @@ class TableClearingPredicatesAlgNode : public algorithm_base::IriBaseAlgorithm<T
     // [subscriber attributes]
 
     // [service attributes]
+    ros::ServiceServer get_symbolic_predicates_server_;
+    bool get_symbolic_predicatesCallback(iri_table_clearing_predicates::Predicates::Request &req, iri_table_clearing_predicates::Predicates::Response &res);
+    pthread_mutex_t get_symbolic_predicates_mutex_;
+    void get_symbolic_predicates_mutex_enter(void);
+    void get_symbolic_predicates_mutex_exit(void);
+   
 
     // [client attributes]
 
