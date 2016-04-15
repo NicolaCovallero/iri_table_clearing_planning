@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>iri_iri_table_clearing_predicates</name>
+  <name>iri_table_clearing_predicates</name>
   <version>0.0.0</version>
-  <description>The iri_iri_table_clearing_predicates package</description>
+  <description>The iri_table_clearing_predicates package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/iri_iri_table_clearing_predicates</url> -->
+  <!-- <url type="website">http://wiki.ros.org/iri_table_clearing_predicates</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->

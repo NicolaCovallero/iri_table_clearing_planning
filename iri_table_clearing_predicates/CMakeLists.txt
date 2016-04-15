@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(iri_iri_table_clearing_predicates)
+project(iri_table_clearing_predicates)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED)
@@ -49,7 +49,7 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
 # ******************************************************************** 
 #                 Add the dynamic reconfigure file 
 # ******************************************************************** 
-generate_dynamic_reconfigure_options(cfg/IriTableClearingPredicates.cfg)
+generate_dynamic_reconfigure_options(cfg/TableClearingPredicates.cfg)
 
 # ******************************************************************** 
 #                 Add run time dependencies here
@@ -82,7 +82,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 # add_library(${PROJECT_NAME} <list of source files>)
 
 ## Declare a cpp executable
-add_executable(${PROJECT_NAME} src/iri_table_clearing_predicates_alg.cpp src/iri_table_clearing_predicates_alg_node.cpp)
+add_executable(${PROJECT_NAME} src/table_clearing_predicates_alg.cpp src/table_clearing_predicates_alg_node.cpp)
 
 # ******************************************************************** 
 #                   Add the libraries

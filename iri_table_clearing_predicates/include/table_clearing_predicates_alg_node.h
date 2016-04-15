@@ -22,11 +22,11 @@
 // refer to the IRI wiki page for more information:
 // http://wikiri.upc.es/index.php/Robotics_Lab
 
-#ifndef _iri_table_clearing_predicates_alg_node_h_
-#define _iri_table_clearing_predicates_alg_node_h_
+#ifndef _table_clearing_predicates_alg_node_h_
+#define _table_clearing_predicates_alg_node_h_
 
 #include <iri_base_algorithm/iri_base_algorithm.h>
-#include "iri_table_clearing_predicates_alg.h"
+#include "table_clearing_predicates_alg.h"
 
 // [publisher subscriber headers]
 
@@ -38,7 +38,7 @@
  * \brief IRI ROS Specific Algorithm Class
  *
  */
-class IriTableClearingPredicatesAlgNode : public algorithm_base::IriBaseAlgorithm<IriTableClearingPredicatesAlgorithm>
+class TableClearingPredicatesAlgNode : public algorithm_base::IriBaseAlgorithm<TableClearingPredicatesAlgorithm>
 {
   private:
     // [publisher attributes]
@@ -67,7 +67,7 @@ class IriTableClearingPredicatesAlgNode : public algorithm_base::IriBaseAlgorith
     * This constructor initializes specific class attributes and all ROS
     * communications variables to enable message exchange.
     */
-    IriTableClearingPredicatesAlgNode(void);
+    TableClearingPredicatesAlgNode(void);
 
    /**
     * \brief Destructor
@@ -75,7 +75,7 @@ class IriTableClearingPredicatesAlgNode : public algorithm_base::IriBaseAlgorith
     * This destructor frees all necessary dynamic memory allocated within this
     * this class.
     */
-    ~IriTableClearingPredicatesAlgNode(void);
+    ~TableClearingPredicatesAlgNode(void);
 
   protected:
    /**

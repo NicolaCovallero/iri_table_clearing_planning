@@ -1,7 +1,7 @@
-#include "iri_table_clearing_predicates_alg_node.h"
+#include "table_clearing_predicates_alg_node.h"
 
-IriTableClearingPredicatesAlgNode::IriTableClearingPredicatesAlgNode(void) :
-  algorithm_base::IriBaseAlgorithm<IriTableClearingPredicatesAlgorithm>()
+TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
+  algorithm_base::IriBaseAlgorithm<TableClearingPredicatesAlgorithm>()
 {
   //init class attributes if necessary
   //this->loop_rate_ = 2;//in [Hz]
@@ -19,12 +19,12 @@ IriTableClearingPredicatesAlgNode::IriTableClearingPredicatesAlgNode(void) :
   // [init action clients]
 }
 
-IriTableClearingPredicatesAlgNode::~IriTableClearingPredicatesAlgNode(void)
+TableClearingPredicatesAlgNode::~TableClearingPredicatesAlgNode(void)
 {
   // [free dynamic memory]
 }
 
-void IriTableClearingPredicatesAlgNode::mainNodeThread(void)
+void TableClearingPredicatesAlgNode::mainNodeThread(void)
 {
   // [fill msg structures]
   
@@ -43,19 +43,19 @@ void IriTableClearingPredicatesAlgNode::mainNodeThread(void)
 
 /*  [action requests] */
 
-void IriTableClearingPredicatesAlgNode::node_config_update(Config &config, uint32_t level)
+void TableClearingPredicatesAlgNode::node_config_update(Config &config, uint32_t level)
 {
   this->alg_.lock();
   this->config_=config;
   this->alg_.unlock();
 }
 
-void IriTableClearingPredicatesAlgNode::addNodeDiagnostics(void)
+void TableClearingPredicatesAlgNode::addNodeDiagnostics(void)
 {
 }
 
 /* main function */
 int main(int argc,char *argv[])
 {
-  return algorithm_base::main<IriTableClearingPredicatesAlgNode>(argc, argv, "iri_table_clearing_predicates_alg_node");
+  return algorithm_base::main<TableClearingPredicatesAlgNode>(argc, argv, "table_clearing_predicates_alg_node");
 }
