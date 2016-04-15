@@ -125,6 +125,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     // [diagnostic functions]
     
     // [test functions]
+    void preparePredicatesMsg();
 };
 
 #endif

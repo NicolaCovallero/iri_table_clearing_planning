@@ -28,6 +28,13 @@
 #include <iri_table_clearing_decision_maker/TableClearingDecisionMakerConfig.h>
 
 //include table_clearing_decision_maker_alg main library
+#include "iri_table_clearing_predicates/BlockPredicate.h"
+#include "iri_table_clearing_predicates/BlockGraspPredicate.h"
+#include "iri_table_clearing_predicates/OnTopPredicate.h"
+#include "iri_table_clearing_predicates/PushingDirections.h"
+#include "iri_table_clearing_predicates/GraspingPoses.h"
+
+#include "iri_fast_downward_wrapper/Object.h"
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -126,6 +133,12 @@ class TableClearingDecisionMakerAlgorithm
     *
     */
     ~TableClearingDecisionMakerAlgorithm(void);
+
+    std::vector<iri_fast_downward_wrapper::Object> prepareObjectsMsg(uint n_objects);
+    void prepareBlockPredicatesMsg();
+    void prepareBlockGraspPredicatesMsg();
+    void prepareOnTopPredicatesMsg();
+    std::string prepareGoalMsg();
 };
 
 #endif

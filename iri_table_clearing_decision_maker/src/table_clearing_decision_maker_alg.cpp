@@ -21,3 +21,36 @@ void TableClearingDecisionMakerAlgorithm::config_update(Config& config, uint32_t
 }
 
 // TableClearingDecisionMakerAlgorithm Public API
+std::vector<iri_fast_downward_wrapper::Object> TableClearingDecisionMakerAlgorithm::prepareObjectsMsg(uint n_objects)
+{
+	std::vector<iri_fast_downward_wrapper::Object> objects_msg;
+	for (int i = 0; i < n_objects; ++i)
+	{
+		iri_fast_downward_wrapper::Object object;
+		std::string object_name = "o";
+		std::ostringstream convert;   // stream used for the conversion
+		convert << i;
+		object_name += convert.str();
+		object.object_name = object_name;
+		object.type = "obj";
+	}
+	return objects_msg;
+}
+void TableClearingDecisionMakerAlgorithm::prepareBlockPredicatesMsg()
+{
+
+}
+void TableClearingDecisionMakerAlgorithm::prepareBlockGraspPredicatesMsg()
+{
+
+}
+void TableClearingDecisionMakerAlgorithm::prepareOnTopPredicatesMsg()
+{
+
+}
+std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
+{
+	std::string goal;
+
+	return goal;
+}
