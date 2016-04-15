@@ -31,6 +31,8 @@
 // [publisher subscriber headers]
 
 // [service client headers]
+#include <iri_tos_supervoxels/object_segmentation.h>
+#include <iri_table_clearing_predicates/Predicates.h>
 
 // [action server client headers]
 
@@ -48,6 +50,12 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     // [service attributes]
 
     // [client attributes]
+    ros::ServiceClient segments_objects_client_;
+    iri_tos_supervoxels::object_segmentation segments_objects_srv_;
+
+    ros::ServiceClient get_symbolic_predicates_client_;
+    iri_table_clearing_predicates::Predicates get_symbolic_predicates_srv_;
+
 
     // [action server attributes]
 

@@ -6,7 +6,7 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
+find_package(catkin REQUIRED COMPONENTS iri_base_algorithm iri_tos_supervoxels iri_table_clearing_predicates)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -60,7 +60,7 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm
+ CATKIN_DEPENDS iri_base_algorithm iri_tos_supervoxels iri_table_clearing_predicates
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 
@@ -94,6 +94,8 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #               Add message headers dependencies 
 # ******************************************************************** 
 # add_dependencies(${PROJECT_NAME} <msg_package_name>_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} iri_tos_supervoxels_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} iri_table_clearing_predicates_generate_messages_cpp)
 # ******************************************************************** 
 #               Add dynamic reconfigure dependencies 
 # ******************************************************************** 
