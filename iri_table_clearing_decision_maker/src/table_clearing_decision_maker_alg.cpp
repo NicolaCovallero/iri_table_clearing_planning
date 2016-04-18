@@ -24,7 +24,7 @@ void TableClearingDecisionMakerAlgorithm::config_update(Config& config, uint32_t
 std::vector<iri_fast_downward_wrapper::Object> TableClearingDecisionMakerAlgorithm::prepareObjectsMsg()
 {
 	std::vector<iri_fast_downward_wrapper::Object> objects_msg;
-	for (int i = 0; i < n_objects; ++i)
+	for (int i = 0; i < this->n_objects; ++i)
 	{
 		iri_fast_downward_wrapper::Object object;
 		std::string object_name = "o";
@@ -166,11 +166,14 @@ std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 	std::string goal;
 
 	// this is ok only for cluttered scene 6.pcd it is not aumatized
-	goal = "(and \n\
-				(grasped o0)\n\
-				(grasped o1)\n\
-				(grasped o2)\n\
-			)";
+	// goal = "(and \n\
+	// 			(grasped o0)\n\
+	// 			(grasped o1)\n\
+	// 			(grasped o2)\n\
+	// 		)";
+	// goal = "(not (exists (?x - obj)(block_dir3 ?x o1)))";	
+	// goal = "(grasped o6)";
+	goal = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 	return goal;
 }
@@ -197,4 +200,94 @@ void TableClearingDecisionMakerAlgorithm::setPushingDirections(std::vector<iri_t
 void TableClearingDecisionMakerAlgorithm::setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses)
 {
 	this->grasping_poses = grasping_poses;
+}
+void TableClearingDecisionMakerAlgorithm::setPlan(iri_fast_downward_wrapper::Plan plan)
+{
+	this->plan = plan;
+}
+void TableClearingDecisionMakerAlgorithm::setFrameId(std::string frame_id)
+{
+	this->frame_id = frame_id;
+}
+visualization_msgs::Marker TableClearingDecisionMakerAlgorithm::firstActionMarker()
+{
+	visualization_msgs::Marker marker;
+}
+void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
+{
+  // std::cout << "Creating cloud message\n";
+  //creating new point cloud for debugging with random color for each segmented object
+  sensor_msgs::PointCloud2 segmented_objects_msg;
+    pcl::PointCloud<pcl::PointXYZRGBA> segmented_objects_cloud; 
+
+    for (int i = 0; i < segmented_objects.size(); ++i)
+    {
+      
+      pcl::PointCloud<pcl::PointXYZRGBA> tmp;
+      pcl::fromROSMsg(segmented_objects[i],tmp);
+      float r,g,b;
+      r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+      g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+      b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+      for (int h = 0; h < tmp.points.size(); ++h)
+      {
+        tmp.points.at(h).r = r*255;
+        tmp.points.at(h).g = g*255;
+        tmp.points.at(h).b = b*255;
+        ;
+      }
+
+      segmented_objects_cloud += tmp;
+    }
+
+    segmented_objects_cloud.width = segmented_objects_cloud.points.size();
+    segmented_objects_cloud.height = 1;
+    segmented_objects_cloud.is_dense = true;
+
+    //std::cout << "segmented_objects_cloud.points.size() " << segmented_objects_cloud.points.size() << "\n";
+    pcl::toROSMsg(segmented_objects_cloud,segmented_objects_msg);
+    //std::cout << "segmented_objects_msg.data.size() " << segmented_objects_msg.data.size() << "\n";
+
+    segmented_objects_msg.header = header;
+    segmented_objects_msg.header.stamp = ros::Time::now();
+    cloud_publisher_.publish(segmented_objects_msg);
+}
+void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
+                              ros::Publisher& label_pub,
+                              std::vector<iri_table_clearing_predicates::AABB> aabbs,
+                              iri_tos_supervoxels::plane_coefficients plane_coefficients)
+{
+	visualization_msgs::MarkerArray markers;
+	if(aabbs.size() != centroids.size())
+		ROS_ERROR("The AABB and the centorids have not the same length - Impossible creating label markers");
+
+	for (int i = 0; i < centroids.size(); ++i)
+	{
+		visualization_msgs::Marker marker;
+		marker.header.frame_id = this->frame_id;
+		marker.header.stamp = ros::Time();
+		// marker.header.seq = i;
+		marker.ns = "label";
+		marker.id = i;
+		marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+		marker.action = visualization_msgs::Marker::ADD;
+		marker.pose.position.x = centroids[i].x;
+		marker.pose.position.y = centroids[i].y;
+		marker.pose.position.z = centroids[i].z;
+		marker.pose.orientation.x = 0.0;
+		marker.pose.orientation.y = 0.0;
+		marker.pose.orientation.z = 0.0;
+		marker.pose.orientation.w = 1.0;
+		marker.color.r = 1.0;
+		marker.color.a = 1.0;
+		marker.scale.z = 0.1;
+		// marker.lifetime = ros::Duration(10);
+		std::string object_label = "o";
+		std::ostringstream convert;   // stream used for the conversion
+		convert << i;
+		object_label += convert.str();
+		marker.text =  object_label;
+		markers.markers.push_back(marker);
+	}
+	label_pub.publish(markers);
 }

@@ -29,6 +29,8 @@
 #include "table_clearing_decision_maker_alg.h"
 
 // [publisher subscriber headers]
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <sensor_msgs/PointCloud2.h>
 
 // [service client headers]
@@ -38,6 +40,9 @@
 
 // [action server client headers]
 
+
+const std::string FRAME_ID = "/base_link";
+
 /**
  * \brief IRI ROS Specific Algorithm Class
  *
@@ -46,6 +51,15 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 {
   private:
     // [publisher attributes]
+    ros::Publisher action_marker_publisher_;
+    visualization_msgs::Marker action_Marker_msg_;
+
+    ros::Publisher objects_label_publisher_;
+    visualization_msgs::MarkerArray objects_label_MarkerArray_msg_;
+
+    ros::Publisher cloud_publisher_;
+    sensor_msgs::PointCloud2 cloud_PointCloud2_msg_;
+
 
     // [subscriber attributes]
     ros::Subscriber kinect_subscriber_;
@@ -137,6 +151,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     
     // [test functions]
     void preparePredicatesMsg();
+
 };
 
 #endif

@@ -6,7 +6,7 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS iri_base_algorithm map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates)
+find_package(catkin REQUIRED COMPONENTS iri_base_algorithm visualization_msgs sensor_msgs map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -63,7 +63,7 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates
+ CATKIN_DEPENDS iri_base_algorithm visualization_msgs sensor_msgs map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 
@@ -105,6 +105,8 @@ target_link_libraries(${PROJECT_NAME} ${table_clearing_planning_LIBRARY} ${PCL_L
 #               Add message headers dependencies 
 # ******************************************************************** 
 # add_dependencies(${PROJECT_NAME} <msg_package_name>_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} visualization_msgs_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} sensor_msgs_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME} map_msgs_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME} iri_fast_downward_wrapper_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME} iri_tos_supervoxels_generate_messages_cpp)

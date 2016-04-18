@@ -33,12 +33,26 @@
 #include "iri_table_clearing_predicates/OnTopPredicate.h"
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
+#include "iri_table_clearing_predicates/AABB.h"
+#include "iri_tos_supervoxels/plane_coefficients.h"
 
 
 #include "iri_fast_downward_wrapper/Object.h"
 #include "iri_fast_downward_wrapper/SymbolicPredicate.h"
 
+#include "iri_fast_downward_wrapper/Plan.h"
+
+#include "sensor_msgs/PointCloud2.h"
+
 #include "table_clearing_planning.h"
+
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+
+
+
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -72,6 +86,8 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
 
+    iri_fast_downward_wrapper::Plan plan;
+    std::string frame_id;   
   public:
    /**
     * \brief define config type
@@ -186,6 +202,18 @@ class TableClearingDecisionMakerAlgorithm
     void setBlockGraspPredicates(std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates);
     void setPushingDirections(std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions);
     void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
+
+    void setPlan(iri_fast_downward_wrapper::Plan plan);
+    void setFrameId(std::string frame_id);
+
+    visualization_msgs::Marker firstActionMarker();
+
+    void showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_);
+
+    void showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
+                              ros::Publisher& label_pub,
+                              std::vector<iri_table_clearing_predicates::AABB> aabbs,
+                              iri_tos_supervoxels::plane_coefficients plane_coefficients);
 };
 
 #endif

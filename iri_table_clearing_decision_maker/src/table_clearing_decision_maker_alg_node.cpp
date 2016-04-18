@@ -10,7 +10,14 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
   ros::service::waitForService("/get_fast_downward_plan",2);
 
+  std::string frame_id;
+  this->public_node_handle_.param("frame_id",frame_id,FRAME_ID);
+  this->alg_.setFrameId(frame_id);
+
   // [init publishers]
+  this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
+  this->objects_label_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_label", 1);
+  this->cloud_publisher_ = this->public_node_handle_.advertise<sensor_msgs::PointCloud2>("cloud", 1);
   
   // [init subscribers]
   //this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
@@ -43,6 +50,15 @@ TableClearingDecisionMakerAlgNode::~TableClearingDecisionMakerAlgNode(void)
 void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 {
   // [fill msg structures]
+  // Initialize the topic message structure
+  //this->action_Marker_msg_.data = my_var;
+
+  // Initialize the topic message structure
+  //this->objects_label_MarkerArray_msg_.data = my_var;
+
+  // Initialize the topic message structure
+  //this->cloud_PointCloud2_msg_.data = my_var;
+
   
   // [fill srv structure and make request to the server]
   ///get_fast_downward_plan_srv_.request.data = my_var;
@@ -85,11 +101,21 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // [fill action structure and make request to the action server]
 
   // [publish messages]
+  // Uncomment the following line to publish the topic message
+  //this->action_publisher_.publish(this->action_Marker_msg_);
+
+  // Uncomment the following line to publish the topic message
+  //this->objects_label_publisher_.publish(this->objects_label_MarkerArray_msg_);
+
+  // Uncomment the following line to publish the topic message
+  //this->cloud_publisher_.publish(this->cloud_PointCloud2_msg_);
+
 }
 
 /*  [subscriber callbacks] */
 void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
+  std::cout << std::endl << std::endl;
   ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_callback: New Message Received");
 
   //use appropiate mutex to shared variables if necessary
@@ -103,7 +129,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     ROS_ERROR("Impossible segmenting the image");
     return;
   }
-
+  this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
+  //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
   this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
 
   iri_table_clearing_predicates::Predicates pre_srv;
@@ -116,6 +143,12 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     return;
   } 
 
+  //plots label markers 
+  this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
+                                  this->objects_label_publisher_,
+                                  pre_srv.response.aabbs,
+                                  tos_srv.response.plane_coeff);
+
   //save the predicates
   this->alg_.setBlockPredicates(pre_srv.response.block_predicates);
   this->alg_.setOnTopPredicates(pre_srv.response.on_top_predicates);
@@ -123,20 +156,22 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
   this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
 
-  // std::vector<iri_fast_downward_wrapper::Object> objects_msg;
-  // objects_msg = 
-  // std::vector<iri_fast_downward_wrapper/SymbolicPredicate> symbolic_predicates;
   iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
   fd_srv.request.objects = this->alg_.prepareObjectsMsg();
   fd_srv.request.symbolic_predicates = this->alg_.prepareSymbolicPredicatesMsg();
   fd_srv.request.goal = this->alg_.prepareGoalMsg();
+
+  std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
 
   if(!get_fast_downward_plan_client_.call(fd_srv))
   {
     ROS_ERROR("Impossible getting the Fast Downward plan");
     return;
   }
+  // if(!fd_srv.response.feasible)
+  //   ROS_ERROR("There is not a feasible plan for such a problem");
 
+  
 
   //std::cout << msg->data << std::endl;
   //unlock previously blocked shared variables
@@ -171,6 +206,7 @@ void TableClearingDecisionMakerAlgNode::node_config_update(Config &config, uint3
 void TableClearingDecisionMakerAlgNode::addNodeDiagnostics(void)
 {
 }
+
 
 /* main function */
 int main(int argc,char *argv[])

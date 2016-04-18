@@ -1,0 +1,30 @@
+<launch>
+  <!-- services -->
+  <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
+    <arg name="screen" value="false"/>
+  </include>
+
+  <!-- Launch service for the predicates -->
+  <!--
+  <node pkg="iri_table_clearing_predicates" type="iri_table_clearing_predicates"
+       name="iri_table_clearing_predicates" output="screen">
+  </node>
+  -->
+
+  <!-- This one is better to have it on another terminal -->
+  <!--
+  <node pkg="iri_fast_downward_wrapper" type="iri_fast_downward_wrapper"
+       name="iri_fast_downward_wrapper" output="screen">
+  </node>
+  -->
+
+  <!-- Launch the main node to control the process -->
+  <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
+       name="iri_table_clearing_decision_maker" output="screen">
+  </node>
+
+
+  <!-- Launch Rviz with the correct configuration -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find iri_table_clearing_decision_maker)/config/rviz.rviz"/>
+
+</launch>

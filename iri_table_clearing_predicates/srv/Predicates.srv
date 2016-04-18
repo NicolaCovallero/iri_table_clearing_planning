@@ -7,3 +7,5 @@ iri_table_clearing_predicates/BlockGraspPredicate[] block_grasp_predicates
 iri_table_clearing_predicates/OnTopPredicate[] on_top_predicates
 iri_table_clearing_predicates/PushingDirections[] objects_pushing_directions
 iri_table_clearing_predicates/GraspingPoses[] grasping_poses
+iri_table_clearing_predicates/AABB[] aabbs
+geometry_msgs/Point[] centroids

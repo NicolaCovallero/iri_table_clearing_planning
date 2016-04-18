@@ -118,6 +118,8 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.block_grasp_predicates = this->alg_.getBlockGraspPredicates();
   res.objects_pushing_directions = this->alg_.getPushingDirections();
   res.grasping_poses = this->alg_.getGraspingPoses();
+  res.aabbs = this->alg_.getAABBMsg();
+  res.centroids = this->alg_.getCentroids();
   for (int i = 0; i < res.grasping_poses.size(); ++i)
   {
     for (int g = 0; g < res.grasping_poses[i].grasping_poses.size(); ++g)
@@ -126,7 +128,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
     }
     
   }
-
+  this->alg_.reset();// free the memory of the class
 
   //unlock previously blocked shared variables
   //this->get_symbolic_predicates_mutex_exit();

@@ -31,6 +31,7 @@ add_message_files(
   OnTopPredicate.msg
   PushingDirections.msg
   GraspingPoses.msg
+  AABB.msg
 )
 
 ## Generate services in the 'srv' folder

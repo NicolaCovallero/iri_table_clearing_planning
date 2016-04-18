@@ -38,6 +38,7 @@
 #include "iri_table_clearing_predicates/OnTopPredicate.h"
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
+#include "iri_table_clearing_predicates/AABB.h"
 
 
 /** default values */
@@ -314,6 +315,12 @@ class TableClearingPredicatesAlgorithm
     std::vector<iri_table_clearing_predicates::PushingDirections> getPushingDirections();
 
     std::vector<iri_table_clearing_predicates::GraspingPoses> getGraspingPoses();
+
+    std::vector<iri_table_clearing_predicates::AABB> getAABBMsg();
+
+    std::vector<geometry_msgs::Point> getCentroids();
+
+    void reset();
 };
 
 #endif
