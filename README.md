@@ -31,6 +31,7 @@ $ rosrun pcl_ros pcd_to_pointcloud name_file.pcd
 
 
 ## TODO: ## 
+1. add modelling option in the launch file of the predicates node
 1. showing in rviz the first action
 2. create the execution node
 3. create a function to predict the states by following the plan.
