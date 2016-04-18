@@ -20,6 +20,14 @@ $ roslaunch iri_fast_downward_wrapper fast_downward_server.launch
 $ roslaunch iri_table_clearing_decision_maker decision_maker.launch 
 
 ```
+To use it with a .pcd file run in another terminal:
+
+```
+#!c++
+
+$ rosrun pcl_ros pcd_to_pointcloud name_file.pcd 
+
+```
 
 
 ## TODO: ## 
