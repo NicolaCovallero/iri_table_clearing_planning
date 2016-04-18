@@ -21,8 +21,8 @@
   <!-- Launch the main node to control the process -->
   <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
        name="iri_table_clearing_decision_maker" output="screen">
+       <param name="input_topic" value="/cloud_pcd"/>
   </node>
-
 
   <!-- Launch Rviz with the correct configuration -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find iri_table_clearing_decision_maker)/config/rviz.rviz"/>

@@ -42,6 +42,7 @@
 
 
 const std::string FRAME_ID = "/base_link";
+const std::string INPUT_TOPIC = "/camera/depth_registered/points";
 
 /**
  * \brief IRI ROS Specific Algorithm Class

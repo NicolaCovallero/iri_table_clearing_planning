@@ -10,8 +10,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
   ros::service::waitForService("/get_fast_downward_plan",2);
 
-  std::string frame_id;
+  std::string frame_id, input_topic;
   this->public_node_handle_.param("frame_id",frame_id,FRAME_ID);
+  this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
   this->alg_.setFrameId(frame_id);
 
   // [init publishers]
@@ -21,7 +22,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   
   // [init subscribers]
   //this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
-  this->kinect_subscriber_ = this->public_node_handle_.subscribe("/cloud_pcd", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
+  this->kinect_subscriber_ = this->public_node_handle_.subscribe(input_topic, 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
   pthread_mutex_init(&this->kinect_mutex_,NULL);
 
   
