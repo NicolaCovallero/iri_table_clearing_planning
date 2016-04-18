@@ -6,8 +6,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
 
-  ros::service::waitForService("/segments_objects",2);// 2 seconds
-  ros::service::waitForService("iri_table_clearing_predicates/get_symbolic_predicates",2);
+  ros::service::waitForService("/iri_tos_supervoxels_alg/object_segmentation",2);// 2 seconds
+  ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
+  ros::service::waitForService("/get_fast_downward_plan",2);
 
   // [init publishers]
   
@@ -21,9 +22,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init clients]
   get_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardPlan>("/get_fast_downward_plan");
 
-  segments_objects_client_ = this->public_node_handle_.serviceClient<iri_tos_supervoxels::object_segmentation>("/segments_objects");
+  segments_objects_client_ = this->public_node_handle_.serviceClient<iri_tos_supervoxels::object_segmentation>("/iri_tos_supervoxels_alg/object_segmentation");
 
-  get_symbolic_predicates_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_predicates::Predicates>("iri_table_clearing_predicates/get_symbolic_predicates");
+  get_symbolic_predicates_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_predicates::Predicates>("/table_clearing_predicates_alg_node/get_symbolic_predicates");
   
   
 
