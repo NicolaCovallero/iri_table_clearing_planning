@@ -13,7 +13,8 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init publishers]
   
   // [init subscribers]
-  this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
+  //this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
+  this->kinect_subscriber_ = this->public_node_handle_.subscribe("/cloud_pcd", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
   pthread_mutex_init(&this->kinect_mutex_,NULL);
 
   
@@ -130,7 +131,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   fd_srv.request.symbolic_predicates = this->alg_.prepareSymbolicPredicatesMsg();
   fd_srv.request.goal = this->alg_.prepareGoalMsg();
 
-  if(get_fast_downward_plan_client_.call(fd_srv))
+  if(!get_fast_downward_plan_client_.call(fd_srv))
   {
     ROS_ERROR("Impossible getting the Fast Downward plan");
     return;

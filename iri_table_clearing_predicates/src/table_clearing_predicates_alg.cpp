@@ -121,16 +121,28 @@ std::vector<iri_table_clearing_predicates::BlockPredicate> TableClearingPredicat
 	{
 		// dir 1
 		for (int p = 0; p < block_predicates[i].block_dir1.size(); ++p)
+		{
 			block_predicates_msgs[i].dir1.push_back(block_predicates[i].block_dir1[p]);
+			std::cout << " object " << i << " is blocked by object " << block_predicates[i].block_dir1[p] << " in direction 1\n";
+		}
 		// dir 2
 		for (int p = 0; p < block_predicates[i].block_dir2.size(); ++p)
+		{
 			block_predicates_msgs[i].dir2.push_back(block_predicates[i].block_dir2[p]);
+			std::cout << " object " << i << " is blocked by object " << block_predicates[i].block_dir2[p] << " in direction 2\n";
+		}
 		// dir 3
 		for (int p = 0; p < block_predicates[i].block_dir3.size(); ++p)
+		{
 			block_predicates_msgs[i].dir3.push_back(block_predicates[i].block_dir3[p]);
+			std::cout << " object " << i << " is blocked by object " << block_predicates[i].block_dir3[p] << " in direction 3\n";
+		}
 		// dir 4
 		for (int p = 0; p < block_predicates[i].block_dir4.size(); ++p)
+		{
 			block_predicates_msgs[i].dir4.push_back(block_predicates[i].block_dir4[p]);
+			std::cout << " object " << i << " is blocked by object " << block_predicates[i].block_dir4	[p] << " in direction 4\n";
+		}
 	}
 
 	return block_predicates_msgs;
@@ -161,6 +173,7 @@ std::vector<iri_table_clearing_predicates::BlockGraspPredicate> TableClearingPre
 
 	for (int i = 0; i < block_grasp_predicates.size(); ++i)
 	{
+		block_grasp_predicates_msg[i].object.resize(0);
 		for (int p = 0; p < block_grasp_predicates[i].size(); ++p)
 		{
 			block_grasp_predicates_msg[i].object.push_back(block_grasp_predicates[i][p]);

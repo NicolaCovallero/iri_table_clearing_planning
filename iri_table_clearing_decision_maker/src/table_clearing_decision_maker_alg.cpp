@@ -33,6 +33,7 @@ std::vector<iri_fast_downward_wrapper::Object> TableClearingDecisionMakerAlgorit
 		object_name += convert.str();
 		object.object_name = object_name;
 		object.type = "obj";
+		objects_msg.push_back(object);
 	}
 	return objects_msg;
 }
@@ -42,49 +43,75 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 	iri_fast_downward_wrapper::SymbolicPredicate tmp;
 
 	// ---------------- Add Blocks Predicates ---------------------------------
-	tmp.predicate_name = "block";
+	tmp.objects.resize(2); // the block predicates only involves 2 objects
 	for (int i = 0; i < this->blocks_predicates.size(); ++i)
 	{
-		tmp.objects.resize(2); // the block predicates only involves 2 objects
-		std::string object_name = "o";
-		std::ostringstream convert;   // stream used for the conversion
-		convert << i;
-		object_name += convert.str();
-		tmp.objects[0] = object_name;
 		for (int p = 0; p < this->blocks_predicates[i].dir1.size(); ++p)
 		{
+			tmp.predicate_name = "block_dir1";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
-			convert << this->blocks_predicates[i].dir1[p];
+			convert << i;
 			object_name += convert.str();
 			tmp.objects[1] = object_name;
+
+			std::string object_name2 = "o";
+			std::ostringstream convert2;   // stream used for the conversion
+			convert2 << this->blocks_predicates[i].dir1[p];
+			object_name2 += convert2.str();
+			tmp.objects[0] = object_name2;
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir2.size(); ++p)
 		{
+			tmp.predicate_name = "block_dir2";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
-			convert << this->blocks_predicates[i].dir2[p];
+			convert << i;
 			object_name += convert.str();
-			tmp.objects[1] = object_name;	
+			tmp.objects[1] = object_name;
+
+			std::string object_name2 = "o";
+			std::ostringstream convert2;   // stream used for the conversion
+			convert2 << this->blocks_predicates[i].dir2[p];
+			object_name2 += convert2.str();
+			tmp.objects[0] = object_name2;	
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir3.size(); ++p)
 		{
+			tmp.predicate_name = "block_dir3";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
-			convert << this->blocks_predicates[i].dir3[p];
+			convert << i;
 			object_name += convert.str();
 			tmp.objects[1] = object_name;
+
+			std::string object_name2 = "o";
+			std::ostringstream convert2;   // stream used for the conversion
+			convert2 << this->blocks_predicates[i].dir3[p];
+			object_name2 += convert2.str();
+			tmp.objects[0] = object_name2;
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir4.size(); ++p)
 		{
+			tmp.predicate_name = "block_dir4";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
-			convert << this->blocks_predicates[i].dir4[p];
+			convert << i;
 			object_name += convert.str();
 			tmp.objects[1] = object_name;
+
+			std::string object_name2 = "o";
+			std::ostringstream convert2;   // stream used for the conversion
+			convert2 << this->blocks_predicates[i].dir4[p];
+			object_name2 += convert2.str();
+			tmp.objects[0] = object_name2;
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 	}
@@ -119,14 +146,14 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 		std::ostringstream convert;   // stream used for the conversion
 		convert << i;
 		object_name += convert.str();
-		tmp.objects[0] = object_name;
+		tmp.objects[1] = object_name;
 		for (int p = 0; p < this->block_grasp_predicates[i].object.size(); ++p)
 		{
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
 			convert << this->block_grasp_predicates[i].object[p];
 			object_name += convert.str();
-			tmp.objects[1] = object_name;
+			tmp.objects[0] = object_name;
 			blocks_predicates_msg.push_back(tmp);
 		}
 	}
@@ -137,6 +164,13 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 {
 	std::string goal;
+
+	// this is ok only for cluttered scene 6.pcd it is not aumatized
+	goal = "(and \n\
+				(grasped o0)\n\
+				(grasped o1)\n\
+				(grasped o2)\n\
+			)";
 
 	return goal;
 }
