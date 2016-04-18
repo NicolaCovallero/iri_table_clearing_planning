@@ -34,7 +34,11 @@
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 
+
 #include "iri_fast_downward_wrapper/Object.h"
+#include "iri_fast_downward_wrapper/SymbolicPredicate.h"
+
+#include "table_clearing_planning.h"
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -53,6 +57,20 @@ class TableClearingDecisionMakerAlgorithm
     pthread_mutex_t access_;    
 
     // private attributes and methods
+
+    /**
+     * Number of objects
+     */
+    uint n_objects;
+
+    // std::vector<BlocksPredicate> blocks_predicates;
+    // std::vector<std::vector<uint> > on_top_predicates;
+    // std::vector<std::vector<uint> > block_grasp_predicates;
+    std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates;
+    std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates;
+    std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
+    std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
+    std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
 
   public:
    /**
@@ -134,11 +152,40 @@ class TableClearingDecisionMakerAlgorithm
     */
     ~TableClearingDecisionMakerAlgorithm(void);
 
-    std::vector<iri_fast_downward_wrapper::Object> prepareObjectsMsg(uint n_objects);
-    void prepareBlockPredicatesMsg();
-    void prepareBlockGraspPredicatesMsg();
-    void prepareOnTopPredicatesMsg();
+    /**
+     * @brief Prepare the object message
+     * @details [long description]
+     * 
+     * @param n_objects [description]
+     * @return [description]
+     */
+    std::vector<iri_fast_downward_wrapper::Object> prepareObjectsMsg();
+
+    /**
+     * @brief Prepare the Symbolic message for the iri_clearing_predicates server
+     * @details Given the vectors of predicates it creates the Symbolic message of all the predicates.
+     * 
+     * @param block_predicates
+     * @param on_top_predicates
+     * @param block_grasp_predicates
+     * @return Symbolic predicate message
+     */
+    std::vector<iri_fast_downward_wrapper::SymbolicPredicate> prepareSymbolicPredicatesMsg();
+
+    /**
+     * @brief Prepare Goal message
+     * @details [long description]
+     * @return [description]
+     */
     std::string prepareGoalMsg();
+
+    void setNumberObjects(uint n_objects);
+
+    void setBlockPredicates(std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates);
+    void setOnTopPredicates(std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates);
+    void setBlockGraspPredicates(std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates);
+    void setPushingDirections(std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions);
+    void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
 };
 
 #endif

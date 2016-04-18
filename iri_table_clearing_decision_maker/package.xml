@@ -41,9 +41,13 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>iri_base_algorithm</build_depend>
+  <build_depend>map_msgs</build_depend>
+  <build_depend>iri_fast_downward_wrapper</build_depend>
   <build_depend>iri_tos_supervoxels</build_depend>
   <build_depend>iri_table_clearing_predicates</build_depend>
   <run_depend>iri_base_algorithm</run_depend>
+  <run_depend>map_msgs</run_depend>
+  <run_depend>iri_fast_downward_wrapper</run_depend>
   <run_depend>iri_tos_supervoxels</run_depend>
   <run_depend>iri_table_clearing_predicates</run_depend>
 

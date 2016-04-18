@@ -29,8 +29,10 @@
 #include "table_clearing_decision_maker_alg.h"
 
 // [publisher subscriber headers]
+#include <sensor_msgs/PointCloud2.h>
 
 // [service client headers]
+#include <iri_fast_downward_wrapper/FastDownwardPlan.h>
 #include <iri_tos_supervoxels/object_segmentation.h>
 #include <iri_table_clearing_predicates/Predicates.h>
 
@@ -46,10 +48,19 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     // [publisher attributes]
 
     // [subscriber attributes]
+    ros::Subscriber kinect_subscriber_;
+    void kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
+    pthread_mutex_t kinect_mutex_;
+    void kinect_mutex_enter(void);
+    void kinect_mutex_exit(void);
+
 
     // [service attributes]
 
     // [client attributes]
+    ros::ServiceClient get_fast_downward_plan_client_;
+    iri_fast_downward_wrapper::FastDownwardPlan get_fast_downward_plan_srv_;
+
     ros::ServiceClient segments_objects_client_;
     iri_tos_supervoxels::object_segmentation segments_objects_srv_;
 
