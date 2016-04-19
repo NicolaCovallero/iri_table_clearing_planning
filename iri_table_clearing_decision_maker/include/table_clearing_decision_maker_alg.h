@@ -55,7 +55,7 @@
 
 #include <string>
 
-
+const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -95,7 +95,6 @@ class TableClearingDecisionMakerAlgorithm
 
     iri_fast_downward_wrapper::Plan plan;
     std::string frame_id;   
-    std::string goal;
   public:
    /**
     * \brief define config type
@@ -216,7 +215,6 @@ class TableClearingDecisionMakerAlgorithm
     void setCentroids(std::vector<geometry_msgs::Point> centroids);
     void setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients);
     void setPrincipalDirections(std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions);
-    void setGoal(std::string goal);
 
     visualization_msgs::Marker firstActionMarker();
 

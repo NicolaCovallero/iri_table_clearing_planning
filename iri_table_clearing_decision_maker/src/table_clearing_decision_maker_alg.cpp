@@ -4,15 +4,6 @@ TableClearingDecisionMakerAlgorithm::TableClearingDecisionMakerAlgorithm(void)
 {
   pthread_mutex_init(&this->access_,NULL);
 
-	// this is ok only for cluttered scene 6.pcd it is not aumatized
-	// goal = "(and \n\
-	// 			(grasped o0)\n\
-	// 			(grasped o1)\n\
-	// 			(grasped o2)\n\
-	// 		)";
-	// goal = "(not (exists (?x - obj)(block_dir3 ?x o1)))";	
-	// goal = "(grasped o6)";
-	this->goal = "(not (exists (?x - obj)(not (grasped ?x))))";
 }
 
 TableClearingDecisionMakerAlgorithm::~TableClearingDecisionMakerAlgorithm(void)
@@ -173,7 +164,7 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 
 std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 {
-	return this->goal;
+	return this->config_.goal;
 }
 void TableClearingDecisionMakerAlgorithm::setNumberObjects(uint n_objects)
 {
@@ -226,10 +217,7 @@ void TableClearingDecisionMakerAlgorithm::setPrincipalDirections(std::vector<iri
 {
 	this->principal_directions = principal_directions;
 }
-void TableClearingDecisionMakerAlgorithm::setGoal(std::string goal)
-{
-	this->goal = goal;
-}
+
 void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
 {
   // std::cout << "Creating cloud message\n";

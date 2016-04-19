@@ -204,10 +204,13 @@ void TableClearingDecisionMakerAlgNode::kinect_mutex_exit(void)
 void TableClearingDecisionMakerAlgNode::node_config_update(Config &config, uint32_t level)
 {
   this->alg_.lock();
-  this->config_=config;
-
-  this->alg_.setGoal(config.goal);
-
+  if(config.default_goal)
+  {
+    config.goal = GOAL;
+    config.default_goal = false;
+  }
+  this->config_= config;
+  
   this->alg_.unlock();
 }
 

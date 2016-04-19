@@ -157,25 +157,25 @@ void TableClearingPredicatesAlgNode::node_config_update(Config &config, uint32_t
 {
   this->alg_.lock();
 
-
-  //this->config_=config;
+  this->config_=config;
   this->alg_.setOnTopParameters(config.on_th1,config.on_th2);
 
-  this->alg_.setGripperSimpleModel( config.ee_height, config.ee_deep,
-                                    config.opening_width + 2 * config.finger_width,
-                                    config.pushing_distance_plane);         
-  this->alg_.setFingersModel(config.opening_width, config.finger_width, config.finger_deep,
-                             config.gripper_height, config.closing_region_height);
+  // this->alg_.setGripperSimpleModel( config.ee_height, config.ee_deep,
+  //                                   config.opening_width + 2 * config.finger_width,
+  //                                   config.pushing_distance_plane);         
+  // this->alg_.setFingersModel(config.opening_width, config.finger_width, config.finger_deep,
+  //                            config.gripper_height, config.closing_region_height);
 
-  std::cout << "Parameters set: \n"
-            << "opening_width: " << config.opening_width << std::endl
-            << "finger_width: " << config.finger_width << std::endl
-            << "gripper_height: " << config.gripper_height << std::endl
-            << "closing_region_height: " << config.closing_region_height << std::endl
-            << "finger_deep: " << config.finger_deep << std::endl
-            << "pushing_distance_plane: " << config.pushing_distance_plane << std::endl
-            << "ee_height: " << config.ee_height << std::endl
-            << "ee_deep: " << config.ee_deep << std::endl; 
+  // std::cout << "Dynamic Reconfigure\n";
+  // std::cout << "Parameters set: \n"
+  //           << "opening_width: " << config.opening_width << std::endl
+  //           << "finger_width: " << config.finger_width << std::endl
+  //           << "gripper_height: " << config.gripper_height << std::endl
+  //           << "closing_region_height: " << config.closing_region_height << std::endl
+  //           << "finger_deep: " << config.finger_deep << std::endl
+  //           << "pushing_distance_plane: " << config.pushing_distance_plane << std::endl
+  //           << "ee_height: " << config.ee_height << std::endl
+  //           << "ee_deep: " << config.ee_deep << std::endl; 
 
   this->alg_.unlock();
 }
