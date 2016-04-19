@@ -32,6 +32,7 @@ add_message_files(
   PushingDirections.msg
   GraspingPoses.msg
   AABB.msg
+  PrincipalDirections.msg
 )
 
 ## Generate services in the 'srv' folder

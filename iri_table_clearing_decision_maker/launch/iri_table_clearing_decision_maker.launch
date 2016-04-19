@@ -1,7 +1,7 @@
 <launch>
   <!-- services -->
   <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
-    <arg name="screen" value="false"/>
+    <arg name="screen" value="true"/>
   </include>
 
   <!-- Launch service for the predicates -->
@@ -25,6 +25,9 @@
   </node>
 
   <!-- Launch Rviz with the correct configuration -->
+  <!--
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find iri_table_clearing_decision_maker)/config/rviz.rviz"/>
+  -->
+  <include file="$(find iri_table_clearing_decision_maker)/launch/rqt_gui.launch"/>
 
 </launch>

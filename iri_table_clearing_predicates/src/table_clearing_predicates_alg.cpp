@@ -3,6 +3,7 @@
 TableClearingPredicatesAlgorithm::TableClearingPredicatesAlgorithm(void)
 {
   pthread_mutex_init(&this->access_,NULL);
+  this->setOnTopParameters(ON_TH1, ON_TH2);
 }
 
 TableClearingPredicatesAlgorithm::~TableClearingPredicatesAlgorithm(void)
@@ -82,9 +83,9 @@ void TableClearingPredicatesAlgorithm::computeRichConvexHulls()
 	this->tcp.computeRichConvexHulls();
 }
 
-void TableClearingPredicatesAlgorithm::computeOnTopPredicates(bool print)
+void TableClearingPredicatesAlgorithm::computeOnTopPredicates(double th1, double th2, bool print)
 {
-	this->tcp.computeOnTopPredicates(print);
+	this->tcp.computeOnTopPredicates(th1, th2, print);
 }
 
 void TableClearingPredicatesAlgorithm::computeBlockPredicates(bool print)
@@ -270,4 +271,34 @@ std::vector<geometry_msgs::Point> TableClearingPredicatesAlgorithm::getCentroids
 	}
 
 	return centroids_msg;
+}
+std::vector<iri_table_clearing_predicates::PrincipalDirections> TableClearingPredicatesAlgorithm::getPrincipalDirections()
+{
+	std::vector<OriginalPrincipalDirections> opd = this->tcp.getOriginalPrincipalDirections();	
+	std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions_msg;
+	
+	for (int i = 0; i < opd.size(); ++i)
+	{
+		iri_table_clearing_predicates::PrincipalDirections p_tmp;
+		p_tmp.p1.x = opd[i].p1[0];
+		p_tmp.p1.y = opd[i].p1[1];
+		p_tmp.p1.z = opd[i].p1[2];
+
+		p_tmp.p2.x = opd[i].p2[0];
+		p_tmp.p2.y = opd[i].p2[1];
+		p_tmp.p2.z = opd[i].p2[2];
+
+		p_tmp.p3.x = opd[i].p3[0];
+		p_tmp.p3.y = opd[i].p3[1];
+		p_tmp.p3.z = opd[i].p3[2];
+
+		principal_directions_msg.push_back(p_tmp);
+	}
+
+	return principal_directions_msg;
+}
+void TableClearingPredicatesAlgorithm::setOnTopParameters(double on_th1, double on_th2)
+{
+	this->on_th1 = on_th1;
+	this->on_th2 = on_th2;
 }

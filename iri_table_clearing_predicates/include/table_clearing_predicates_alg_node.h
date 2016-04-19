@@ -35,6 +35,11 @@
 
 // [action server client headers]
 
+
+
+double on_th1 = ON_TH1;
+double on_th2 = ON_TH2;
+
 /**
  * \brief IRI ROS Specific Algorithm Class
  *

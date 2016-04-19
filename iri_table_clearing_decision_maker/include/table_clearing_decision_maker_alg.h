@@ -35,6 +35,8 @@
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
 #include "iri_tos_supervoxels/plane_coefficients.h"
+#include "iri_table_clearing_predicates/PrincipalDirections.h"
+
 
 
 #include "iri_fast_downward_wrapper/Object.h"
@@ -51,6 +53,7 @@
 
 #include <pcl_conversions/pcl_conversions.h>
 
+#include <string>
 
 
 
@@ -85,9 +88,14 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
+    std::vector<geometry_msgs::Point> centroids;
+    iri_tos_supervoxels::plane_coefficients plane_coefficients;
+    geometry_msgs::Vector3 plane_normal;
+    std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions;
 
     iri_fast_downward_wrapper::Plan plan;
     std::string frame_id;   
+    std::string goal;
   public:
    /**
     * \brief define config type
@@ -205,6 +213,10 @@ class TableClearingDecisionMakerAlgorithm
 
     void setPlan(iri_fast_downward_wrapper::Plan plan);
     void setFrameId(std::string frame_id);
+    void setCentroids(std::vector<geometry_msgs::Point> centroids);
+    void setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients);
+    void setPrincipalDirections(std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions);
+    void setGoal(std::string goal);
 
     visualization_msgs::Marker firstActionMarker();
 
@@ -212,8 +224,9 @@ class TableClearingDecisionMakerAlgorithm
 
     void showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
                               ros::Publisher& label_pub,
-                              std::vector<iri_table_clearing_predicates::AABB> aabbs,
-                              iri_tos_supervoxels::plane_coefficients plane_coefficients);
+                              std::vector<iri_table_clearing_predicates::AABB> aabbs);
+
+    void showFirstActionRViz(ros::Publisher& action_pub);
 };
 
 #endif

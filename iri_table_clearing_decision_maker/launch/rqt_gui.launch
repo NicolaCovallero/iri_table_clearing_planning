@@ -1,0 +1,7 @@
+<launch>
+  
+  <!-- Launch rqt_gui with the desired perspective -->
+  <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find iri_table_clearing_decision_maker)/config/table_clearing.perspective"/>
+
+
+</launch>

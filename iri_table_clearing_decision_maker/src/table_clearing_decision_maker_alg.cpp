@@ -3,6 +3,16 @@
 TableClearingDecisionMakerAlgorithm::TableClearingDecisionMakerAlgorithm(void)
 {
   pthread_mutex_init(&this->access_,NULL);
+
+	// this is ok only for cluttered scene 6.pcd it is not aumatized
+	// goal = "(and \n\
+	// 			(grasped o0)\n\
+	// 			(grasped o1)\n\
+	// 			(grasped o2)\n\
+	// 		)";
+	// goal = "(not (exists (?x - obj)(block_dir3 ?x o1)))";	
+	// goal = "(grasped o6)";
+	this->goal = "(not (exists (?x - obj)(not (grasped ?x))))";
 }
 
 TableClearingDecisionMakerAlgorithm::~TableClearingDecisionMakerAlgorithm(void)
@@ -163,19 +173,7 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 
 std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 {
-	std::string goal;
-
-	// this is ok only for cluttered scene 6.pcd it is not aumatized
-	// goal = "(and \n\
-	// 			(grasped o0)\n\
-	// 			(grasped o1)\n\
-	// 			(grasped o2)\n\
-	// 		)";
-	// goal = "(not (exists (?x - obj)(block_dir3 ?x o1)))";	
-	// goal = "(grasped o6)";
-	goal = "(not (exists (?x - obj)(not (grasped ?x))))";
-
-	return goal;
+	return this->goal;
 }
 void TableClearingDecisionMakerAlgorithm::setNumberObjects(uint n_objects)
 {
@@ -212,6 +210,25 @@ void TableClearingDecisionMakerAlgorithm::setFrameId(std::string frame_id)
 visualization_msgs::Marker TableClearingDecisionMakerAlgorithm::firstActionMarker()
 {
 	visualization_msgs::Marker marker;
+}
+void TableClearingDecisionMakerAlgorithm::setCentroids(std::vector<geometry_msgs::Point> centroids)
+{
+	this->centroids = centroids;
+}
+void TableClearingDecisionMakerAlgorithm::setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients)
+{
+	this->plane_coefficients = plane_coefficients;
+	this->plane_normal.x = plane_coefficients.a;
+	this->plane_normal.y = plane_coefficients.b;
+	this->plane_normal.z = plane_coefficients.c;
+}
+void TableClearingDecisionMakerAlgorithm::setPrincipalDirections(std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions)
+{
+	this->principal_directions = principal_directions;
+}
+void TableClearingDecisionMakerAlgorithm::setGoal(std::string goal)
+{
+	this->goal = goal;
 }
 void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
 {
@@ -254,8 +271,7 @@ void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msg
 }
 void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
                               ros::Publisher& label_pub,
-                              std::vector<iri_table_clearing_predicates::AABB> aabbs,
-                              iri_tos_supervoxels::plane_coefficients plane_coefficients)
+                              std::vector<iri_table_clearing_predicates::AABB> aabbs)
 {
 	visualization_msgs::MarkerArray markers;
 	if(aabbs.size() != centroids.size())
@@ -290,4 +306,125 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 		markers.markers.push_back(marker);
 	}
 	label_pub.publish(markers);
+}
+void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& action_pub)
+{
+	// read the first action of the plan
+	if(plan.actions.size() == 0)
+	{
+		ROS_ERROR("showFirstActionRViz -> No plan is set.");
+		return;
+	}
+
+	double arrow_length = 0.3; //length arrow
+
+	visualization_msgs::Marker marker;
+	marker.header.frame_id = this->frame_id;
+	marker.header.stamp = ros::Time();
+	// marker.header.seq = i;
+	marker.ns = "first_action";
+	marker.id = 0;
+	marker.type = visualization_msgs::Marker::ARROW;
+	marker.action = visualization_msgs::Marker::ADD;
+	marker.color.a = 1.0;
+	marker.scale.x = 0.02; // shaft diameter
+  	marker.scale.y = 0.02; // head diameter
+  	marker.scale.z = 0.07; // head length
+
+	// get the id of the object
+	std::string object = plan.actions[0].objects[0];
+	object.erase(0,1); //erase the first character which is "o"
+	int idx_obj;
+	int Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
+	if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+	{
+		ROS_ERROR("Problem retrieving the number of the object from the plan");
+		return;
+	}
+
+	// check if it is a pushing in direction 1
+	if(strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
+	{
+		marker.color.g = 1.0;
+		geometry_msgs::Point p1;
+		p1.x = centroids[idx_obj].x;
+		p1.y = centroids[idx_obj].y;
+		p1.z = centroids[idx_obj].z;
+		marker.points.push_back(p1);
+
+		geometry_msgs::Point p2;
+		p2.x = p1.x + this->pushing_directions[idx_obj].dir1.x * arrow_length;
+		p2.y = p1.y + this->pushing_directions[idx_obj].dir1.y * arrow_length;
+		p2.z = p1.z + this->pushing_directions[idx_obj].dir1.z * arrow_length;
+		marker.points.push_back(p2);
+	}
+	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
+	{
+		marker.color.g = 1.0;
+		geometry_msgs::Point p1;
+		p1.x = centroids[idx_obj].x;
+		p1.y = centroids[idx_obj].y;
+		p1.z = centroids[idx_obj].z;
+		marker.points.push_back(p1);
+
+		geometry_msgs::Point p2;
+		p2.x = p1.x + this->pushing_directions[idx_obj].dir2.x * arrow_length;
+		p2.y = p1.y + this->pushing_directions[idx_obj].dir2.y * arrow_length;
+		p2.z = p1.z + this->pushing_directions[idx_obj].dir2.z * arrow_length;
+		marker.points.push_back(p2);
+	}
+	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
+	{
+		marker.color.g = 1.0;
+		geometry_msgs::Point p1;
+		p1.x = centroids[idx_obj].x;
+		p1.y = centroids[idx_obj].y;
+		p1.z = centroids[idx_obj].z;
+		marker.points.push_back(p1);
+
+		geometry_msgs::Point p2;
+		p2.x = p1.x + this->pushing_directions[idx_obj].dir3.x * arrow_length;
+		p2.y = p1.y + this->pushing_directions[idx_obj].dir3.y * arrow_length;
+		p2.z = p1.z + this->pushing_directions[idx_obj].dir3.z * arrow_length;
+		marker.points.push_back(p2);
+	}
+	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
+	{
+		marker.color.g = 1.0;
+		geometry_msgs::Point p1;
+		p1.x = centroids[idx_obj].x;
+		p1.y = centroids[idx_obj].y;
+		p1.z = centroids[idx_obj].z;
+		marker.points.push_back(p1);
+
+		geometry_msgs::Point p2;
+		p2.x = p1.x + this->pushing_directions[idx_obj].dir4.x * arrow_length;
+		p2.y = p1.y + this->pushing_directions[idx_obj].dir4.y * arrow_length;
+		p2.z = p1.z + this->pushing_directions[idx_obj].dir4.z * arrow_length;
+		marker.points.push_back(p2);
+	}
+	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
+	{
+		marker.color.r = 1.0;
+		geometry_msgs::Point p1;
+		p1.x = centroids[idx_obj].x;
+		p1.y = centroids[idx_obj].y;
+		p1.z = centroids[idx_obj].z;
+		marker.points.push_back(p1);
+
+		if(this->principal_directions.size() == 0 )
+		{
+			ROS_ERROR("Principal directions not set - Impossible creating the action marker for the grasp action");
+			return;
+		}
+
+		// this is not the grasping approaching direction
+		geometry_msgs::Point p2;
+		p2.x = p1.x + this->principal_directions[idx_obj].p3.x * arrow_length;
+		p2.y = p1.y + this->principal_directions[idx_obj].p3.y * arrow_length;
+		p2.z = p1.z + this->principal_directions[idx_obj].p3.z * arrow_length;
+		marker.points.push_back(p2);
+	}
+
+	action_pub.publish(marker);
 }

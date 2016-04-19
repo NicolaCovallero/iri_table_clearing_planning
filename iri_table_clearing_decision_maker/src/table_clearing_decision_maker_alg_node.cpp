@@ -147,8 +147,9 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   //plots label markers 
   this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
                                   this->objects_label_publisher_,
-                                  pre_srv.response.aabbs,
-                                  tos_srv.response.plane_coeff);
+                                  pre_srv.response.aabbs);
+  this->alg_.setCentroids(pre_srv.response.centroids);
+  this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
 
   //save the predicates
   this->alg_.setBlockPredicates(pre_srv.response.block_predicates);
@@ -156,6 +157,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   this->alg_.setBlockGraspPredicates(pre_srv.response.block_grasp_predicates);
   this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
   this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
+  this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
 
   iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
   fd_srv.request.objects = this->alg_.prepareObjectsMsg();
@@ -172,7 +174,9 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   // if(!fd_srv.response.feasible)
   //   ROS_ERROR("There is not a feasible plan for such a problem");
 
-  
+  this->alg_.setPlan(fd_srv.response.plan);
+    
+  this->alg_.showFirstActionRViz(this->action_marker_publisher_);
 
   //std::cout << msg->data << std::endl;
   //unlock previously blocked shared variables
@@ -201,6 +205,9 @@ void TableClearingDecisionMakerAlgNode::node_config_update(Config &config, uint3
 {
   this->alg_.lock();
   this->config_=config;
+
+  this->alg_.setGoal(config.goal);
+
   this->alg_.unlock();
 }
 

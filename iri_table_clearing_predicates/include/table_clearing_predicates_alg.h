@@ -39,7 +39,7 @@
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
-
+#include "iri_table_clearing_predicates/PrincipalDirections.h"
 
 /** default values */
 const double  OPENING_WIDTH = 0.08;
@@ -51,7 +51,14 @@ const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 
+
+// default values variables 
+const double ON_TH1 = 100;
+const double ON_TH2 = 100;
+
 /**
+ * 
+ * 
  * \brief IRI ROS Specific Driver Class
  *
  *
@@ -72,6 +79,8 @@ class TableClearingPredicatesAlgorithm
 
     typedef pcl::PointXYZRGBA PointT;
     typedef pcl::PointCloud<PointT> PointCloudT;
+
+    double on_th1, on_th2;
 
   public:
    /**
@@ -277,7 +286,7 @@ class TableClearingPredicatesAlgorithm
      *                   THE PROJECTED POINTS ARE TOO MUCH CLOSE
      *                
      */
-    void computeOnTopPredicates(bool print = false);
+    void computeOnTopPredicates(double th1, double th2, bool print = false);
 
         /**
      * @brief Get block predicates
@@ -319,6 +328,10 @@ class TableClearingPredicatesAlgorithm
     std::vector<iri_table_clearing_predicates::AABB> getAABBMsg();
 
     std::vector<geometry_msgs::Point> getCentroids();
+
+    std::vector<iri_table_clearing_predicates::PrincipalDirections> getPrincipalDirections();
+
+    void setOnTopParameters(double on_th1, double on_th2);
 
     void reset();
 };
