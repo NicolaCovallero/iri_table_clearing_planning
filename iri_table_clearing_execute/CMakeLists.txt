@@ -6,7 +6,22 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
+find_package(catkin REQUIRED COMPONENTS 
+	iri_base_algorithm
+	tf
+	std_msgs
+	message_generation
+	geometry_msgs
+	trajectory_msgs
+	control_msgs 
+	moveit_core 
+ 	moveit_ros_planning
+ 	moveit_ros_planning_interface
+ 	iri_common_drivers_msgs 
+ 	iri_wam_common_msgs 
+ 	actionlib_msgs 
+ 	actionlib
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -27,11 +42,10 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   ExecuteAction.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -41,10 +55,10 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs geometry_msgs trajectory_msgs # Or other packages containing msgs
+)
 
 # ******************************************************************** 
 #                 Add the dynamic reconfigure file 
@@ -60,7 +74,21 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm
+ CATKIN_DEPENDS
+ 	iri_base_algorithm
+	tf
+	std_msgs
+	message_generation
+	geometry_msgs
+	trajectory_msgs
+	control_msgs 
+	moveit_core 
+ 	moveit_ros_planning
+ 	moveit_ros_planning_interface
+ 	iri_common_drivers_msgs 
+ 	iri_wam_common_msgs 
+ 	actionlib_msgs 
+ 	actionlib
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 
