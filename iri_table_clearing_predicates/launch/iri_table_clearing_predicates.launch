@@ -1,0 +1,17 @@
+<launch>
+
+  <!-- Launch service for the predicates -->
+    <node pkg="iri_table_clearing_predicates" type="iri_table_clearing_predicates"
+       name="iri_table_clearing_predicates" output="screen">
+       <param name="opening_width" value="0.08"/>
+       <param name="finger_width" value="0.02"/>
+       <param name="gripper_height" value="0.08"/>
+       <param name="closing_region_height" value="0.05"/>
+       <param name="finger_deep" value="0.03"/>
+       <param name="pushing_distance_plane" value="0.025"/>
+       <param name="ee_height" value="0.08"/>
+       <param name="ee_deep" value="0.15"/>
+  </node>
+  
+
+</launch>
