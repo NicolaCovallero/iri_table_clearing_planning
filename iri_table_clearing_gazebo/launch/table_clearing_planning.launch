@@ -2,10 +2,8 @@
 
   <!-- launch the simulation environment and spwam estirabot-->
   <include file="$(find iri_table_clearing_gazebo)/launch/estirabot.launch">
-    <param name="world" value="in_lab"/>
+    <arg name="world" value="test1"/>
   </include>
 
-  <!-- add kinects tfs-->
-  <include file="$(find iri_table_clearing_gazebo)/launch/kinect.launch" />
 
 </launch>

@@ -6,7 +6,7 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS iri_base_algorithm visualization_msgs sensor_msgs map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates)
+find_package(catkin REQUIRED COMPONENTS iri_base_algorithm visualization_msgs sensor_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -63,7 +63,7 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm visualization_msgs sensor_msgs map_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates
+ CATKIN_DEPENDS iri_base_algorithm visualization_msgs sensor_msgs iri_fast_downward_wrapper iri_tos_supervoxels iri_table_clearing_predicates
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 

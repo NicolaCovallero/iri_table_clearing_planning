@@ -23,31 +23,25 @@
     </gui>
 
     <include>
-      <static>true</static>
-      <uri>model://kinect</uri>
-      <pose>1.121476 0.0806 1.786 0.28004929646837085 1.3789308289744695 -2.921351560570253</pose>
-    </include>
-
-    <include>
-      <uri>model://gazebo_pm_models/wam_holder</uri>
+      <uri>model://gazebo_models/wam_holder</uri>
       <name>wam_holder</name>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
     </include>
 
     <include>
-      <uri>model://gazebo_pm_models/lab_table</uri>
+      <uri>model://gazebo_models/lab_table</uri>
       <name>table_1</name>
       <pose>0.525 0.0 0.0 0.0 0.0 0.0</pose>
     </include>
 
     <include>
-      <uri>model://gazebo_pm_models/lab_table</uri>
+      <uri>model://gazebo_models/lab_table</uri>
       <name>table_2</name>
       <pose>1.176 0.0 0.0 0.0 0.0 3.1416</pose>
     </include>
 
     <include>
-      <uri>model://gazebo_pm_models/yellow_mattress</uri>
+      <uri>model://gazebo_models/yellow_mattress</uri>
       <name>yellow_mattress</name>
       <pose>0.85 0.0 0.67 0.0 0.0 0.0</pose>
     </include>

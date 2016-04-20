@@ -10,10 +10,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
   ros::service::waitForService("/get_fast_downward_plan",2);
 
-  std::string frame_id, input_topic;
-  this->public_node_handle_.param("frame_id",frame_id,FRAME_ID);
+  std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
-  this->alg_.setFrameId(frame_id);
+  this->public_node_handle_.param("goal", this->alg_.goal, GOAL);
 
   // [init publishers]
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
@@ -118,7 +117,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
 {
   std::cout << std::endl << std::endl;
   ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_callback: New Message Received");
-
+  this->alg_.setFrameId(msg->header.frame_id); 
   //use appropiate mutex to shared variables if necessary
   //this->alg_.lock();
   //this->kinect_mutex_enter();
@@ -130,6 +129,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     ROS_ERROR("Impossible segmenting the image");
     return;
   }
+  std::cout << tos_srv.response.objects.objects.size() << " Object detected\n";
   this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
   //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
   this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
@@ -204,11 +204,7 @@ void TableClearingDecisionMakerAlgNode::kinect_mutex_exit(void)
 void TableClearingDecisionMakerAlgNode::node_config_update(Config &config, uint32_t level)
 {
   this->alg_.lock();
-  if(config.default_goal)
-  {
-    config.goal = GOAL;
-    config.default_goal = false;
-  }
+
   this->config_= config;
   
   this->alg_.unlock();

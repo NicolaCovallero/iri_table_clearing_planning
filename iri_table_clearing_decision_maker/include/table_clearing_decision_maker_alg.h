@@ -96,6 +96,9 @@ class TableClearingDecisionMakerAlgorithm
     iri_fast_downward_wrapper::Plan plan;
     std::string frame_id;   
   public:
+
+    std::string goal;
+
    /**
     * \brief define config type
     *

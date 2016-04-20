@@ -164,7 +164,8 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 
 std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 {
-	return this->config_.goal;
+	// if the config file is equal to rhw default goal 
+	return this->goal;
 }
 void TableClearingDecisionMakerAlgorithm::setNumberObjects(uint n_objects)
 {
@@ -239,7 +240,7 @@ void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msg
         tmp.points.at(h).r = r*255;
         tmp.points.at(h).g = g*255;
         tmp.points.at(h).b = b*255;
-        ;
+        tmp.points.at(h).a = 1;
       }
 
       segmented_objects_cloud += tmp;
