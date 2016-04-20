@@ -5,6 +5,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 {
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
+  this->alg_.setOn(false);
 
   ros::service::waitForService("/iri_tos_supervoxels_alg/object_segmentation",2);// 2 seconds
   ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
@@ -110,74 +111,89 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // Uncomment the following line to publish the topic message
   //this->cloud_publisher_.publish(this->cloud_PointCloud2_msg_);
 
+  if(this->alg_.getOn())
+  {
+    std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
+
+    sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
+    iri_tos_supervoxels::object_segmentation tos_srv;
+    tos_srv.request.point_cloud = (*msg);
+    if(!segments_objects_client_.call(tos_srv))
+    {
+      ROS_ERROR("Impossible segmenting the image");
+      this->alg_.setOn(false);
+      return;
+    }
+    std::cout << tos_srv.response.objects.objects.size() << " Object detected\n";
+    if(tos_srv.response.objects.objects.size() > 0) // if we have more than 1 object do the stuff
+    {
+      this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
+      //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
+      this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
+
+      iri_table_clearing_predicates::Predicates pre_srv;
+      pre_srv.request.original_cloud = (*msg);
+      pre_srv.request.segmented_objects = tos_srv.response.objects.objects;
+      pre_srv.request.plane_coefficients = tos_srv.response.plane_coeff;
+      if(!get_symbolic_predicates_client_.call(pre_srv))
+      {
+        ROS_ERROR("Impossible getting the predicates");
+        this->alg_.setOn(false);
+        return;
+      } 
+
+      //plots label markers 
+      this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
+                                      this->objects_label_publisher_,
+                                      pre_srv.response.aabbs);
+      this->alg_.setCentroids(pre_srv.response.centroids);
+      this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
+
+      //save the predicates
+      this->alg_.setBlockPredicates(pre_srv.response.block_predicates);
+      this->alg_.setOnTopPredicates(pre_srv.response.on_top_predicates);
+      this->alg_.setBlockGraspPredicates(pre_srv.response.block_grasp_predicates);
+      this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
+      this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
+      this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
+
+      iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
+      fd_srv.request.objects = this->alg_.prepareObjectsMsg();
+      fd_srv.request.symbolic_predicates = this->alg_.prepareSymbolicPredicatesMsg();
+      fd_srv.request.goal = this->alg_.prepareGoalMsg();
+
+      std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
+
+      if(!get_fast_downward_plan_client_.call(fd_srv))
+      {
+        ROS_ERROR("Impossible getting the Fast Downward plan");
+        this->alg_.setOn(false);
+        return;
+      }
+      // if(!fd_srv.response.feasible)
+      //   ROS_ERROR("There is not a feasible plan for such a problem");
+
+      this->alg_.setPlan(fd_srv.response.plan);
+        
+      this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+    }
+    this->alg_.setOn(false);
+  }
 }
 
 /*  [subscriber callbacks] */
 void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
-  std::cout << std::endl << std::endl;
-  ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_callback: New Message Received");
+  
+  //ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_callback: New Message Received");
   this->alg_.setFrameId(msg->header.frame_id); 
+  this->alg_.setPointCloud(*msg);
+  this->alg_.setOn(true);
   //use appropiate mutex to shared variables if necessary
   //this->alg_.lock();
   //this->kinect_mutex_enter();
 
-  iri_tos_supervoxels::object_segmentation tos_srv;
-  tos_srv.request.point_cloud = (*msg);
-  if(!segments_objects_client_.call(tos_srv))
-  {
-    ROS_ERROR("Impossible segmenting the image");
-    return;
-  }
-  std::cout << tos_srv.response.objects.objects.size() << " Object detected\n";
-  this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
-  //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
-  this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
-
-  iri_table_clearing_predicates::Predicates pre_srv;
-  pre_srv.request.original_cloud = (*msg);
-  pre_srv.request.segmented_objects = tos_srv.response.objects.objects;
-  pre_srv.request.plane_coefficients = tos_srv.response.plane_coeff;
-  if(!get_symbolic_predicates_client_.call(pre_srv))
-  {
-    ROS_ERROR("Impossible getting the predicates");
-    return;
-  } 
-
-  //plots label markers 
-  this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
-                                  this->objects_label_publisher_,
-                                  pre_srv.response.aabbs);
-  this->alg_.setCentroids(pre_srv.response.centroids);
-  this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
-
-  //save the predicates
-  this->alg_.setBlockPredicates(pre_srv.response.block_predicates);
-  this->alg_.setOnTopPredicates(pre_srv.response.on_top_predicates);
-  this->alg_.setBlockGraspPredicates(pre_srv.response.block_grasp_predicates);
-  this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
-  this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
-  this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
-
-  iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
-  fd_srv.request.objects = this->alg_.prepareObjectsMsg();
-  fd_srv.request.symbolic_predicates = this->alg_.prepareSymbolicPredicatesMsg();
-  fd_srv.request.goal = this->alg_.prepareGoalMsg();
-
-  std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
-
-  if(!get_fast_downward_plan_client_.call(fd_srv))
-  {
-    ROS_ERROR("Impossible getting the Fast Downward plan");
-    return;
-  }
-  // if(!fd_srv.response.feasible)
-  //   ROS_ERROR("There is not a feasible plan for such a problem");
-
-  this->alg_.setPlan(fd_srv.response.plan);
-    
-  this->alg_.showFirstActionRViz(this->action_marker_publisher_);
-
+  
   //std::cout << msg->data << std::endl;
   //unlock previously blocked shared variables
   //this->alg_.unlock();

@@ -301,7 +301,7 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 	// read the first action of the plan
 	if(plan.actions.size() == 0)
 	{
-		ROS_ERROR("showFirstActionRViz -> No plan is set.");
+		ROS_WARN("showFirstActionRViz -> No plan is set.");
 		return;
 	}
 
@@ -416,4 +416,20 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 	}
 
 	action_pub.publish(marker);
+}
+void TableClearingDecisionMakerAlgorithm::setOn(bool on)
+{
+	this->set = on;
+}
+bool TableClearingDecisionMakerAlgorithm::getOn()
+{
+	return this->set;
+}
+void TableClearingDecisionMakerAlgorithm::setPointCloud(sensor_msgs::PointCloud2 point_cloud)
+{
+	this->point_cloud = point_cloud;
+}
+sensor_msgs::PointCloud2* TableClearingDecisionMakerAlgorithm::getPointCloud()
+{
+	return &(this->point_cloud);
 }

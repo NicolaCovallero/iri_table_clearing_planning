@@ -13,6 +13,7 @@
        <param name="input_topic" value="/estirabot/kinect/depth_registered/points"/>
 
        <!-- This goal is just to separate the objects, without grasping them-->
+      
        <param name="goal" value="(and (not (exists (?x - obj)(or
                                   (exists(?y - obj)(block_dir1 ?y ?x))
                                   (exists(?y - obj)(block_dir2 ?y ?x))
@@ -23,6 +24,12 @@
                                   (not (exists(?x - obj)(grasped ?x)))
                                   )
                                  "/>
+      
+      <!-- This goal is to say to grasp all the objects -->                                 
+      <!--
+      <param name="goal" value="(not (exists (?x - obj)(not (grasped ?x))))"/>
+      -->                         
+                               
   </node>
 
   <!-- Launch Rqt_gui with the correct configuration -->

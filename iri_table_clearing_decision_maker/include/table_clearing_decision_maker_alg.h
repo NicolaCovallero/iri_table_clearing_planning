@@ -95,9 +95,14 @@ class TableClearingDecisionMakerAlgorithm
 
     iri_fast_downward_wrapper::Plan plan;
     std::string frame_id;   
+
+    sensor_msgs::PointCloud2 point_cloud;
+    bool set;
+
   public:
 
     std::string goal;
+    ;
 
    /**
     * \brief define config type
@@ -228,6 +233,12 @@ class TableClearingDecisionMakerAlgorithm
                               std::vector<iri_table_clearing_predicates::AABB> aabbs);
 
     void showFirstActionRViz(ros::Publisher& action_pub);
+
+    void setOn(bool on);
+    bool getOn();
+    void setPointCloud(sensor_msgs::PointCloud2 point_cloud);
+    sensor_msgs::PointCloud2* getPointCloud();
+
 };
 
 #endif
