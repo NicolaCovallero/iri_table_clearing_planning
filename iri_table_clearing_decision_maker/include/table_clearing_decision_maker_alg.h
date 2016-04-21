@@ -33,9 +33,12 @@
 #include "iri_table_clearing_predicates/OnTopPredicate.h"
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
+#include "iri_table_clearing_predicates/PushingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
 #include "iri_tos_supervoxels/plane_coefficients.h"
 #include "iri_table_clearing_predicates/PrincipalDirections.h"
+#include "iri_table_clearing_execute/ExecutePushing.h"
+#include "iri_table_clearing_execute/ExecuteGrasping.h"
 
 
 
@@ -88,6 +91,7 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
+    std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
     std::vector<geometry_msgs::Point> centroids;
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
     geometry_msgs::Vector3 plane_normal;
@@ -98,6 +102,9 @@ class TableClearingDecisionMakerAlgorithm
 
     sensor_msgs::PointCloud2 point_cloud;
     bool set;
+
+    int pushing_discretization;
+    double pushing_limit;
 
   public:
 
@@ -217,6 +224,7 @@ class TableClearingDecisionMakerAlgorithm
     void setBlockGraspPredicates(std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates);
     void setPushingDirections(std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions);
     void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
+    void setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses); 
 
     void setPlan(iri_fast_downward_wrapper::Plan plan);
     void setFrameId(std::string frame_id);
@@ -238,6 +246,20 @@ class TableClearingDecisionMakerAlgorithm
     bool getOn();
     void setPointCloud(sensor_msgs::PointCloud2 point_cloud);
     sensor_msgs::PointCloud2* getPointCloud();
+
+    void setPushingDiscretizationAndLimit(int pushing_discretization, double pushing_limit);
+
+    /**
+     * @brief It returns 1 for the grasping action or 0 for the pushing, and -1 for a non accepted action, or -2 in case of error
+     * @details [long description]
+     * 
+     * @param grasping [description]
+     * @param pushing [description]
+     * 
+     * @return [description]
+     */
+    int setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
+                    iri_table_clearing_execute::ExecutePushing& pushing);
 
 };
 

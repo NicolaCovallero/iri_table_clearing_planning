@@ -2,7 +2,7 @@
 
   <!-- launch the simulation environment and spwam estirabot-->
   <include file="$(find iri_table_clearing_gazebo)/launch/estirabot.launch">
-    <arg name="world" value="test1"/>
+    <arg name="world" value="test2"/>
   </include>
 
 

@@ -1,5 +1,0 @@
-string action # 'grasp' or 'push'
-geometry_msgs/PoseStamped pose #initial pose of the action, wich could be for grasping or pushing
-trajectory_msgs/JointTrajectory pushing_trajectory # used only in case this is a push
----
-bool success

@@ -22,90 +22,39 @@
 // refer to the IRI wiki page for more information:
 // http://wikiri.upc.es/index.php/Robotics_Lab
 
-#ifndef _table_clearing_decision_maker_alg_node_h_
-#define _table_clearing_decision_maker_alg_node_h_
+#ifndef _test_alg_node_h_
+#define _test_alg_node_h_
 
 #include <iri_base_algorithm/iri_base_algorithm.h>
-#include "table_clearing_decision_maker_alg.h"
+#include "test_alg.h"
 
 // [publisher subscriber headers]
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <sensor_msgs/PointCloud2.h>
 
 // [service client headers]
-#include <iri_table_clearing_execute/ExecuteGrasping.h>
 #include <iri_table_clearing_execute/ExecutePushing.h>
-#include <iri_fast_downward_wrapper/FastDownwardPlan.h>
-#include <iri_tos_supervoxels/object_segmentation.h>
-#include <iri_table_clearing_predicates/Predicates.h>
 
 // [action server client headers]
-
-
-const std::string FRAME_ID = "/base_link";
-const std::string INPUT_TOPIC = "/camera/depth_registered/points";
-const int PUSHING_DISCRETIZATION = 10; // 10 points 
-const int PUSHING_LIMIT = 0.10; // 0.1 meters
-
-const std::string SEGMENTATION_SERVICE = "/iri_tos_supervoxels_alg/object_segmentation";
-const std::string PREDICATES_SERVICE = "/table_clearing_predicates_alg_node/get_symbolic_predicates";
-const std::string PLANNER_SERVICE = "/get_fast_downward_plan";
-const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
-const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_pushing";
-
-const bool EXECUTION = false;
-
-// services name
-std::string segmentation_service, predicates_service, planner_service, execute_pushing_service, execute_grasping_service;
-
-bool execution; //true if it is the execution wanted
-
 
 /**
  * \brief IRI ROS Specific Algorithm Class
  *
  */
-class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>
+class TestAlgNode : public algorithm_base::IriBaseAlgorithm<TestAlgorithm>
 {
   private:
     // [publisher attributes]
-    ros::Publisher action_marker_publisher_;
-    visualization_msgs::Marker action_Marker_msg_;
-
-    ros::Publisher objects_label_publisher_;
-    visualization_msgs::MarkerArray objects_label_MarkerArray_msg_;
-
-    ros::Publisher cloud_publisher_;
-    sensor_msgs::PointCloud2 cloud_PointCloud2_msg_;
-
 
     // [subscriber attributes]
-    ros::Subscriber kinect_subscriber_;
-    void kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
-    pthread_mutex_t kinect_mutex_;
-    void kinect_mutex_enter(void);
-    void kinect_mutex_exit(void);
-
 
     // [service attributes]
+    ros::ServiceServer execute_pushing_server_;
+    bool execute_pushingCallback(iri_table_clearing_execute::ExecutePushing::Request &req, iri_table_clearing_execute::ExecutePushing::Response &res);
+    pthread_mutex_t execute_pushing_mutex_;
+    void execute_pushing_mutex_enter(void);
+    void execute_pushing_mutex_exit(void);
+
 
     // [client attributes]
-    ros::ServiceClient execute_grasping_client_;
-    iri_table_clearing_execute::ExecuteGrasping execute_grasping_srv_;
-
-    ros::ServiceClient execute_pushing_client_;
-    iri_table_clearing_execute::ExecutePushing execute_pushing_srv_;
-
-    ros::ServiceClient get_fast_downward_plan_client_;
-    iri_fast_downward_wrapper::FastDownwardPlan get_fast_downward_plan_srv_;
-
-    ros::ServiceClient segments_objects_client_;
-    iri_tos_supervoxels::object_segmentation segments_objects_srv_;
-
-    ros::ServiceClient get_symbolic_predicates_client_;
-    iri_table_clearing_predicates::Predicates get_symbolic_predicates_srv_;
-
 
     // [action server attributes]
 
@@ -125,7 +74,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     * This constructor initializes specific class attributes and all ROS
     * communications variables to enable message exchange.
     */
-    TableClearingDecisionMakerAlgNode(void);
+    TestAlgNode(void);
 
    /**
     * \brief Destructor
@@ -133,7 +82,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     * This destructor frees all necessary dynamic memory allocated within this
     * this class.
     */
-    ~TableClearingDecisionMakerAlgNode(void);
+    ~TestAlgNode(void);
 
   protected:
    /**
@@ -175,8 +124,6 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     // [diagnostic functions]
     
     // [test functions]
-    void preparePredicatesMsg();
-
 };
 
 #endif

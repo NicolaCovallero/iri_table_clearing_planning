@@ -7,13 +7,33 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->loop_rate_ = 2;//in [Hz]
   this->alg_.setOn(false);
 
-  ros::service::waitForService("/iri_tos_supervoxels_alg/object_segmentation",2);// 2 seconds
-  ros::service::waitForService("/table_clearing_predicates_alg_node/get_symbolic_predicates",2);
-  ros::service::waitForService("/get_fast_downward_plan",2);
-
   std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
   this->public_node_handle_.param("goal", this->alg_.goal, GOAL);
+  int pushing_discretization,pushing_limit;
+  this->public_node_handle_.param("pushing_discretization", pushing_discretization, PUSHING_DISCRETIZATION);
+  this->public_node_handle_.param("pushing_limit", pushing_limit, PUSHING_LIMIT);
+  this->alg_.setPushingDiscretizationAndLimit(pushing_discretization, pushing_limit);
+
+  this->public_node_handle_.param("segmentation_service", segmentation_service, SEGMENTATION_SERVICE);
+  this->public_node_handle_.param("predicates_service", predicates_service, PREDICATES_SERVICE);
+  this->public_node_handle_.param("planner_service", planner_service, PLANNER_SERVICE);
+  this->public_node_handle_.param("execute_pushing_service", execute_pushing_service, EXECUTE_PUSHING_SERVICE);
+  this->public_node_handle_.param("execute_grasping_service", execute_grasping_service, EXECUTE_GRASPING_SERVICE);
+
+  this->public_node_handle_.param("execution", execution, EXECUTION);
+
+
+  std::cout << "input_topic: " << input_topic << std::endl
+  << "goal: " << this->alg_.goal << std::endl
+  << "pushing_discretization: " << pushing_discretization << std::endl
+  << "pushing_limit: " << pushing_limit << std::endl
+  << "segmentation_service: " << segmentation_service << std::endl
+  << "predicates_service: " << predicates_service << std::endl
+  << "planner_service: " << planner_service << std::endl
+  << "execute_pushing_service: " << execute_pushing_service << std::endl
+  << "execute_grasping_service: " << execute_grasping_service << std::endl
+  << "execution: " << execution << std::endl;
 
   // [init publishers]
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
@@ -29,11 +49,15 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init services]
   
   // [init clients]
-  get_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardPlan>("/get_fast_downward_plan");
+  execute_grasping_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_execute::ExecuteGrasping>(execute_grasping_service);
 
-  segments_objects_client_ = this->public_node_handle_.serviceClient<iri_tos_supervoxels::object_segmentation>("/iri_tos_supervoxels_alg/object_segmentation");
+  execute_pushing_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_execute::ExecutePushing>(execute_pushing_service);
 
-  get_symbolic_predicates_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_predicates::Predicates>("/table_clearing_predicates_alg_node/get_symbolic_predicates");
+  get_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardPlan>(planner_service);
+
+  segments_objects_client_ = this->public_node_handle_.serviceClient<iri_tos_supervoxels::object_segmentation>(segmentation_service);
+
+  get_symbolic_predicates_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_predicates::Predicates>(predicates_service);
   
   
 
@@ -50,6 +74,16 @@ TableClearingDecisionMakerAlgNode::~TableClearingDecisionMakerAlgNode(void)
 
 void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 {
+  // wait for all the services
+  while(!ros::service::waitForService(segmentation_service,ros::Duration(5.0))){}
+  while(!ros::service::waitForService(planner_service,ros::Duration(5.0))){}
+  while(!ros::service::waitForService(predicates_service,ros::Duration(5.0))){}
+  if(execution)
+  {
+    while(!ros::service::waitForService(execute_pushing_service,ros::Duration(5.0))){}
+  }
+
+
   // [fill msg structures]
   // Initialize the topic message structure
   //this->action_Marker_msg_.data = my_var;
@@ -62,6 +96,30 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
   
   // [fill srv structure and make request to the server]
+  //execute_grasping_srv_.request.data = my_var;
+  //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
+  //if (execute_grasping_client_.call(execute_grasping_srv_))
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Response: %s", execute_grasping_srv_.response.result);
+  //}
+  //else
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Failed to Call Server on topic execute_grasping ");
+  //}
+
+
+  //execute_pushing_srv_.request.data = my_var;
+  //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
+  //if (execute_pushing_client_.call(execute_pushing_srv_))
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Response: %s", execute_pushing_srv_.response.result);
+  //}
+  //else
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Failed to Call Server on topic execute_pushing ");
+  //}
+
+
   ///get_fast_downward_plan_srv_.request.data = my_var;
   //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
   //if (/get_fast_downward_plan_client_.call(/get_fast_downward_plan_srv_))
@@ -155,6 +213,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setBlockGraspPredicates(pre_srv.response.block_grasp_predicates);
       this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
       this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
+      this->alg_.setPushingPoses(pre_srv.response.pushing_poses);
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
 
       iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
@@ -176,6 +235,27 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPlan(fd_srv.response.plan);
         
       this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+
+      if(execution)
+      {
+        iri_table_clearing_execute::ExecuteGrasping grasping_srv;
+        iri_table_clearing_execute::ExecutePushing pushing_srv;
+
+        switch(this->alg_.setAction(grasping_srv,pushing_srv))
+        {
+          case 0:
+                  if(execute_pushing_client_.call(pushing_srv)) 
+                  {
+
+                  }
+                  break;
+          case 1:break;
+          case -1:break;
+          case -2:break;
+          default: break;
+        }
+
+      }
     }
     this->alg_.setOn(false);
   }

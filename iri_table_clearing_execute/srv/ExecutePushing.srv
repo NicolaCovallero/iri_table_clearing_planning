@@ -1,0 +1,4 @@
+geometry_msgs/PoseStamped[] pushing_cartesian_trajectory 
+--- 
+bool[] ik_pose_success
+bool success

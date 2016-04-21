@@ -191,6 +191,10 @@ void TableClearingDecisionMakerAlgorithm::setGraspingPoses(std::vector<iri_table
 {
 	this->grasping_poses = grasping_poses;
 }
+void TableClearingDecisionMakerAlgorithm::setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses)
+{
+	this->pushing_poses = pushing_poses;
+}
 void TableClearingDecisionMakerAlgorithm::setPlan(iri_fast_downward_wrapper::Plan plan)
 {
 	this->plan = plan;
@@ -432,4 +436,124 @@ void TableClearingDecisionMakerAlgorithm::setPointCloud(sensor_msgs::PointCloud2
 sensor_msgs::PointCloud2* TableClearingDecisionMakerAlgorithm::getPointCloud()
 {
 	return &(this->point_cloud);
+}
+void TableClearingDecisionMakerAlgorithm::setPushingDiscretizationAndLimit(int pushing_discretization, double pushing_limit)
+{
+	this->pushing_discretization = pushing_discretization;
+	this->pushing_limit = pushing_limit;
+}
+int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
+                    iri_table_clearing_execute::ExecutePushing& pushing)
+{
+	pushing.request.pushing_cartesian_trajectory.resize(0);
+
+	double step = (double)(this->pushing_limit/this->pushing_discretization);
+
+	// get the id of the object
+	std::string object = plan.actions[0].objects[0];
+	object.erase(0,1); //erase the first character which is "o"
+	int idx_obj;
+	int Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
+	if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+	{
+		ROS_ERROR("Problem retrieving the number of the object from the plan");
+		return -2;
+	}
+	geometry_msgs::PoseStamped pose;
+
+	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
+	{
+		if(this->pushing_poses.size() == 0 )
+		{
+			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		pose = pushing_poses[idx_obj].pose_dir1;
+		pose.header.frame_id = this->frame_id;
+
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		for (int i = 1; i < this->pushing_discretization; ++i)
+		{
+			pose.pose.position.x += this->pushing_directions[idx_obj].dir1.x * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir1.y * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir1.z * step;  
+
+			pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		}
+		return 0;
+	}
+	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
+	{
+		if(this->pushing_poses.size() == 0 )
+		{
+			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		pose = pushing_poses[idx_obj].pose_dir2;
+		pose.header.frame_id = this->frame_id;
+
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		for (int i = 1; i < this->pushing_discretization; ++i)
+		{
+			pose.pose.position.x += this->pushing_directions[idx_obj].dir2.x * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir2.y * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir2.z * step;  
+
+			pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		}
+		return 0;
+	}
+	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
+	{
+		if(this->pushing_poses.size() == 0 )
+		{
+			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		
+		pose = pushing_poses[idx_obj].pose_dir3;
+		pose.header.frame_id = this->frame_id;
+
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		for (int i = 1; i < this->pushing_discretization; ++i)
+		{
+			pose.pose.position.x += this->pushing_directions[idx_obj].dir3.x * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir3.y * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir3.z * step;  
+
+			pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		}
+		return 0;
+	}
+	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
+	{
+		if(this->pushing_poses.size() == 0 )
+		{
+			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -255;
+		}
+		pose = pushing_poses[idx_obj].pose_dir4;
+		pose.header.frame_id = this->frame_id;
+
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		for (int i = 1; i < this->pushing_discretization; ++i)
+		{
+			pose.pose.position.x += this->pushing_directions[idx_obj].dir4.x * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir4.y * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir4.z * step;  
+
+			pushing.request.pushing_cartesian_trajectory.push_back(pose);
+		}
+		return 0;
+	}
+	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
+	{
+
+		return 1;
+	}
+	else
+	{
+		ROS_ERROR("The first action is not one of ther permitted. The current action is %s",plan.actions[0].action_name.c_str());
+		return -1;
+	}
 }

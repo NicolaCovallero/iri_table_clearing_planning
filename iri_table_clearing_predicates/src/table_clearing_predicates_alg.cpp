@@ -239,6 +239,63 @@ std::vector<iri_table_clearing_predicates::GraspingPoses> TableClearingPredicate
 
 	return grasping_poses_msg;
 }
+std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicatesAlgorithm::getPushingPoses()
+{
+	std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses_msg;
+	std::vector<PushingPose> pushing_poses = this->tcp.getPushingPoses();
+	pushing_poses_msg.resize(this->tcp.getNumObjects());
+
+	for (int i = 0; i < pushing_poses.size(); ++i)
+	{
+		geometry_msgs::PoseStamped pose_stamped;
+
+		pose_stamped.pose.position.x = pushing_poses[i].pose_dir1.translation[0];
+		pose_stamped.pose.position.y = pushing_poses[i].pose_dir1.translation[1];
+		pose_stamped.pose.position.z = pushing_poses[i].pose_dir1.translation[2];
+
+		pose_stamped.pose.orientation.x =  pushing_poses[i].pose_dir1.quaternion.x();
+		pose_stamped.pose.orientation.y =  pushing_poses[i].pose_dir1.quaternion.y();
+		pose_stamped.pose.orientation.z =  pushing_poses[i].pose_dir1.quaternion.z();
+		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir1.quaternion.w();
+
+		pushing_poses_msg[i].pose_dir1 = pose_stamped;
+
+		pose_stamped.pose.position.x = pushing_poses[i].pose_dir2.translation[0];
+		pose_stamped.pose.position.y = pushing_poses[i].pose_dir2.translation[1];
+		pose_stamped.pose.position.z = pushing_poses[i].pose_dir2.translation[2];
+
+		pose_stamped.pose.orientation.x =  pushing_poses[i].pose_dir2.quaternion.x();
+		pose_stamped.pose.orientation.y =  pushing_poses[i].pose_dir2.quaternion.y();
+		pose_stamped.pose.orientation.z =  pushing_poses[i].pose_dir2.quaternion.z();
+		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir2.quaternion.w();
+
+		pushing_poses_msg[i].pose_dir2 = pose_stamped;
+
+		pose_stamped.pose.position.x = pushing_poses[i].pose_dir3.translation[0];
+		pose_stamped.pose.position.y = pushing_poses[i].pose_dir3.translation[1];
+		pose_stamped.pose.position.z = pushing_poses[i].pose_dir3.translation[2];
+
+		pose_stamped.pose.orientation.x =  pushing_poses[i].pose_dir3.quaternion.x();
+		pose_stamped.pose.orientation.y =  pushing_poses[i].pose_dir3.quaternion.y();
+		pose_stamped.pose.orientation.z =  pushing_poses[i].pose_dir3.quaternion.z();
+		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir3.quaternion.w();
+
+		pushing_poses_msg[i].pose_dir3 = pose_stamped;
+
+		pose_stamped.pose.position.x = pushing_poses[i].pose_dir4.translation[0];
+		pose_stamped.pose.position.y = pushing_poses[i].pose_dir4.translation[1];
+		pose_stamped.pose.position.z = pushing_poses[i].pose_dir4.translation[2];
+
+		pose_stamped.pose.orientation.x =  pushing_poses[i].pose_dir4.quaternion.x();
+		pose_stamped.pose.orientation.y =  pushing_poses[i].pose_dir4.quaternion.y();
+		pose_stamped.pose.orientation.z =  pushing_poses[i].pose_dir4.quaternion.z();
+		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir4.quaternion.w();
+
+		pushing_poses_msg[i].pose_dir4 = pose_stamped;
+	}
+
+	return pushing_poses_msg;
+}
 void TableClearingPredicatesAlgorithm::reset()
 {
 	this->tcp.reset();

@@ -38,8 +38,10 @@
 #include "iri_table_clearing_predicates/OnTopPredicate.h"
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
+#include "iri_table_clearing_predicates/PushingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
 #include "iri_table_clearing_predicates/PrincipalDirections.h"
+
 
 /** default values */
 const double  OPENING_WIDTH = 0.08;
@@ -51,6 +53,7 @@ const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 
+const double PUSHING_LIMIT = 0.1; //10 cm to push 
 
 // default values variables 
 const double ON_TH1 = 100;
@@ -324,6 +327,8 @@ class TableClearingPredicatesAlgorithm
     std::vector<iri_table_clearing_predicates::PushingDirections> getPushingDirections();
 
     std::vector<iri_table_clearing_predicates::GraspingPoses> getGraspingPoses();
+
+    std::vector<iri_table_clearing_predicates::PushingPoses> getPushingPoses();
 
     std::vector<iri_table_clearing_predicates::AABB> getAABBMsg();
 

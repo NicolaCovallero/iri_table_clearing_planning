@@ -6,22 +6,18 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS 
-	iri_base_algorithm
-	tf
-	std_msgs
-	message_generation
-	geometry_msgs
-	trajectory_msgs
+find_package(catkin REQUIRED COMPONENTS iri_base_algorithm geometry_msgs iri_common_drivers_msgs 
+	message_generation 
+	geometry_msgs 
+	std_msgs 
+	trajectory_msgs 
 	control_msgs 
-	moveit_core 
- 	moveit_ros_planning
- 	moveit_ros_planning_interface
- 	iri_common_drivers_msgs 
- 	iri_wam_common_msgs 
- 	actionlib_msgs 
- 	actionlib
-)
+	sensor_msgs
+	iri_base_driver
+	iri_action_server 
+	iri_common_drivers_msgs
+	iri_wam_common_msgs
+	iri_action_server)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -30,7 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
 #           Add system and labrobotica dependencies here
 # ******************************************************************** 
 # find_package(<dependency> REQUIRED)
-
+find_package(iriutils REQUIRED)
 # ******************************************************************** 
 #           Add topic, service and action definition here
 # ******************************************************************** 
@@ -43,8 +39,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate services in the 'srv' folder
 add_service_files(
-   FILES
-   ExecuteAction.srv
+  FILES
+  ExecuteGrasping.srv
+  ExecutePushing.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -57,7 +54,9 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
-   std_msgs geometry_msgs trajectory_msgs # Or other packages containing msgs
+   std_msgs  # Or other packages containing msgs
+   geometry_msgs
+   control_msgs
 )
 
 # ******************************************************************** 
@@ -74,21 +73,10 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS
- 	iri_base_algorithm
-	tf
-	std_msgs
-	message_generation
-	geometry_msgs
-	trajectory_msgs
-	control_msgs 
-	moveit_core 
- 	moveit_ros_planning
- 	moveit_ros_planning_interface
- 	iri_common_drivers_msgs 
- 	iri_wam_common_msgs 
- 	actionlib_msgs 
- 	actionlib
+ CATKIN_DEPENDS iri_base_algorithm geometry_msgs iri_common_drivers_msgs
+ message_generation geometry_msgs std_msgs
+ trajectory_msgs control_msgs iri_base_driver iri_action_server iri_common_drivers_msgs
+  iri_wam_common_msgs iri_action_server sensor_msgs
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 
@@ -122,6 +110,8 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #               Add message headers dependencies 
 # ******************************************************************** 
 # add_dependencies(${PROJECT_NAME} <msg_package_name>_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} geometry_msgs_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} iri_common_drivers_msgs_generate_messages_cpp)
 # ******************************************************************** 
 #               Add dynamic reconfigure dependencies 
 # ******************************************************************** 

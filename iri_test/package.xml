@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>iri_table_clearing_execute</name>
+  <name>iri_test</name>
   <version>0.0.0</version>
-  <description>The iri_table_clearing_execute package</description>
+  <description>The iri_test package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/iri_table_clearing_execute</url> -->
+  <!-- <url type="website">http://wiki.ros.org/iri_test</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -41,34 +41,9 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>iri_base_algorithm</build_depend>
-  <build_depend>iri_common_drivers_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>trajectory_msgs</build_depend>
-  <build_depend>control_msgs</build_depend>
-  <build_depend>iri_base_driver</build_depend>
-  <build_depend>iri_common_drivers_msgs</build_depend>
-  <build_depend>iri_wam_common_msgs</build_depend>
-  <build_depend>iri_action_server</build_depend>
-  <build_depend>iriutils</build_depend>
-  <build_depend>iri_wamik</build_depend>
-  
+  <build_depend>iri_table_clearing_execute</build_depend>
   <run_depend>iri_base_algorithm</run_depend>
-  <run_depend>iri_common_drivers_msgs</run_depend>
-  <run_depend>message_generation</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>trajectory_msgs</run_depend>
-  <run_depend>control_msgs</run_depend>
-  <run_depend>iri_base_driver</run_depend> 
-  <run_depend>iri_common_drivers_msgs</run_depend>
-  <run_depend>iri_wam_common_msgs</run_depend>
-  <run_depend>iri_action_server</run_depend>
-  <run_depend>iriutils</run_depend>
-  <run_depend>iri_wamik</run_depend>
+  <run_depend>iri_table_clearing_execute</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

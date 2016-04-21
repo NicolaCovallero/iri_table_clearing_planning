@@ -7,7 +7,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->loop_rate_ = 2;//in [Hz]
 
   double  opening_width, finger_width, gripper_height, closing_region_height,
-          finger_deep, pushing_distance_plane, ee_height, ee_deep;
+          finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_limit;
 
   this->public_node_handle_.param("opening_width",opening_width,OPENING_WIDTH);
   this->public_node_handle_.param("finger_width",finger_width,FINGER_WIDTH);
@@ -17,6 +17,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("pushing_distance_plane",pushing_distance_plane,PUSHING_DISTANCE_PLANE);
   this->public_node_handle_.param("ee_height",ee_height,EE_HEIGHT);
   this->public_node_handle_.param("ee_deep",ee_deep,EE_DEEP);
+  this->public_node_handle_.param("pushing_limit",pushing_limit,PUSHING_LIMIT);
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
@@ -26,8 +27,10 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "finger_deep: " << finger_deep << std::endl
             << "pushing_distance_plane: " << pushing_distance_plane << std::endl
             << "ee_height: " << ee_height << std::endl
-            << "ee_deep: " << ee_deep << std::endl; 
+            << "ee_deep: " << ee_deep << std::endl
+            << "pushing_limit: " << pushing_limit << std::endl; 
 
+  this->alg_.setPushingLimit(pushing_limit);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         
   this->alg_.setFingersModel(opening_width, finger_width, finger_deep, gripper_height, closing_region_height);
 
@@ -118,6 +121,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.block_grasp_predicates = this->alg_.getBlockGraspPredicates();
   res.objects_pushing_directions = this->alg_.getPushingDirections();
   res.grasping_poses = this->alg_.getGraspingPoses();
+  res.pushing_poses = this->alg_.getPushingPoses();
   res.aabbs = this->alg_.getAABBMsg();
   res.centroids = this->alg_.getCentroids();
   res.principal_directions = this->alg_.getPrincipalDirections();

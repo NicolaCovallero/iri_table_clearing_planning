@@ -1,0 +1,3 @@
+geometry_msgs/PoseStamped pose #initial pose of the action, wich could be for grasping or pushing
+---
+bool ik_success

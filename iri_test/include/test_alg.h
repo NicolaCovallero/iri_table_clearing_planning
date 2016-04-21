@@ -22,25 +22,25 @@
 // refer to the IRI wiki page for more information:
 // http://wikiri.upc.es/index.php/Robotics_Lab
 
-#ifndef _table_clearing_execute_alg_h_
-#define _table_clearing_execute_alg_h_
+#ifndef _test_alg_h_
+#define _test_alg_h_
 
-#include <iri_table_clearing_execute/TableClearingExecuteConfig.h>
+#include <iri_test/TestConfig.h>
 
-//include table_clearing_execute_alg main library
+//include test_alg main library
 
 /**
  * \brief IRI ROS Specific Driver Class
  *
  *
  */
-class TableClearingExecuteAlgorithm
+class TestAlgorithm
 {
   protected:
    /**
     * \brief define config type
     *
-    * Define a Config type with the TableClearingExecuteConfig. All driver implementations
+    * Define a Config type with the TestConfig. All driver implementations
     * will then use the same variable type Config.
     */
     pthread_mutex_t access_;    
@@ -51,10 +51,10 @@ class TableClearingExecuteAlgorithm
    /**
     * \brief define config type
     *
-    * Define a Config type with the TableClearingExecuteConfig. All driver implementations
+    * Define a Config type with the TestConfig. All driver implementations
     * will then use the same variable type Config.
     */
-    typedef iri_table_clearing_execute::TableClearingExecuteConfig Config;
+    typedef iri_test::TestConfig Config;
 
    /**
     * \brief config variable
@@ -72,7 +72,7 @@ class TableClearingExecuteAlgorithm
     * Attributes from the main node driver class IriBaseDriver such as loop_rate,
     * may be also overload here.
     */
-    TableClearingExecuteAlgorithm(void);
+    TestAlgorithm(void);
 
    /**
     * \brief Lock Algorithm
@@ -116,7 +116,7 @@ class TableClearingExecuteAlgorithm
     */
     void config_update(Config& config, uint32_t level=0);
 
-    // here define all table_clearing_execute_alg interface methods to retrieve and set
+    // here define all test_alg interface methods to retrieve and set
     // the driver parameters
 
    /**
@@ -125,8 +125,7 @@ class TableClearingExecuteAlgorithm
     * This destructor is called when the object is about to be destroyed.
     *
     */
-    ~TableClearingExecuteAlgorithm(void);
-
+    ~TestAlgorithm(void);
 };
 
 #endif

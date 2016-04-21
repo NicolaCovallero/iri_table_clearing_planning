@@ -29,10 +29,22 @@
 #include "table_clearing_execute_alg.h"
 
 // [publisher subscriber headers]
+#include <geometry_msgs/PoseStamped.h>
 
 // [service client headers]
+#include <iri_common_drivers_msgs/QueryInverseKinematics.h>
+#include <iri_common_drivers_msgs/QueryJointsMovement.h>
+#include <iri_table_clearing_execute/ExecuteGrasping.h>
+#include <iri_table_clearing_execute/ExecutePushing.h>
+
+#include <control_msgs/FollowJointTrajectoryAction.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <actionlib/client/simple_action_client.h>
 
 // [action server client headers]
+
+
+typedef actionlib::SimpleActionClient< control_msgs::FollowJointTrajectoryAction > TrajClient;
 
 /**
  * \brief IRI ROS Specific Algorithm Class
@@ -42,12 +54,31 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
 {
   private:
     // [publisher attributes]
+    ros::Publisher action_pose_publisher_;
+    geometry_msgs::PoseStamped action_pose_PoseStamped_msg_;
+
 
     // [subscriber attributes]
 
     // [service attributes]
+    ros::ServiceServer execute_grasping_server_;
+    bool execute_graspingCallback(iri_table_clearing_execute::ExecuteGrasping::Request &req, iri_table_clearing_execute::ExecuteGrasping::Response &res);
+    pthread_mutex_t execute_grasping_mutex_;
+    void execute_grasping_mutex_enter(void);
+    void execute_grasping_mutex_exit(void);
+
+    ros::ServiceServer execute_pushing_server_;
+    bool execute_pushingCallback(iri_table_clearing_execute::ExecutePushing::Request &req, iri_table_clearing_execute::ExecutePushing::Response &res);
+    pthread_mutex_t execute_pushing_mutex_;
+    void execute_pushing_mutex_enter(void);
+    void execute_pushing_mutex_exit(void);
+
 
     // [client attributes]
+    ros::ServiceClient estirabot_gripper_ik_client_;
+    iri_common_drivers_msgs::QueryInverseKinematics estirabot_gripper_ik_srv_;
+    TrajClient* traj_client_; 
+
 
     // [action server attributes]
 
@@ -117,6 +148,9 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     // [diagnostic functions]
     
     // [test functions]
+    void testTrajectory();
+    void testIK();
+
 };
 
 #endif

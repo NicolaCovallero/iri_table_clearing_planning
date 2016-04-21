@@ -1,0 +1,4 @@
+geometry_msgs/PoseStamped pose_dir1
+geometry_msgs/PoseStamped pose_dir2
+geometry_msgs/PoseStamped pose_dir3
+geometry_msgs/PoseStamped pose_dir4
