@@ -9,8 +9,9 @@
        <param name="closing_region_height" value="0.05"/>
        <param name="finger_deep" value="0.03"/>
        <param name="pushing_distance_plane" value="0.025"/>
-       <param name="ee_height" value="0.08"/>
+       <param name="ee_height" value="0.1"/>
        <param name="ee_deep" value="0.15"/>
+       <param name="pushing_step" value="1.5"/>
   </node>
   
 

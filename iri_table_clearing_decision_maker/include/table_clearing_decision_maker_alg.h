@@ -92,6 +92,7 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
+    std::vector<iri_table_clearing_predicates::AABB> aabbs;
     std::vector<geometry_msgs::Point> centroids;
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
     geometry_msgs::Vector3 plane_normal;
@@ -104,12 +105,13 @@ class TableClearingDecisionMakerAlgorithm
     bool set;
 
     int pushing_discretization;
-    double pushing_limit;
+    double pushing_step;
+
+    std::vector<geometry_msgs::PoseStamped> pushing_cartesian_trajectory; 
 
   public:
 
     std::string goal;
-    ;
 
    /**
     * \brief define config type
@@ -225,6 +227,7 @@ class TableClearingDecisionMakerAlgorithm
     void setPushingDirections(std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions);
     void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
     void setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses); 
+    void setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs);
 
     void setPlan(iri_fast_downward_wrapper::Plan plan);
     void setFrameId(std::string frame_id);
@@ -242,15 +245,19 @@ class TableClearingDecisionMakerAlgorithm
 
     void showFirstActionRViz(ros::Publisher& action_pub);
 
+    void showActionTrajectory(ros::Publisher& trajectory_pub);
+
     void setOn(bool on);
     bool getOn();
     void setPointCloud(sensor_msgs::PointCloud2 point_cloud);
     sensor_msgs::PointCloud2* getPointCloud();
 
-    void setPushingDiscretizationAndLimit(int pushing_discretization, double pushing_limit);
+    void setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step);
 
     /**
-     * @brief It returns 1 for the grasping action or 0 for the pushing, and -1 for a non accepted action, or -2 in case of error
+     * @brief It returns 1 for the grasping action 
+     * or 0 for the pushing, and -1 for a non accepted action, or -2 in case of error,
+     * or -3 in case there is not plan set
      * @details [long description]
      * 
      * @param grasping [description]

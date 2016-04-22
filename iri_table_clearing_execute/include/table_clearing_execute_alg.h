@@ -27,7 +27,12 @@
 
 #include <iri_table_clearing_execute/TableClearingExecuteConfig.h>
 
-//include table_clearing_execute_alg main library
+#include <control_msgs/FollowJointTrajectoryAction.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <actionlib/client/simple_action_client.h>
+#include "sensor_msgs/JointState.h"
+
+typedef actionlib::SimpleActionClient< control_msgs::FollowJointTrajectoryAction > TrajClient;
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -126,6 +131,8 @@ class TableClearingExecuteAlgorithm
     *
     */
     ~TableClearingExecuteAlgorithm(void);
+
+    void goHome(TrajClient* traj_client_);
 
 };
 

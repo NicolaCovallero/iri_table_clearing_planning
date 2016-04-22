@@ -46,7 +46,7 @@
 const std::string FRAME_ID = "/base_link";
 const std::string INPUT_TOPIC = "/camera/depth_registered/points";
 const int PUSHING_DISCRETIZATION = 10; // 10 points 
-const int PUSHING_LIMIT = 0.10; // 0.1 meters
+const double PUSHING_STEP = 1.5; // 0.1 meters
 
 const std::string SEGMENTATION_SERVICE = "/iri_tos_supervoxels_alg/object_segmentation";
 const std::string PREDICATES_SERVICE = "/table_clearing_predicates_alg_node/get_symbolic_predicates";
@@ -70,6 +70,9 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 {
   private:
     // [publisher attributes]
+    ros::Publisher action_trajectory_publisher_;
+    visualization_msgs::MarkerArray action_trajectory_MarkerArray_msg_;
+
     ros::Publisher action_marker_publisher_;
     visualization_msgs::Marker action_Marker_msg_;
 

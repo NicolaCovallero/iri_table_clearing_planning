@@ -49,9 +49,9 @@ void TableClearingPredicatesAlgorithm::setPlaneCoefficients(pcl::ModelCoefficien
 {
 	this->tcp.setPlaneCoefficients(plane_coefficients);
 }
-void TableClearingPredicatesAlgorithm::setPushingLimit(double pushing_limit)
+void TableClearingPredicatesAlgorithm::setPushingStep(double pushing_step)
 {
-	this->tcp.setPushingLimit(pushing_limit);
+	this->tcp.setPushingStep(pushing_step);
 }
 
 void TableClearingPredicatesAlgorithm::computeAABBObjects(bool refine_centroids)

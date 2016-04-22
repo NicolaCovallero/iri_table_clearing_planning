@@ -10,10 +10,11 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
   this->public_node_handle_.param("goal", this->alg_.goal, GOAL);
-  int pushing_discretization,pushing_limit;
+  int pushing_discretization;
+  double pushing_step;
   this->public_node_handle_.param("pushing_discretization", pushing_discretization, PUSHING_DISCRETIZATION);
-  this->public_node_handle_.param("pushing_limit", pushing_limit, PUSHING_LIMIT);
-  this->alg_.setPushingDiscretizationAndLimit(pushing_discretization, pushing_limit);
+  this->public_node_handle_.param("pushing_step", pushing_step, PUSHING_STEP);
+  this->alg_.setPushingDiscretizationAndStep(pushing_discretization, pushing_step);
 
   this->public_node_handle_.param("segmentation_service", segmentation_service, SEGMENTATION_SERVICE);
   this->public_node_handle_.param("predicates_service", predicates_service, PREDICATES_SERVICE);
@@ -27,7 +28,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   std::cout << "input_topic: " << input_topic << std::endl
   << "goal: " << this->alg_.goal << std::endl
   << "pushing_discretization: " << pushing_discretization << std::endl
-  << "pushing_limit: " << pushing_limit << std::endl
+  << "pushing_step: " << pushing_step << std::endl
   << "segmentation_service: " << segmentation_service << std::endl
   << "predicates_service: " << predicates_service << std::endl
   << "planner_service: " << planner_service << std::endl
@@ -36,6 +37,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "execution: " << execution << std::endl;
 
   // [init publishers]
+  this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
   this->objects_label_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_label", 1);
   this->cloud_publisher_ = this->public_node_handle_.advertise<sensor_msgs::PointCloud2>("cloud", 1);
@@ -85,6 +87,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
 
   // [fill msg structures]
+  // Initialize the topic message structure
+  //this->action_trajectory_MarkerArray_msg_.data = my_var;
+
   // Initialize the topic message structure
   //this->action_Marker_msg_.data = my_var;
 
@@ -161,6 +166,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
   // [publish messages]
   // Uncomment the following line to publish the topic message
+  //this->action_trajectory_publisher_.publish(this->action_trajectory_MarkerArray_msg_);
+
+  // Uncomment the following line to publish the topic message
   //this->action_publisher_.publish(this->action_Marker_msg_);
 
   // Uncomment the following line to publish the topic message
@@ -215,6 +223,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
       this->alg_.setPushingPoses(pre_srv.response.pushing_poses);
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
+      this->alg_.setAABBs(pre_srv.response.aabbs);
 
       iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
       fd_srv.request.objects = this->alg_.prepareObjectsMsg();
@@ -236,12 +245,14 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         
       this->alg_.showFirstActionRViz(this->action_marker_publisher_);
 
+      iri_table_clearing_execute::ExecuteGrasping grasping_srv;
+      iri_table_clearing_execute::ExecutePushing pushing_srv;
+      int action = this->alg_.setAction(grasping_srv,pushing_srv);
+      this->alg_.showActionTrajectory(action_trajectory_publisher_);
       if(execution)
-      {
-        iri_table_clearing_execute::ExecuteGrasping grasping_srv;
-        iri_table_clearing_execute::ExecutePushing pushing_srv;
+      { 
 
-        switch(this->alg_.setAction(grasping_srv,pushing_srv))
+        switch(action)
         {
           case 0:
                   if(execute_pushing_client_.call(pushing_srv)) 

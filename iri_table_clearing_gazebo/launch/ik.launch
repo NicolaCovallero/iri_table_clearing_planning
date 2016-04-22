@@ -1,0 +1,27 @@
+<launch>
+  <arg name="ROBOT"   default="estirabot" />
+  <arg name="IK"      default="True" />
+
+  <group ns="$(arg ROBOT)">
+    <!-- Publish Robot Inverse Kinematics -->
+    <node pkg ="iri_wam_ik"
+          type="iri_wam_ik"
+          name="$(arg ROBOT)_ik"
+          output="screen">
+      <remap from="~joint_states"  to="/joint_states"/>
+    </node>
+
+
+    <!-- Publish TCP Robot Inverse Kinematics -->
+    <node name="$(arg ROBOT)_tcp_ik" pkg="iri_wam_tcp_ik" type="iri_wam_tcp_ik" if="$(arg IK)" output="screen" >
+      <param name="robot_base" type="str" value="/$(arg ROBOT)_link_base" />
+      <!-- Here, robot_tcp and tool_tcp are the same because if not the algorithm would take 
+           the link_7 to link_tcp transformation twice -->
+      <param name="robot_tcp" type="str" value="/$(arg ROBOT)_link_tcp" />
+      <param name="tool_tcp"  type="str" value="/$(arg ROBOT)_link_tcp" />
+      <remap from="$(arg ROBOT)_tcp_ik/wamik" to="$(arg ROBOT)_ik/get_wam_ik" />
+      <remap from="$(arg ROBOT)_tcp_ik/wamik_pose" to="$(arg ROBOT)_ik/get_wam_ik_from_pose" />
+    </node>
+
+  </group>
+</launch>

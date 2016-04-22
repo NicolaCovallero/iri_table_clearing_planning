@@ -53,7 +53,7 @@ const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 
-const double PUSHING_LIMIT = 0.1; //10 cm to push 
+const double PUSHING_STEP = 1.5; // push 1.5 times along the relative AABB dimension
 
 // default values variables 
 const double ON_TH1 = 100;
@@ -224,7 +224,7 @@ class TableClearingPredicatesAlgorithm
      * 
      * @param[in] pushing_limit Desired value for the pushing limit.
      */
-    void setPushingLimit(double pushing_limit);
+    void setPushingStep(double pushing_step);
 
     /**
      * @brief    compute the principal directions of the objects.

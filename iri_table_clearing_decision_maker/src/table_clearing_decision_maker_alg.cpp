@@ -222,6 +222,10 @@ void TableClearingDecisionMakerAlgorithm::setPrincipalDirections(std::vector<iri
 {
 	this->principal_directions = principal_directions;
 }
+void TableClearingDecisionMakerAlgorithm::setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs)
+{
+	this->aabbs = aabbs;
+}
 
 void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
 {
@@ -421,6 +425,41 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 
 	action_pub.publish(marker);
 }
+void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& trajectory_pub)
+{
+	if(this->pushing_cartesian_trajectory.size() == 0)
+	{
+		ROS_ERROR("In showActioNTrajectoy - Pushing trajectory not saved");
+		return;
+	}
+	visualization_msgs::MarkerArray markers;
+	for (int i = 0; i < this->pushing_cartesian_trajectory.size(); ++i)
+	{
+		visualization_msgs::Marker marker;
+		marker.header.frame_id = this->pushing_cartesian_trajectory[i].header.frame_id;
+		//marker.header.frame_id = "";
+		marker.header.stamp = ros::Time();
+		marker.header.seq = i;
+		marker.ns = "pushing_trajectory";
+		marker.id = i;
+		marker.type = visualization_msgs::Marker::POINTS;
+		marker.action = visualization_msgs::Marker::ADD;
+		marker.color.a = 1.0;
+		marker.color.r = 1.0;
+		marker.scale.x = 0.02; // point width
+	  	marker.scale.y = 0.02; // popint height
+	  	geometry_msgs::Point p;
+	  	p.x =  this->pushing_cartesian_trajectory[i].pose.position.x;
+	  	p.y =  this->pushing_cartesian_trajectory[i].pose.position.y;
+	  	p.z =  this->pushing_cartesian_trajectory[i].pose.position.z;
+	  	marker.points.push_back(p);
+	  	marker.pose.orientation.w = 1;
+	  	markers.markers.push_back(marker);
+
+	}
+	trajectory_pub.publish(markers);
+}
+
 void TableClearingDecisionMakerAlgorithm::setOn(bool on)
 {
 	this->set = on;
@@ -437,17 +476,24 @@ sensor_msgs::PointCloud2* TableClearingDecisionMakerAlgorithm::getPointCloud()
 {
 	return &(this->point_cloud);
 }
-void TableClearingDecisionMakerAlgorithm::setPushingDiscretizationAndLimit(int pushing_discretization, double pushing_limit)
+void TableClearingDecisionMakerAlgorithm::setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step)
 {
 	this->pushing_discretization = pushing_discretization;
-	this->pushing_limit = pushing_limit;
+	this->pushing_step = pushing_step;
 }
 int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing)
 {
+
+	if(plan.actions.size() == 0)
+	{
+		ROS_WARN("setAction -> No plan is set.");
+		return -3;
+	}
+
 	pushing.request.pushing_cartesian_trajectory.resize(0);
 
-	double step = (double)(this->pushing_limit/this->pushing_discretization);
+	double step;
 
 	// get the id of the object
 	std::string object = plan.actions[0].objects[0];
@@ -463,9 +509,15 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
 	{
+		step = (double)(pushing_step * this->aabbs[idx_obj].deep/this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		if(this->pushing_directions.size() == 0)
+		{
+			ROS_ERROR("Pushing directions not set in - setAction()");
 			return -2;
 		}
 		pose = pushing_poses[idx_obj].pose_dir1;
@@ -475,18 +527,25 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir1.x * step;  
-			pose.pose.position.z += this->pushing_directions[idx_obj].dir1.y * step;  
-			pose.pose.position.y += this->pushing_directions[idx_obj].dir1.z * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir1.y * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir1.z * step;  
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
 	{
+		step = (double)(pushing_step * this->aabbs[idx_obj].deep/this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		if(this->pushing_directions.size() == 0)
+		{
+			ROS_ERROR("Pushing directions not set in - setAction()");
 			return -2;
 		}
 		pose = pushing_poses[idx_obj].pose_dir2;
@@ -496,18 +555,25 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir2.x * step;  
-			pose.pose.position.z += this->pushing_directions[idx_obj].dir2.y * step;  
-			pose.pose.position.y += this->pushing_directions[idx_obj].dir2.z * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir2.y * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir2.z * step;  
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
 	{
+		step = (double)(pushing_step * this->aabbs[idx_obj].width/this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
+			return -2;
+		}
+		if(this->pushing_directions.size() == 0)
+		{
+			ROS_ERROR("Pushing directions not set in - setAction()");
 			return -2;
 		}
 		
@@ -518,19 +584,26 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir3.x * step;  
-			pose.pose.position.z += this->pushing_directions[idx_obj].dir3.y * step;  
-			pose.pose.position.y += this->pushing_directions[idx_obj].dir3.z * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir3.y * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir3.z * step;  
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
 	{
+		step = (double)(pushing_step * this->aabbs[idx_obj].width/this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
 			return -255;
+		}
+		if(this->pushing_directions.size() == 0)
+		{
+			ROS_ERROR("Pushing directions not set in - setAction()");
+			return -2;
 		}
 		pose = pushing_poses[idx_obj].pose_dir4;
 		pose.header.frame_id = this->frame_id;
@@ -539,11 +612,12 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir4.x * step;  
-			pose.pose.position.z += this->pushing_directions[idx_obj].dir4.y * step;  
-			pose.pose.position.y += this->pushing_directions[idx_obj].dir4.z * step;  
+			pose.pose.position.y += this->pushing_directions[idx_obj].dir4.y * step;  
+			pose.pose.position.z += this->pushing_directions[idx_obj].dir4.z * step;  
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
