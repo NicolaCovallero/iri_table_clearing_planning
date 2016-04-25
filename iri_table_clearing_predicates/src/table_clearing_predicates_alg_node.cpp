@@ -33,7 +33,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "pushing_object_distance: " << pushing_object_distance << std::endl; 
 
   this->alg_.setPushingStep(pushing_step);
-  this->alg_.setPushingStep(pushing_object_distance);
+  this->alg_.setPushingObjectDistance(pushing_object_distance);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         
   this->alg_.setFingersModel(opening_width, finger_width, finger_deep, gripper_height, closing_region_height);
 

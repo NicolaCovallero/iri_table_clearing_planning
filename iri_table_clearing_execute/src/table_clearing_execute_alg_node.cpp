@@ -217,15 +217,14 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
       joints_trajectory[0] = srv.response.desired_joints;
-      /*
-      ROS_INFO("Desired joint state: [%f , %f , %f , %f , %f , %f , %f ]",
-                                        joints_trajectory[0].position[0],
-                                        joints_trajectory[0].position[1],
-                                        joints_trajectory[0].position[2],
-                                        joints_trajectory[0].position[3],
-                                        joints_trajectory[0].position[4],
-                                        joints_trajectory[0].position[5],
-                                        joints_trajectory[0].position[6]);*/
+      std::cout << "Point " << 0 << 
+          " joint 1: " << joints_trajectory[0].position[0] <<
+          " joint 2: " << joints_trajectory[0].position[1] <<
+          " joint 3: " << joints_trajectory[0].position[2] <<
+          " joint 4: " << joints_trajectory[0].position[3] <<
+          " joint 5: " << joints_trajectory[0].position[4] <<
+          " joint 6: " << joints_trajectory[0].position[5] <<
+          " joint 7: " << joints_trajectory[0].position[6] << std::endl;
   }
   else
   {
@@ -263,10 +262,9 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     }
     else
     {
-      ROS_ERROR("Failed to call service /estirabot/estirabot_tcp_ik/get_wam_ik_from_pose - Impossible Executing the trajectory");
+      ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
       res.success = false; 
-      return false; 
-
+      return true;
     }
   }
 
@@ -401,7 +399,11 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   ROS_INFO("Action finished - going home");
   this->alg_.goHome(traj_client_);
-  
+  if (!traj_client_->waitForResult(ros::Duration(5)))
+  { 
+      traj_client_->cancelGoal();
+      ROS_INFO("Action (Go Home) did not finish before the time out.\n"); 
+  }
 
 
   //unlock previously blocked shared variables

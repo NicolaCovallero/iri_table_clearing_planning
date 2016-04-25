@@ -287,6 +287,10 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           }
 
         }
+        else
+        {
+          feasible = true;
+        } 
       }//exit while
 
       // clear the predicates to be sure there are no interferences
@@ -318,7 +322,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         default: break;
       }
     }
-  } 
+  }
+
 }
 
 /*  [subscriber callbacks] */
