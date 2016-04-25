@@ -208,10 +208,11 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         return;
       } 
 
-      //plots label markers 
+      //publish label markers 
       this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
                                       this->objects_label_publisher_,
                                       pre_srv.response.aabbs);
+
       this->alg_.setCentroids(pre_srv.response.centroids);
       this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
 
@@ -225,51 +226,99 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
       this->alg_.setAABBs(pre_srv.response.aabbs);
 
-      iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
-      fd_srv.request.objects = this->alg_.prepareObjectsMsg();
-      fd_srv.request.symbolic_predicates = this->alg_.prepareSymbolicPredicatesMsg();
-      fd_srv.request.goal = this->alg_.prepareGoalMsg();
-
-      std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
-
-      if(!get_fast_downward_plan_client_.call(fd_srv))
+      bool feasible = false;
+      while(!feasible) // call the planner until he finds a new solution
       {
-        ROS_ERROR("Impossible getting the Fast Downward plan");
-        this->alg_.setOn(false);
-        return;
-      }
-      // if(!fd_srv.response.feasible)
-      //   ROS_ERROR("There is not a feasible plan for such a problem");
+        iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
+        fd_srv.request.objects = this->alg_.prepareObjectsMsg();
+        std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
+        fd_srv.request.symbolic_predicates = predicates;
+        fd_srv.request.goal = this->alg_.prepareGoalMsg();
 
-      this->alg_.setPlan(fd_srv.response.plan);
-        
-      this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+        std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
 
-      iri_table_clearing_execute::ExecuteGrasping grasping_srv;
-      iri_table_clearing_execute::ExecutePushing pushing_srv;
-      int action = this->alg_.setAction(grasping_srv,pushing_srv);
-      this->alg_.showActionTrajectory(action_trajectory_publisher_);
-      if(execution)
-      { 
-
-        switch(action)
+        if(!get_fast_downward_plan_client_.call(fd_srv))
         {
-          case 0:
-                  if(execute_pushing_client_.call(pushing_srv)) 
-                  {
-
-                  }
-                  break;
-          case 1:break;
-          case -1:break;
-          case -2:break;
-          default: break;
+          ROS_ERROR("Impossible getting the Fast Downward plan");
+          this->alg_.setOn(false);
+          return;
         }
+        // if(!fd_srv.response.feasible)
+        //   ROS_ERROR("There is not a feasible plan for such a problem");
 
-      }
+        this->alg_.setPlan(fd_srv.response.plan);
+          
+        this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+
+        iri_table_clearing_execute::ExecuteGrasping grasping_srv;
+        iri_table_clearing_execute::ExecutePushing pushing_srv;
+        int action_type = this->alg_.setAction(grasping_srv,pushing_srv);
+        this->alg_.showActionTrajectory(action_trajectory_publisher_);
+        if(execution)
+        { 
+          // until know it works only with pushing action (action_type == 0)
+          switch(action_type)
+          {
+            case 0:
+                    if(execute_pushing_client_.call(pushing_srv)) 
+                    {
+                      if(!pushing_srv.response.success) 
+                      {
+                        ROS_WARN("Pushing action unfeasible");
+                        this->alg_.setIKUnfeasiblePredicate();
+                        feasible = false;
+                      }
+                      else
+                      {
+                        feasible = true; 
+                      }
+                    }
+                    else
+                    {
+                      feasible = true; // if we cannot call the service, or we decided to not execute anything keep going on
+                    }
+                    break;
+            case 1:break;
+            case -1:break;
+            case -2:break;
+            default: // for the case there is no action to do 
+                     feasible = true;
+                     break;
+          }
+
+        }
+      }//exit while
+
+      // clear the predicates to be sure there are no interferences
+      this->alg_.resetPredicates();
     }
     this->alg_.setOn(false);
   }
+
+  if(this->alg_.getPlanLength() == 0)
+  {
+    std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)";
+    char response;
+    std::cin >> response;
+    bool wrong_character = true;
+    while(wrong_character)
+    {
+      switch(response)
+      {
+        case 'y':
+        case 'Y':
+            wrong_character = false;
+            std::cout << "\n";
+            break;
+        case 'n':
+        case 'N':
+            std::cout << "\n You decided to NOT repeat the task. Shutdown the node...\n";
+            ros::shutdown();
+            break;
+        default: break;
+      }
+    }
+  } 
 }
 
 /*  [subscriber callbacks] */

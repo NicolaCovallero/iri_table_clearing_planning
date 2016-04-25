@@ -15,6 +15,7 @@
 
        <!-- This goal is just to separate the objects, without grasping them-->
       
+      
        <param name="goal" value="(and (not (exists (?x - obj)(or
                                   (exists(?y - obj)(block_dir1 ?y ?x))
                                   (exists(?y - obj)(block_dir2 ?y ?x))
@@ -25,10 +26,14 @@
                                   (not (exists(?x - obj)(grasped ?x)))
                                   )
                                  "/>
+      
+      <!--
+       <param name="goal" value="(not (exists(?x - obj)(not (grasped ?x))))"/>
+      -->
       <param name="execute_pushing_service" value="/table_clearing_execute_alg_node/execute_pushing"/>
       <param name="execution" value="$(arg execution)"/>
       <param name="pushing_discretization" value="4"/>
-      <param name="pushing_step" value="1.5"/>
+      <param name="pushing_step" value="2.0"/>
       <!-- This goal is to say to grasp all the objects -->                                 
       <!--
       <param name="goal" value="(not (exists (?x - obj)(not (grasped ?x))))"/>

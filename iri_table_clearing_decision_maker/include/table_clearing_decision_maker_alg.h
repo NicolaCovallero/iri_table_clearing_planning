@@ -83,6 +83,13 @@ class TableClearingDecisionMakerAlgorithm
      */
     uint n_objects;
 
+    struct IKUnfeasiblePredicate{
+
+        std::string action;
+        std::string object;
+    };
+
+
     // std::vector<BlocksPredicate> blocks_predicates;
     // std::vector<std::vector<uint> > on_top_predicates;
     // std::vector<std::vector<uint> > block_grasp_predicates;
@@ -93,6 +100,7 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
     std::vector<iri_table_clearing_predicates::AABB> aabbs;
+    std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
     std::vector<geometry_msgs::Point> centroids;
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
     geometry_msgs::Vector3 plane_normal;
@@ -255,6 +263,12 @@ class TableClearingDecisionMakerAlgorithm
     void setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step);
 
     /**
+     * @brief set the ik_unfeasible predicate for the current first action
+     * @details 
+     */
+    void setIKUnfeasiblePredicate();
+
+    /**
      * @brief It returns 1 for the grasping action 
      * or 0 for the pushing, and -1 for a non accepted action, or -2 in case of error,
      * or -3 in case there is not plan set
@@ -267,6 +281,18 @@ class TableClearingDecisionMakerAlgorithm
      */
     int setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing);
+
+    /**
+     * @brief Return the number of actions of the plan
+     * @details [long description]
+     * @return [description]
+     */
+    int getPlanLength();
+
+    /**
+     * @details Clear predicates
+     */
+    void resetPredicates();
 
 };
 

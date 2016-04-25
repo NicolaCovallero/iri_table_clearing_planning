@@ -159,6 +159,15 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 		}
 	}
 
+	// ----------------- Add Ik unfeasible predicates --------------------------
+	for (int i = 0; i < this->ik_unfeasible_predicates.size(); ++i)
+	{
+		tmp.predicate_name = this->ik_unfeasible_predicates[i].action;
+		tmp.objects.resize(1);
+		tmp.objects[0] = this->ik_unfeasible_predicates[i].object; 
+		blocks_predicates_msg.push_back(tmp);
+	}
+
  	return blocks_predicates_msg;
 }
 
@@ -481,6 +490,31 @@ void TableClearingDecisionMakerAlgorithm::setPushingDiscretizationAndStep(int pu
 	this->pushing_discretization = pushing_discretization;
 	this->pushing_step = pushing_step;
 }
+void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
+{
+	if(this->plan.actions.size() == 0)
+	{
+		ROS_WARN("No plan - Your are trying to specify that an action if unfeasible when there are no actions in the plan.");
+		return;
+	}
+	IKUnfeasiblePredicate pred;
+	if(strcmp(plan.actions[0].action_name.c_str(),"push_dir1") == 0)
+		pred.action = "ik_unfeasible_dir1";
+	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir2") == 0)
+		pred.action = "ik_unfeasible_dir2";
+	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir3") == 0)
+		pred.action = "ik_unfeasible_dir3";
+	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir4") == 0)
+		pred.action = "ik_unfeasible_dir4";
+	else if(strcmp(plan.actions[0].action_name.c_str(),"grasp") == 0)
+		pred.action = "ik_unfeasible_grasp";
+	else
+		ROS_ERROR("Error trying to set the IK unfeasible predicate.");
+
+	pred.object = plan.actions[0].objects[0];
+	ik_unfeasible_predicates.push_back(pred);
+
+}
 int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing)
 {
@@ -630,4 +664,15 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		ROS_ERROR("The first action is not one of ther permitted. The current action is %s",plan.actions[0].action_name.c_str());
 		return -1;
 	}
+}
+int TableClearingDecisionMakerAlgorithm::getPlanLength()
+{
+	return this->plan.actions.size();
+}
+void TableClearingDecisionMakerAlgorithm::resetPredicates()
+{
+	this->ik_unfeasible_predicates.resize(0);
+	this->blocks_predicates.resize(0);
+	this->on_top_predicates.resize(0);
+	this->block_grasp_predicates.resize(0);
 }
