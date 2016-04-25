@@ -53,7 +53,10 @@ void TableClearingPredicatesAlgorithm::setPushingStep(double pushing_step)
 {
 	this->tcp.setPushingStep(pushing_step);
 }
-
+void TableClearingPredicatesAlgorithm::setPushingObjectDistance(double pushing_object_distance)
+{
+	this->tcp.setPushingObjectDistance(pushing_object_distance);
+}
 void TableClearingPredicatesAlgorithm::computeAABBObjects(bool refine_centroids)
 {
 	this->tcp.computeAABBObjects(refine_centroids);

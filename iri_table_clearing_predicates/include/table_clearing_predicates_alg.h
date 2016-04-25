@@ -52,6 +52,7 @@ const double  FINGER_DEEP = 0.03;
 const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
+const double  PUSHING_OBJECT_DISTANCE = 0.05;
 
 const double PUSHING_STEP = 1.5; // push 1.5 times along the relative AABB dimension
 
@@ -225,6 +226,14 @@ class TableClearingPredicatesAlgorithm
      * @param[in] pushing_limit Desired value for the pushing limit.
      */
     void setPushingStep(double pushing_step);
+
+    /**
+     * 
+     * @details Distance between the tcp and the object, during the pushing action
+     * 
+     * @param pushing_object_distance 
+     */
+    void setPushingObjectDistance(double pushing_object_distance);
 
     /**
      * @brief    compute the principal directions of the objects.

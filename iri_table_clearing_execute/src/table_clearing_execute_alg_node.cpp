@@ -1,10 +1,19 @@
 #include "table_clearing_execute_alg_node.h"
 
+const std::string IK_SERVICE = "/estirabot/estirabot_tcp_ik/get_wam_ik";
+const std::string FROM_POSE_IK_SERVICE = "/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose";
+
 TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   algorithm_base::IriBaseAlgorithm<TableClearingExecuteAlgorithm>()
 {
   //init class attributes if necessary
   //this->loop_rate_ = 2;//in [Hz]
+
+  std::string ik_service, from_pose_ik_service;
+  this->public_node_handle_.param("ik_service", ik_service,IK_SERVICE);
+  this->public_node_handle_.param("from_pose_ik_service", from_pose_ik_service, FROM_POSE_IK_SERVICE);
+  std::cout << "ik_service: "  << ik_service << std::endl
+            << "from_pose_ik_service: " << from_pose_ik_service << std::endl;
 
   // [init publishers]
   this->action_pose_publisher_ = this->public_node_handle_.advertise<geometry_msgs::PoseStamped>("action_pose", 1);
@@ -23,9 +32,9 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
 
   
   // [init clients]
-  estirabot_gripper_ik_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryInverseKinematics>("/estirabot/estirabot_tcp_ik/get_wam_ik");
+  estirabot_gripper_ik_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryInverseKinematics>(ik_service);
 
-  estirabot_gripper_ik_from_pose_client_ = this->public_node_handle_.serviceClient<iri_wam_common_msgs::QueryWamInverseKinematicsFromPose>("/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose");
+  estirabot_gripper_ik_from_pose_client_ = this->public_node_handle_.serviceClient<iri_wam_common_msgs::QueryWamInverseKinematicsFromPose>(from_pose_ik_service);
 
   traj_client_ = new TrajClient("/estirabot/estirabot_controller/follow_joint_trajectory", true);
 
@@ -316,7 +325,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       if(i == 0)
         goal.trajectory.points[i].time_from_start = ros::Duration(3); 
       else
-        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration((double)3/req.pushing_cartesian_trajectory.size()); 
+        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration(0.5); 
 
   }
   goal.trajectory.header.stamp = ros::Time::now();

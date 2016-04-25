@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="iri_table_clearing_execute" type="iri_table_clearing_execute"
+       name="table_clearing_execute_alg_node" output="screen">
+       <param name="from_pose_ik_service" value="/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose"/>          
+  	</node>
+	
+
+</launch>
