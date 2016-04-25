@@ -129,7 +129,7 @@ void TableClearingExecuteAlgNode::current_joint_state_callback(const sensor_msgs
 {
   ROS_INFO("TableClearingExecuteAlgNode::current_joint_state_callback: New Message Received");
 
-  current_joint_state_ = *msg;
+  //current_joint_state_ = *msg;
 
   //use appropiate mutex to shared variables if necessary
   //this->alg_.lock();
@@ -197,19 +197,33 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
   std::vector<sensor_msgs::JointState> joints_trajectory;
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
+  //joints_trajectory.resize(1);
   action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
-  // homeJointState.header = req.pushing_cartesian_trajectory[0].header;
+  
+  srv.request.current_joints = homeJointState;
+  //srv.request.current_joints = current_joint_state_;
 
-  // srv.request.current_joints = homeJointState;  
-  // //srv.request.current_joints = current_joint_state_;  
-  // srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
-  estirabot_gripper_ik_srv_.request.pose = req.pushing_cartesian_trajectory[0];
-  if (!estirabot_gripper_ik_client_.call(estirabot_gripper_ik_srv_))
+  srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
+
+  if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
-    ROS_ERROR("Impossible getitng the ik for the first point");
+      joints_trajectory[0] = srv.response.desired_joints;
+      /*
+      ROS_INFO("Desired joint state: [%f , %f , %f , %f , %f , %f , %f ]",
+                                        joints_trajectory[0].position[0],
+                                        joints_trajectory[0].position[1],
+                                        joints_trajectory[0].position[2],
+                                        joints_trajectory[0].position[3],
+                                        joints_trajectory[0].position[4],
+                                        joints_trajectory[0].position[5],
+                                        joints_trajectory[0].position[6]);*/
+  }
+  else
+  {
+    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     return false;
   }
-  joints_trajectory[0] = estirabot_gripper_ik_srv_.response.joints;
+
   for (int i = 1; i < req.pushing_cartesian_trajectory.size(); ++i)
   {
     srv.request.current_joints = joints_trajectory[i-1];
@@ -262,10 +276,9 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   goal.trajectory.joint_names[5] = "estirabot_joint_6";
   goal.trajectory.joint_names[6] = "estirabot_joint_7";  
 
-  for (int i = 0; i < req.pushing_cartesian_trajectory.size(); ++i)
+  goal.trajectory.points.resize(joints_trajectory.size());
+  for (int i = 0; i < joints_trajectory.size(); ++i)
   {
-
-      goal.trajectory.points.resize(1);
       goal.trajectory.points[i].positions.resize(7);
       goal.trajectory.points[i].positions[0] = joints_trajectory[i].position[0];
       goal.trajectory.points[i].positions[1] = joints_trajectory[i].position[1];
@@ -301,9 +314,9 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       goal.trajectory.points[i].accelerations[5] = 0.0f;
       goal.trajectory.points[i].accelerations[6] = 0.0f;
       if(i == 0)
-        goal.trajectory.points[i].time_from_start = ros::Duration((double)(3/req.pushing_cartesian_trajectory.size())); 
+        goal.trajectory.points[i].time_from_start = ros::Duration(3); 
       else
-        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration((double)(3/req.pushing_cartesian_trajectory.size())); 
+        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration((double)3/req.pushing_cartesian_trajectory.size()); 
 
   }
   goal.trajectory.header.stamp = ros::Time::now();
