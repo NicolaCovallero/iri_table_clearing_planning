@@ -309,8 +309,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   goal.trajectory.joint_names[5] = "estirabot_joint_6";
   goal.trajectory.joint_names[6] = "estirabot_joint_7";  
 
-  goal.trajectory.points.resize(joints_trajectory.size() + 1);
-  for (int i = 0; i < joints_trajectory.size() -1; ++i)
+  goal.trajectory.points.resize(joints_trajectory.size());
+  for (int i = 0; i < joints_trajectory.size(); ++i)
   {
       goal.trajectory.points[i].positions.resize(7);
       goal.trajectory.points[i].positions[0] = joints_trajectory[i].position[0];
@@ -349,38 +349,44 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       if(i == 0)
         goal.trajectory.points[i].time_from_start = ros::Duration(3); 
       else
-        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration((double)3.0f/joints_trajectory.size()); 
+        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration(1); 
 
   }
+
   
+  trajectory_msgs::JointTrajectoryPoint final_point;
+
   // go back to the initial position in order to avoid to collide with the interesting object when coming home
-  goal.trajectory.points[joints_trajectory.size() -1].positions.resize(7);
-  goal.trajectory.points[joints_trajectory.size() -1].positions[0] = joints_trajectory[0].position[0];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[1] = joints_trajectory[0].position[1];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[2] = joints_trajectory[0].position[2];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[3] = joints_trajectory[0].position[3];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[4] = joints_trajectory[0].position[4];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[5] = joints_trajectory[0].position[5];
-  goal.trajectory.points[joints_trajectory.size() -1].positions[6] = joints_trajectory[0].position[6];
+  final_point.positions.resize(7);
+  final_point.positions[0] = joints_trajectory[0].position[0];
+  final_point.positions[1] = joints_trajectory[0].position[1];
+  final_point.positions[2] = joints_trajectory[0].position[2];
+  final_point.positions[3] = joints_trajectory[0].position[3];
+  final_point.positions[5] = joints_trajectory[0].position[5];
+  final_point.positions[4] = joints_trajectory[0].position[4];
+  final_point.positions[5] = joints_trajectory[0].position[5];
+  final_point.positions[6] = joints_trajectory[0].position[6];
 
-  goal.trajectory.points[joints_trajectory.size() -1].velocities.resize(7);
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[0] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[1] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[2] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[3] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[5] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[4] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].velocities[6] = 0.02f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations.resize(7);
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[0] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[1] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[2] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[3] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[4] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[5] = 0.0f;
-  goal.trajectory.points[joints_trajectory.size() -1].accelerations[6] = 0.0f;
+  final_point.velocities.resize(7);
+  final_point.velocities[0] = 0.02f;
+  final_point.velocities[1] = 0.02f;
+  final_point.velocities[2] = 0.02f;
+  final_point.velocities[3] = 0.02f;
+  final_point.velocities[5] = 0.02f;
+  final_point.velocities[4] = 0.02f;
+  final_point.velocities[6] = 0.02f;
+  final_point.accelerations.resize(7);
+  final_point.accelerations[0] = 0.0f;
+  final_point.accelerations[1] = 0.0f;
+  final_point.accelerations[2] = 0.0f;
+  final_point.accelerations[3] = 0.0f;
+  final_point.accelerations[4] = 0.0f;
+  final_point.accelerations[5] = 0.0f;
+  final_point.accelerations[6] = 0.0f;
+  final_point.time_from_start = goal.trajectory.points[joints_trajectory.size() -1].time_from_start + ros::Duration(2); 
 
-  goal.trajectory.points[joints_trajectory.size() -1].time_from_start = goal.trajectory.points[joints_trajectory.size() -2].time_from_start + ros::Duration(1); 
+  goal.trajectory.points.push_back(final_point);  
+  
 
   goal.trajectory.header.stamp = ros::Time::now();
 
