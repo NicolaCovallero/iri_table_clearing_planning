@@ -8,6 +8,7 @@
        <param name="gripper_height" value="0.08"/>
        <param name="closing_region_height" value="0.05"/>
        <param name="finger_deep" value="0.03"/>
+       <param name="pushing_method" value="0"/>
        <!--
        <param name="pushing_distance_plane" value="0.025"/>
         -->

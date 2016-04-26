@@ -131,6 +131,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.block_grasp_predicates = this->alg_.getBlockGraspPredicates();
   res.objects_pushing_directions = this->alg_.getPushingDirections();
   res.grasping_poses = this->alg_.getGraspingPoses();
+  res.approaching_poses = this->alg_.getApproachingPoses();
   res.pushing_poses = this->alg_.getPushingPoses();
   res.aabbs = this->alg_.getAABBMsg();
   res.centroids = this->alg_.getCentroids();

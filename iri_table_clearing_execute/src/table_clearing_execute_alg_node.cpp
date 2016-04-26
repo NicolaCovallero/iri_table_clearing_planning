@@ -195,10 +195,17 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 {
   ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: New Request Received!");
 
+  // check input
+  if(req.pushing_cartesian_trajectory.size() == 0)
+  {
+    ROS_ERROR("0 poses received - Impossible trajectory\n");
+    res.success = true;
+    return true;
+  }
 
   //use appropiate mutex to shared variables if necessary
-  //this->alg_.lock();
-  //this->execute_pushing_mutex_enter();
+  this->alg_.lock();
+  this->execute_pushing_mutex_enter();
 
   //ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: Processing New Request!");
   
@@ -206,7 +213,6 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
   std::vector<sensor_msgs::JointState> joints_trajectory;
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
-  //joints_trajectory.resize(1);
   action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
   
   srv.request.current_joints = homeJointState;
@@ -214,6 +220,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
 
+  ROS_INFO("Trying calling the IK service");
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
       joints_trajectory[0] = srv.response.desired_joints;
@@ -268,7 +275,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     }
   }
 
-
+  ROS_INFO("Waiting for the joint_trajectory_action server");
   while(!traj_client_->waitForServer(ros::Duration(5.0))){
       ROS_INFO("Waiting for the joint_trajectory_action server");
   }
@@ -407,8 +414,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
 
   //unlock previously blocked shared variables
-  //this->execute_pushing_mutex_exit();
-  //this->alg_.unlock();
+  this->execute_pushing_mutex_exit();
+  this->alg_.unlock();
 
   return true;
 }

@@ -244,6 +244,33 @@ std::vector<iri_table_clearing_predicates::GraspingPoses> TableClearingPredicate
 
 	return grasping_poses_msg;
 }
+std::vector<iri_table_clearing_predicates::GraspingPoses> TableClearingPredicatesAlgorithm::getApproachingPoses()
+{
+	std::vector<GraspingPose> approaching_poses = this->tcp.getApproachingPoses();
+	std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses_msg;
+	approaching_poses_msg.resize(this->tcp.getNumObjects());
+
+	for (int i = 0; i < this->tcp.getNumObjects(); ++i)
+	{
+		// -------------------------------------------------------------
+		// IMPORTANT! : The header have to be set in the ...alg_node.cpp
+		// -------------------------------------------------------------	
+		geometry_msgs::PoseStamped pose_stamped;
+
+		pose_stamped.pose.position.x = approaching_poses[i].translation[0];
+		pose_stamped.pose.position.y = approaching_poses[i].translation[1];
+		pose_stamped.pose.position.z = approaching_poses[i].translation[2];
+
+		pose_stamped.pose.orientation.x =  approaching_poses[i].quaternion.x();
+		pose_stamped.pose.orientation.y =  approaching_poses[i].quaternion.y();
+		pose_stamped.pose.orientation.z =  approaching_poses[i].quaternion.z();
+		pose_stamped.pose.orientation.w =  approaching_poses[i].quaternion.w();
+
+		approaching_poses_msg[i].grasping_poses.push_back(pose_stamped);
+	}
+
+	return approaching_poses_msg;
+}
 std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicatesAlgorithm::getPushingPoses()
 {
 	std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses_msg;

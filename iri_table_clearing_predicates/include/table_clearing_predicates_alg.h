@@ -343,6 +343,8 @@ class TableClearingPredicatesAlgorithm
 
     std::vector<iri_table_clearing_predicates::GraspingPoses> getGraspingPoses();
 
+    std::vector<iri_table_clearing_predicates::GraspingPoses> getApproachingPoses();
+
     std::vector<iri_table_clearing_predicates::PushingPoses> getPushingPoses();
 
     std::vector<iri_table_clearing_predicates::AABB> getAABBMsg();

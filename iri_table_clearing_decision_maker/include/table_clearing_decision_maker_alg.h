@@ -98,6 +98,7 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
+    std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
     std::vector<iri_table_clearing_predicates::AABB> aabbs;
     std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
@@ -234,6 +235,7 @@ class TableClearingDecisionMakerAlgorithm
     void setBlockGraspPredicates(std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates);
     void setPushingDirections(std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions);
     void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
+    void setApproachingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses);
     void setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses); 
     void setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs);
 

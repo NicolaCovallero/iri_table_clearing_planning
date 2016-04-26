@@ -222,6 +222,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setBlockGraspPredicates(pre_srv.response.block_grasp_predicates);
       this->alg_.setPushingDirections(pre_srv.response.objects_pushing_directions);
       this->alg_.setGraspingPoses(pre_srv.response.grasping_poses);
+      this->alg_.setApproachingPoses(pre_srv.response.approaching_poses);
       this->alg_.setPushingPoses(pre_srv.response.pushing_poses);
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
       this->alg_.setAABBs(pre_srv.response.aabbs);

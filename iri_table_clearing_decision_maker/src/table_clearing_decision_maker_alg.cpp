@@ -200,9 +200,15 @@ void TableClearingDecisionMakerAlgorithm::setGraspingPoses(std::vector<iri_table
 {
 	this->grasping_poses = grasping_poses;
 }
+void TableClearingDecisionMakerAlgorithm::setApproachingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses)
+{
+	this-> approaching_poses = approaching_poses;
+}
 void TableClearingDecisionMakerAlgorithm::setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses)
 {
 	this->pushing_poses = pushing_poses;
+	if(this->pushing_poses.size() == 0)
+		ROS_WARN("0 Pushing Poses");
 }
 void TableClearingDecisionMakerAlgorithm::setPlan(iri_fast_downward_wrapper::Plan plan)
 {
@@ -656,7 +662,16 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
 	{
+		geometry_msgs::PoseStamped grasping_pose, approaching_pose;
 
+		grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
+		grasping_pose.header.frame_id = this->frame_id;
+
+		approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
+		approaching_pose.header.frame_id = this->frame_id;
+
+		grasping.request.grasping_pose = grasping_pose;
+		grasping.request.approaching_pose = approaching_pose;
 		return 1;
 	}
 	else
