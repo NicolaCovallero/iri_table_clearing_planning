@@ -28,13 +28,15 @@ void TableClearingPredicatesAlgorithm::setGripperSimpleModel(double height, doub
 	this->tcp.setGripperSimpleModel(height, deep, width, distance_plane);
 }
 
-void TableClearingPredicatesAlgorithm::setFingersModel(double opening_width, double finger_width,
+void TableClearingPredicatesAlgorithm::setFingersModel(double opening_width,double closing_width, double finger_width,
                double deep, double height, double closing_height)
 {
-	this->tcp.setFingersModel(opening_width, finger_width, deep, height, closing_height);
+	this->tcp.setFingersModel(opening_width, closing_width, finger_width, deep, height, closing_height);
 }
-
-
+void TableClearingPredicatesAlgorithm::setPushingMethod(double pushing_method)
+{
+	this->pushing_method = pushing_method;
+}
 void TableClearingPredicatesAlgorithm::setOriginalPointCloud(PointCloudT original_cloud)
 {
 	this->tcp.setOriginalPointCloud(original_cloud);
@@ -93,7 +95,7 @@ void TableClearingPredicatesAlgorithm::computeOnTopPredicates(double th1, double
 
 void TableClearingPredicatesAlgorithm::computeBlockPredicates(bool print)
 {
-	this->tcp.computeBlockPredicates(print);
+	this->tcp.computeBlockPredicates(print,this->pushing_method);
 }
 
 void TableClearingPredicatesAlgorithm::computeBlockGraspPredicates(bool print)

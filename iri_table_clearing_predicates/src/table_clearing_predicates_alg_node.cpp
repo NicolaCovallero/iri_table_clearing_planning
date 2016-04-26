@@ -6,9 +6,12 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
 
-  double  opening_width, finger_width, gripper_height, closing_region_height,
+  double  opening_width, finger_width, gripper_height, closing_region_height, closing_width,
           finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_step,pushing_object_distance;
+  int pushing_method;
 
+  this->public_node_handle_.param("pushing_method",pushing_method,PUSHING_METHOD);
+  this->public_node_handle_.param("closing_width",closing_width,CLOSING_WIDTH);
   this->public_node_handle_.param("opening_width",opening_width,OPENING_WIDTH);
   this->public_node_handle_.param("finger_width",finger_width,FINGER_WIDTH);
   this->public_node_handle_.param("gripper_height",gripper_height,GRIPPER_HEIGHT);
@@ -22,6 +25,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
+            << "closing_width: " << closing_width << std::endl
             << "finger_width: " << finger_width << std::endl
             << "gripper_height: " << gripper_height << std::endl
             << "closing_region_height: " << closing_region_height << std::endl
@@ -30,12 +34,14 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "ee_height: " << ee_height << std::endl
             << "ee_deep: " << ee_deep << std::endl
             << "pushing_step: " << pushing_step << std::endl
-            << "pushing_object_distance: " << pushing_object_distance << std::endl; 
+            << "pushing_object_distance: " << pushing_object_distance << std::endl
+            << "pushing_method: " << pushing_method << std::endl; 
 
   this->alg_.setPushingStep(pushing_step);
+  this->alg_.setPushingMethod(pushing_method);
   this->alg_.setPushingObjectDistance(pushing_object_distance);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         
-  this->alg_.setFingersModel(opening_width, finger_width, finger_deep, gripper_height, closing_region_height);
+  this->alg_.setFingersModel(opening_width, closing_width, finger_width, finger_deep, gripper_height, closing_region_height);
 
 
   // [init publishers]

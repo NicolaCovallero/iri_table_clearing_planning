@@ -45,6 +45,7 @@
 
 /** default values */
 const double  OPENING_WIDTH = 0.08;
+const double  CLOSING_WIDTH = 0.03;
 const double  FINGER_WIDTH = 0.02;
 const double  GRIPPER_HEIGHT = 0.08;
 const double  CLOSING_REGION_HEIGHT = 0.05;
@@ -53,6 +54,7 @@ const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 const double  PUSHING_OBJECT_DISTANCE = 0.05;
+const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
 
 const double PUSHING_STEP = 1.5; // push 1.5 times along the relative AABB dimension
 
@@ -85,6 +87,8 @@ class TableClearingPredicatesAlgorithm
     typedef pcl::PointCloud<PointT> PointCloudT;
 
     double on_th1, on_th2;
+
+    int pushing_method;
 
   public:
    /**
@@ -191,8 +195,10 @@ class TableClearingPredicatesAlgorithm
      * @param height [description]
      * @param closing_height [description]
      */
-    void setFingersModel(double opening_width, double finger_width,
+    void setFingersModel(double opening_width,double closing_width, double finger_width,
                double deep, double height, double closing_height);
+
+    void setPushingMethod(double pushing_method);
 
     /**
      * @brief Set the original point cloud, the one used for the segmentation. 
