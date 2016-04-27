@@ -11,6 +11,9 @@
   <xacro:property name="finger_deep" value="0.025" /> 
   <xacro:property name="closing_width" value="0.025" /> 
 
+  <!-- This offset is due to avoid the collision between the gripper and the end effector "boundary"-->
+  <xacro:property name="offset" value="0.0051" /> 
+
   <xacro:macro name="grippertcp" params="prefix parent">
 
     <link name="${prefix}_link_gripper_tcp" />
@@ -24,7 +27,7 @@
     <joint name="${prefix}_joint_gripper_base_tcp" type="fixed" >
       <parent link="${parent}" />
       <child link="${prefix}_link_gripper_base_tcp" />
-      <origin xyz="0.0 0.0 ${height/2}" rpy="0 0 0" />
+      <origin xyz="0.0 0.0 ${height/2 + offset/2}" rpy="0 0 0" />
     </joint>
 
     <joint name="${prefix}_joint_gripper_left_finger_tcp" type="fixed" >
@@ -43,14 +46,14 @@
 		<collision>
 	      <origin xyz="0 0 0" rpy="0 0 0"/>
 	      <geometry>
-		<box size="${width} ${deep} ${height}"/>
+		<box size="${width} ${deep} ${height -offset}"/>
 	      </geometry>
 	    </collision>
 
 	    <visual>
 	      <origin xyz="0 0 0" rpy="0 0 0"/>
 	      <geometry>
-		<box size="${width} ${deep} ${height}"/>
+		<box size="${width} ${deep} ${height -offset}"/>
 	      </geometry>
 	      <material name="white"/>
 	    </visual>

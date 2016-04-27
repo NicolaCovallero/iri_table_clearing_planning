@@ -1,0 +1,10 @@
+controller_list:
+  - name: fake_arm_controller
+    joints:
+      - estirabot_joint_1
+      - estirabot_joint_2
+      - estirabot_joint_3
+      - estirabot_joint_4
+      - estirabot_joint_5
+      - estirabot_joint_6
+      - estirabot_joint_7
