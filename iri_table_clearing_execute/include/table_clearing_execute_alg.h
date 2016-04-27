@@ -24,6 +24,7 @@
 
 #ifndef _table_clearing_execute_alg_h_
 #define _table_clearing_execute_alg_h_
+#define MANUAL_EXECUTION 0
 
 #include <iri_table_clearing_execute/TableClearingExecuteConfig.h>
 
@@ -68,6 +69,13 @@ class TableClearingExecuteAlgorithm
     * Is updated everytime function config_update() is called.
     */
     Config config_;
+
+    /**
+     * @brief Variable for the execution of the node
+     * @details True if the execution is automatic, if not false
+     * @return [description]
+     */
+    bool automatic; 
 
    /**
     * \brief constructor

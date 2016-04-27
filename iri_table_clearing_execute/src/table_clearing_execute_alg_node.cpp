@@ -12,8 +12,18 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   std::string ik_service, from_pose_ik_service;
   this->public_node_handle_.param("ik_service", ik_service,IK_SERVICE);
   this->public_node_handle_.param("from_pose_ik_service", from_pose_ik_service, FROM_POSE_IK_SERVICE);
+  this->public_node_handle_.param("automatic", this->alg_.automatic, false);
+
+
+  std::string execution_str;
+  if(this->alg_.automatic)
+    execution_str = "automatic";
+  else
+    execution_str = "manual";
+
   std::cout << "ik_service: "  << ik_service << std::endl
-            << "from_pose_ik_service: " << from_pose_ik_service << std::endl;
+            << "from_pose_ik_service: " << from_pose_ik_service << std::endl
+            << "execution: " << execution_str << std::endl;
 
   // [init publishers]
   this->action_pose_publisher_ = this->public_node_handle_.advertise<geometry_msgs::PoseStamped>("action_pose", 1);
@@ -204,8 +214,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
 
   //use appropiate mutex to shared variables if necessary
-  this->alg_.lock();
-  this->execute_pushing_mutex_enter();
+  //this->alg_.lock();
+  //this->execute_pushing_mutex_enter();
 
   //ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: Processing New Request!");
   
@@ -282,27 +292,36 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   control_msgs::FollowJointTrajectoryGoal goal;
   goal.trajectory.header.frame_id = req.pushing_cartesian_trajectory[0].header.frame_id;
 
-  std::cout << "\n\n The trajectory is ready to execute, do you want to execute?(y,n)";
-  char response;
-  std::cin >> response;
-  bool wrong_character = true;
-  while(wrong_character)
+  
+  if(this->alg_.automatic == MANUAL_EXECUTION)
   {
-    switch(response)
+    char response;
+    bool wrong_character = true;
+    while(wrong_character)
     {
-      case 'y':
-      case 'Y':
-          wrong_character = false;
-          std::cout << "\n";
-          break;
-      case 'n':
-      case 'N':
-          std::cout << "\n You decided to NOT execute the trajectory\n";
-          return false; // return false because the trajectory is not executed
-          break;
-      default: break;
+      std::cout << "\n\n The trajectory is ready to execute, do you want to execute?(y,n)";
+      std::cin >> response;
+      switch(response)
+      {
+        case 'y':
+        case 'Y':
+            wrong_character = false;
+            std::cout << "\n";
+            break;
+        case 'n':
+        case 'N':
+            std::cout << "\nYou decided to NOT execute the trajectory\n";
+            std::cout << "\nWaiting for new request...\n";
+            return false; // return false because the trajectory is not executed
+            break;
+        default: break;
+      }
     }
   } 
+
+  // reset the time stamp for all the trajectory points
+  for (int i = 0; i < joints_trajectory.size(); ++i)
+    joints_trajectory[i].header.stamp = ros::Time::now();
 
   // joint names
   goal.trajectory.joint_names.resize(7);
@@ -391,10 +410,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   final_point.time_from_start = goal.trajectory.points[joints_trajectory.size() -1].time_from_start + ros::Duration(2); 
 
   goal.trajectory.points.push_back(final_point);  
-  
 
   goal.trajectory.header.stamp = ros::Time::now();
-
 
   ROS_INFO("sending trajectory trajectory");
   traj_client_->sendGoal(goal);
@@ -414,8 +431,10 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
 
   //unlock previously blocked shared variables
-  this->execute_pushing_mutex_exit();
-  this->alg_.unlock();
+  //this->execute_pushing_mutex_exit();
+  //this->alg_.unlock();
+
+  std::cout << "\nWaiting for new request...\n";
 
   return true;
 }

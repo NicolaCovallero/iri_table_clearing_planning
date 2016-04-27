@@ -54,6 +54,8 @@ const double  PUSHING_DISTANCE_PLANE = 0.025;
 const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 const double  PUSHING_OBJECT_DISTANCE = 0.05;
+const double  APPROACHING_DISTANCE = 0.1;
+
 const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
 
 const double PUSHING_STEP = 1.5; // push 1.5 times along the relative AABB dimension
@@ -240,6 +242,13 @@ class TableClearingPredicatesAlgorithm
      * @param pushing_object_distance 
      */
     void setPushingObjectDistance(double pushing_object_distance);
+
+    /**
+     * @details Set the approaching distance, distance between the point before the grasping and the grasping pose
+     * 
+     * @param approaching_distance [description]
+     */
+    void setApproachingDistance(double approaching_distance);
 
     /**
      * @brief    compute the principal directions of the objects.

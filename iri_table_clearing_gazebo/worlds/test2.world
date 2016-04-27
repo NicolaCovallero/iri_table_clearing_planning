@@ -325,14 +325,14 @@
       <link name='link'>
         <pose>0 0 0.05 0 -0 0</pose>
         <inertial>
-          <mass>0.5167</mass>
+          <mass>0.05</mass>
           <inertia>
-            <ixx>0.000861167</ixx>
+            <ixx>0.000161167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000861167</iyy>
+            <iyy>0.000161167</iyy>
             <iyz>0</iyz>
-            <izz>0.000861167</izz>
+            <izz>0.000161167</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -460,14 +460,14 @@
       <link name='link'>
         <pose>0 0 0.05 0 -0 0</pose>
         <inertial>
-          <mass>0.5167</mass>
+          <mass>0.05</mass>
           <inertia>
-            <ixx>0.000861167</ixx>
+            <ixx>0.000161167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000861167</iyy>
+            <iyy>0.000161167</iyy>
             <iyz>0</iyz>
-            <izz>0.000861167</izz>
+            <izz>0.000161167</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -518,14 +518,14 @@
       <link name='link'>
         <pose>0 0 0.05 0 -0 0</pose>
         <inertial>
-          <mass>0.5167</mass>
+          <mass>0.05</mass>
           <inertia>
-            <ixx>0.000861167</ixx>
+            <ixx>0.000161167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000861167</iyy>
+            <iyy>0.000161167</iyy>
             <iyz>0</iyz>
-            <izz>0.000861167</izz>
+            <izz>0.000161167</izz>
           </inertia>
         </inertial>
         <collision name='collision'>

@@ -7,7 +7,8 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->loop_rate_ = 2;//in [Hz]
 
   double  opening_width, finger_width, gripper_height, closing_region_height, closing_width,
-          finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_step,pushing_object_distance;
+          finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_step, 
+          pushing_object_distance, approaching_distance;
   int pushing_method;
 
   this->public_node_handle_.param("pushing_method",pushing_method,PUSHING_METHOD);
@@ -22,6 +23,8 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("ee_deep",ee_deep,EE_DEEP);
   this->public_node_handle_.param("pushing_step",pushing_step,PUSHING_STEP);
   this->public_node_handle_.param("pushing_object_distance",pushing_object_distance,PUSHING_OBJECT_DISTANCE);
+  this->public_node_handle_.param("approaching_distance",approaching_distance,APPROACHING_DISTANCE);
+  
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
@@ -35,9 +38,11 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "ee_deep: " << ee_deep << std::endl
             << "pushing_step: " << pushing_step << std::endl
             << "pushing_object_distance: " << pushing_object_distance << std::endl
-            << "pushing_method: " << pushing_method << std::endl; 
+            << "pushing_method: " << pushing_method << std::endl
+            << "approaching_distance: " << approaching_distance << std::endl; 
 
   this->alg_.setPushingStep(pushing_step);
+  this->alg_.setApproachingDistance(approaching_distance);
   this->alg_.setPushingMethod(pushing_method);
   this->alg_.setPushingObjectDistance(pushing_object_distance);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         

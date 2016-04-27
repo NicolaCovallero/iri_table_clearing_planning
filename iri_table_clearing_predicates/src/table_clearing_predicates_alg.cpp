@@ -27,7 +27,10 @@ void TableClearingPredicatesAlgorithm::setGripperSimpleModel(double height, doub
 {
 	this->tcp.setGripperSimpleModel(height, deep, width, distance_plane);
 }
-
+void TableClearingPredicatesAlgorithm::setApproachingDistance(double approaching_distance)
+{
+	this->tcp.setApproachingDistance(approaching_distance);
+}
 void TableClearingPredicatesAlgorithm::setFingersModel(double opening_width,double closing_width, double finger_width,
                double deep, double height, double closing_height)
 {

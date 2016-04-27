@@ -286,7 +286,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                      feasible = true;
                      break;
           }
-
         }
         else
         {
