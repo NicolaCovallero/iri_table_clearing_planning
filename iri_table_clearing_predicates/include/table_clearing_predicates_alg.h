@@ -362,6 +362,8 @@ class TableClearingPredicatesAlgorithm
 
     std::vector<iri_table_clearing_predicates::PrincipalDirections> getPrincipalDirections();
 
+    double getPushingObjectDistance();
+
     void setOnTopParameters(double on_th1, double on_th2);
 
     void reset();

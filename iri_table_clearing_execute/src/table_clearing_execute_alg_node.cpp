@@ -220,9 +220,12 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   //ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: Processing New Request!");
   
   // ---------get the trajectory in the joint space -------------
+  ROS_DEBUG("Getting the trajectory in joint space");
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
   std::vector<sensor_msgs::JointState> joints_trajectory;
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
+
+  ROS_DEBUG("Publishing pose");
   action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
   
   srv.request.current_joints = homeJointState;

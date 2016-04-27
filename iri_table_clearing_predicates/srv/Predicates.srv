@@ -12,3 +12,4 @@ iri_table_clearing_predicates/PushingPoses[] pushing_poses
 iri_table_clearing_predicates/AABB[] aabbs
 geometry_msgs/Point[] centroids
 iri_table_clearing_predicates/PrincipalDirections[] principal_directions
+float32 pushing_object_distance

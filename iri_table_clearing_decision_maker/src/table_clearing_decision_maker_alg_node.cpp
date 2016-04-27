@@ -261,6 +261,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           switch(action_type)
           {
             case 0:
+                    ROS_DEBUG("Calling execution service for pushing action");
                     if(execute_pushing_client_.call(pushing_srv)) 
                     {
                       if(!pushing_srv.response.success) 

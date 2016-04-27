@@ -119,6 +119,10 @@ std::vector<AABB> TableClearingPredicatesAlgorithm::getAABBObjects()
 {
 	return this->tcp.getAABBObjects();
 }
+double TableClearingPredicatesAlgorithm::getPushingObjectDistance()
+{
+	return this->tcp.getPushingObjectDistance();
+}
 
 std::vector<iri_table_clearing_predicates::BlockPredicate> TableClearingPredicatesAlgorithm::getBlockPredicates()
 {
