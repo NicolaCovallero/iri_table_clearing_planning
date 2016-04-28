@@ -29,7 +29,7 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   this->action_pose_publisher_ = this->public_node_handle_.advertise<geometry_msgs::PoseStamped>("action_pose", 1);
   
   // [init subscribers]
-  this->current_joint_state_subscriber_ = this->public_node_handle_.subscribe("current_joint_state", 1, &TableClearingExecuteAlgNode::current_joint_state_callback, this);
+  this->current_joint_state_subscriber_ = this->public_node_handle_.subscribe("/estirabot/joint_states", 1, &TableClearingExecuteAlgNode::current_joint_state_callback, this);
   pthread_mutex_init(&this->current_joint_state_mutex_,NULL);
 
   
@@ -55,38 +55,38 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
 
 
   // // initialize the homeState variable
-  homeJointState.position.resize(7);
-  homeJointState.position[0] = 0.0f;
-  homeJointState.position[1] = 0.0f;
-  homeJointState.position[2] = 0.0f;
-  homeJointState.position[3] = 0.0f;
-  homeJointState.position[4] = 0.0f;
-  homeJointState.position[5] = 0.0f;
-  homeJointState.position[6] = 0.0f;
-  homeJointState.velocity.resize(7);
-  homeJointState.velocity[0] = 0.0f;
-  homeJointState.velocity[1] = 0.0f;
-  homeJointState.velocity[2] = 0.0f;
-  homeJointState.velocity[3] = 0.0f;
-  homeJointState.velocity[4] = 0.0f;
-  homeJointState.velocity[5] = 0.0f;
-  homeJointState.velocity[6] = 0.0f;
-  homeJointState.effort.resize(7);
-  homeJointState.effort[0] = 0.0f;
-  homeJointState.effort[1] = 0.0f;
-  homeJointState.effort[2] = 0.0f;
-  homeJointState.effort[3] = 0.0f;
-  homeJointState.effort[4] = 0.0f;
-  homeJointState.effort[5] = 0.0f;
-  homeJointState.effort[6] = 0.0f;
-  homeJointState.name.resize(7);
-  homeJointState.name[0] = "estirabot_joint_1";
-  homeJointState.name[1] = "estirabot_joint_2";
-  homeJointState.name[2] = "estirabot_joint_3";
-  homeJointState.name[3] = "estirabot_joint_4";
-  homeJointState.name[4] = "estirabot_joint_5";
-  homeJointState.name[5] = "estirabot_joint_6";
-  homeJointState.name[6] = "estirabot_joint_7";  
+  this->alg_.home_joint_state.position.resize(7);
+  this->alg_.home_joint_state.position[0] = 0.0f;
+  this->alg_.home_joint_state.position[1] = 0.0f;
+  this->alg_.home_joint_state.position[2] = 0.0f;
+  this->alg_.home_joint_state.position[3] = 0.0f;
+  this->alg_.home_joint_state.position[4] = 0.0f;
+  this->alg_.home_joint_state.position[5] = 0.0f;
+  this->alg_.home_joint_state.position[6] = 0.0f;
+  this->alg_.home_joint_state.velocity.resize(7);
+  this->alg_.home_joint_state.velocity[0] = 0.0f;
+  this->alg_.home_joint_state.velocity[1] = 0.0f;
+  this->alg_.home_joint_state.velocity[2] = 0.0f;
+  this->alg_.home_joint_state.velocity[3] = 0.0f;
+  this->alg_.home_joint_state.velocity[4] = 0.0f;
+  this->alg_.home_joint_state.velocity[5] = 0.0f;
+  this->alg_.home_joint_state.velocity[6] = 0.0f;
+  this->alg_.home_joint_state.effort.resize(7);
+  this->alg_.home_joint_state.effort[0] = 0.0f;
+  this->alg_.home_joint_state.effort[1] = 0.0f;
+  this->alg_.home_joint_state.effort[2] = 0.0f;
+  this->alg_.home_joint_state.effort[3] = 0.0f;
+  this->alg_.home_joint_state.effort[4] = 0.0f;
+  this->alg_.home_joint_state.effort[5] = 0.0f;
+  this->alg_.home_joint_state.effort[6] = 0.0f;
+  this->alg_.home_joint_state.name.resize(7);
+  this->alg_.home_joint_state.name[0] = "estirabot_joint_1";
+  this->alg_.home_joint_state.name[1] = "estirabot_joint_2";
+  this->alg_.home_joint_state.name[2] = "estirabot_joint_3";
+  this->alg_.home_joint_state.name[3] = "estirabot_joint_4";
+  this->alg_.home_joint_state.name[4] = "estirabot_joint_5";
+  this->alg_.home_joint_state.name[5] = "estirabot_joint_6";
+  this->alg_.home_joint_state.name[6] = "estirabot_joint_7";  
 
 }
 
@@ -146,9 +146,9 @@ void TableClearingExecuteAlgNode::mainNodeThread(void)
 /*  [subscriber callbacks] */
 void TableClearingExecuteAlgNode::current_joint_state_callback(const sensor_msgs::JointState::ConstPtr& msg)
 {
-  ROS_INFO("TableClearingExecuteAlgNode::current_joint_state_callback: New Message Received");
+  //ROS_INFO("TableClearingExecuteAlgNode::current_joint_state_callback: New Message Received");
 
-  //current_joint_state_ = *msg;
+  this->alg_.current_joint_state_ = *msg;
 
   //use appropiate mutex to shared variables if necessary
   //this->alg_.lock();
@@ -180,9 +180,107 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   //this->alg_.lock();
   //this->execute_grasping_mutex_enter();
 
+  ROS_DEBUG("Publishing grasping pose");
+  action_pose_publisher_.publish(req.grasping_pose);
+
   //ROS_INFO("TableClearingExecuteAlgNode::execute_graspingCallback: Processing New Request!");
-  //do operations with req and output on res
-  //res.data2 = req.data1 + my_var;
+  iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
+  srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.desired_pose = req.approaching_pose;
+
+  std::vector<sensor_msgs::JointState> joints_trajectory;
+  joints_trajectory.resize(2);
+
+  res.success = true;
+  if (estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    joints_trajectory[0] = srv.response.desired_joints;
+    std::cout << "Approaching Pose " << 
+        " joint 1: " << joints_trajectory[0].position[0] <<
+        " joint 2: " << joints_trajectory[0].position[1] <<
+        " joint 3: " << joints_trajectory[0].position[2] <<
+        " joint 4: " << joints_trajectory[0].position[3] <<
+        " joint 5: " << joints_trajectory[0].position[4] <<
+        " joint 6: " << joints_trajectory[0].position[5] <<
+        " joint 7: " << joints_trajectory[0].position[6] << std::endl;
+  }
+  else
+  {
+    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+    res.success = false; 
+    return true;
+  }
+
+  srv.request.current_joints = joints_trajectory[0];
+  srv.request.desired_pose = req.grasping_pose;
+  if (estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    joints_trajectory[1] = srv.response.desired_joints;
+    std::cout << "Grasping pose " << 
+        " joint 1: " << joints_trajectory[1].position[0] <<
+        " joint 2: " << joints_trajectory[1].position[1] <<
+        " joint 3: " << joints_trajectory[1].position[2] <<
+        " joint 4: " << joints_trajectory[1].position[3] <<
+        " joint 5: " << joints_trajectory[1].position[4] <<
+        " joint 6: " << joints_trajectory[1].position[5] <<
+        " joint 7: " << joints_trajectory[1].position[6] << std::endl;
+  }
+  else
+  {
+    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+    res.success = false; 
+    return true;
+  }
+
+
+  ROS_INFO("Waiting for the joint_trajectory_action server");
+  while(!traj_client_->waitForServer(ros::Duration(5.0))){
+      ROS_INFO("Waiting for the joint_trajectory_action server");
+  }
+  
+  if(this->alg_.automatic == MANUAL_EXECUTION)
+  {
+    char response;
+    bool wrong_character = true;
+    while(wrong_character)
+    {
+      std::cout << "\n\n The trajectory is ready to execute, do you want to execute?(y,n)";
+      std::cin >> response;
+      switch(response)
+      {
+        case 'y':
+        case 'Y':
+            wrong_character = false;
+            std::cout << "\n";
+            break;
+        case 'n':
+        case 'N':
+            std::cout << "\nYou decided to NOT execute the trajectory\n";
+            std::cout << "\nWaiting for new request...\n";
+            return false; // return false because the trajectory is not executed
+            break;
+        default: break;
+      }
+    }
+  } 
+
+
+  this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+  
+  // OPEN THE GRIPPER
+
+
+  // Go to grasping pose
+  this->alg_.goToPose(traj_client_,joints_trajectory[1]);
+
+  // CLOSED THE GRIPPER
+
+  // Go to bin
+
+  // Go home
+  this->alg_.goHome(traj_client_);
+
+  // 
 
   //unlock previously blocked shared variables
   //this->execute_grasping_mutex_exit();
@@ -228,23 +326,23 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   ROS_DEBUG("Publishing pose");
   action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
   
-  srv.request.current_joints = homeJointState;
-  //srv.request.current_joints = current_joint_state_;
+  srv.request.current_joints = this->alg_.home_joint_state;
+  //srv.request.current_joints = this->alg_.current_joint_state_;
 
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
 
   ROS_INFO("Trying calling the IK service");
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
-      joints_trajectory[0] = srv.response.desired_joints;
-      std::cout << "Point " << 0 << 
-          " joint 1: " << joints_trajectory[0].position[0] <<
-          " joint 2: " << joints_trajectory[0].position[1] <<
-          " joint 3: " << joints_trajectory[0].position[2] <<
-          " joint 4: " << joints_trajectory[0].position[3] <<
-          " joint 5: " << joints_trajectory[0].position[4] <<
-          " joint 6: " << joints_trajectory[0].position[5] <<
-          " joint 7: " << joints_trajectory[0].position[6] << std::endl;
+    joints_trajectory[0] = srv.response.desired_joints;
+    std::cout << "Point " << 0 << 
+        " joint 1: " << joints_trajectory[0].position[0] <<
+        " joint 2: " << joints_trajectory[0].position[1] <<
+        " joint 3: " << joints_trajectory[0].position[2] <<
+        " joint 4: " << joints_trajectory[0].position[3] <<
+        " joint 5: " << joints_trajectory[0].position[4] <<
+        " joint 6: " << joints_trajectory[0].position[5] <<
+        " joint 7: " << joints_trajectory[0].position[6] << std::endl;
   }
   else
   {
@@ -385,14 +483,14 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   // go back to the initial position in order to avoid to collide with the interesting object when coming home
   final_point.positions.resize(7);
-  final_point.positions[0] = joints_trajectory[0].position[0];
-  final_point.positions[1] = joints_trajectory[0].position[1];
-  final_point.positions[2] = joints_trajectory[0].position[2];
-  final_point.positions[3] = joints_trajectory[0].position[3];
-  final_point.positions[5] = joints_trajectory[0].position[5];
-  final_point.positions[4] = joints_trajectory[0].position[4];
-  final_point.positions[5] = joints_trajectory[0].position[5];
-  final_point.positions[6] = joints_trajectory[0].position[6];
+  final_point.positions[0] = joints_trajectory[joints_trajectory.size()-2].position[0];
+  final_point.positions[1] = joints_trajectory[joints_trajectory.size()-2].position[1];
+  final_point.positions[2] = joints_trajectory[joints_trajectory.size()-2].position[2];
+  final_point.positions[3] = joints_trajectory[joints_trajectory.size()-2].position[3];
+  final_point.positions[5] = joints_trajectory[joints_trajectory.size()-2].position[5];
+  final_point.positions[4] = joints_trajectory[joints_trajectory.size()-2].position[4];
+  final_point.positions[5] = joints_trajectory[joints_trajectory.size()-2].position[5];
+  final_point.positions[6] = joints_trajectory[joints_trajectory.size()-2].position[6];
 
   final_point.velocities.resize(7);
   final_point.velocities[0] = 0.02f;

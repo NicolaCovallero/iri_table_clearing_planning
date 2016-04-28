@@ -1,4 +1,4 @@
 geometry_msgs/PoseStamped grasping_pose
 geometry_msgs/PoseStamped approaching_pose
 ---
-bool ik_success
+bool success

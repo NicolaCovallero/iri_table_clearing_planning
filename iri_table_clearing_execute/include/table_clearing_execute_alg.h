@@ -54,6 +54,9 @@ class TableClearingExecuteAlgorithm
     // private attributes and methods
 
   public:
+
+    sensor_msgs::JointState current_joint_state_,home_joint_state;
+
    /**
     * \brief define config type
     *
@@ -140,7 +143,16 @@ class TableClearingExecuteAlgorithm
     */
     ~TableClearingExecuteAlgorithm(void);
 
+    /**
+     * @details Check if the current robot state is the home position
+     * @param threshold for the similarity (for each joint)
+     * @return [description]
+     */
+    bool isAtHome(double th = 0.1);
+
     void goHome(TrajClient* traj_client_);
+
+    void goToPose(TrajClient* traj_client_, sensor_msgs::JointState joint_state);
 
 };
 

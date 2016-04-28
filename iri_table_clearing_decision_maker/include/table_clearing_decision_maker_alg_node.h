@@ -51,8 +51,8 @@ const double PUSHING_STEP = 1.5; // 0.1 meters
 const std::string SEGMENTATION_SERVICE = "/iri_tos_supervoxels_alg/object_segmentation";
 const std::string PREDICATES_SERVICE = "/table_clearing_predicates_alg_node/get_symbolic_predicates";
 const std::string PLANNER_SERVICE = "/get_fast_downward_plan";
-const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
-const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_pushing";
+const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/execute_pushing";
+const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
 
 const bool EXECUTION = false;
 

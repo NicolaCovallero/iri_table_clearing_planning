@@ -237,6 +237,10 @@ void TableClearingDecisionMakerAlgorithm::setPrincipalDirections(std::vector<iri
 {
 	this->principal_directions = principal_directions;
 }
+void TableClearingDecisionMakerAlgorithm::setPushingObjectDistance(double pushing_object_distance)
+{
+	this->pushing_object_distance = pushing_object_distance;
+}
 void TableClearingDecisionMakerAlgorithm::setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs)
 {
 	this->aabbs = aabbs;
@@ -521,6 +525,7 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 	ik_unfeasible_predicates.push_back(pred);
 
 }
+
 int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing)
 {
@@ -549,7 +554,8 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
 	{
-		step = (double)(pushing_step * this->aabbs[idx_obj].deep/this->pushing_discretization);
+		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
+					this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -577,7 +583,8 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
 	{
-		step = (double)(pushing_step * this->aabbs[idx_obj].deep/this->pushing_discretization);
+		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
+					this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -605,7 +612,8 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
 	{
-		step = (double)(pushing_step * this->aabbs[idx_obj].width/this->pushing_discretization);
+		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
+					this->pushing_discretization);
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -634,7 +642,8 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
 	{
-		step = (double)(pushing_step * this->aabbs[idx_obj].width/this->pushing_discretization);
+		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
+					this->pushing_discretization);		
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");

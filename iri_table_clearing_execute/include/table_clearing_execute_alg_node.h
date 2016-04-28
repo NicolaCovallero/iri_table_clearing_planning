@@ -45,7 +45,7 @@
 
 // [action server client headers]
 
-sensor_msgs::JointState current_joint_state_,homeJointState;
+
 
 
 

@@ -38,7 +38,10 @@
   <include file="$(find estirabot_gazebo)/launch/estirabot_control.launch" />
 
   <!-- Publish TCP Robot Inverse Kinematics -->
-  <include file="$(find iri_table_clearing_gazebo)/launch/ik_gripper.launch" if="$(arg IK)" />
+  <include file="$(find iri_table_clearing_gazebo)/launch/ik_gripper.launch" if="$(arg IK)">
+      <arg name="ROBOT" value="$(arg ROBOT)" />
+  </include>
+
 
   <!-- publish gripper_tcp tf -->
   <node name="gripper_tcp_tf" pkg="tf" type="static_transform_publisher"

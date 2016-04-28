@@ -226,6 +226,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPushingPoses(pre_srv.response.pushing_poses);
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
       this->alg_.setAABBs(pre_srv.response.aabbs);
+      this->alg_.setPushingObjectDistance(pre_srv.response.pushing_object_distance);
 
       bool feasible = false;
       while(!feasible) // call the planner until he finds a new solution
@@ -254,33 +255,55 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         iri_table_clearing_execute::ExecuteGrasping grasping_srv;
         iri_table_clearing_execute::ExecutePushing pushing_srv;
         int action_type = this->alg_.setAction(grasping_srv,pushing_srv);
-        this->alg_.showActionTrajectory(action_trajectory_publisher_);
+        
+        if(action_type == 0)
+          this->alg_.showActionTrajectory(action_trajectory_publisher_);
+        
         if(execution)
         { 
           // until know it works only with pushing action (action_type == 0)
           switch(action_type)
           {
             case 0:
-                    ROS_DEBUG("Calling execution service for pushing action");
-                    if(execute_pushing_client_.call(pushing_srv)) 
-                    {
-                      if(!pushing_srv.response.success) 
-                      {
-                        ROS_WARN("Pushing action unfeasible");
-                        this->alg_.setIKUnfeasiblePredicate();
-                        feasible = false;
-                      }
-                      else
-                      {
-                        feasible = true; 
-                      }
-                    }
-                    else
-                    {
-                      feasible = true; // if we cannot call the service, or we decided to not execute anything keep going on
-                    }
-                    break;
-            case 1:break;
+              ROS_INFO("Calling execution service for pushing action");
+              if(execute_pushing_client_.call(pushing_srv)) 
+              {
+                if(!pushing_srv.response.success) 
+                {
+                  ROS_WARN("Pushing action unfeasible");
+                  this->alg_.setIKUnfeasiblePredicate();
+                  feasible = false;
+                }
+                else
+                {
+                  feasible = true; 
+                }
+              }
+              else
+              {
+                feasible = true; // if we cannot call the service, or we decided to not execute anything keep going on
+              }
+              break;
+            case 1:
+              ROS_INFO("Calling execution service for graspingaction");
+              if(execute_grasping_client_.call(grasping_srv)) 
+              { 
+                if(!grasping_srv.response.success) 
+                {
+                  ROS_WARN("Grasping action unfeasible");
+                  this->alg_.setIKUnfeasiblePredicate();
+                  feasible = false;
+                }
+                else
+                {
+                  feasible = true; 
+                }
+              }
+              else
+              {
+                feasible = true; // if we cannot call the service, or we decided to not execute anything keep going on
+              }
+              break;
             case -1:break;
             case -2:break;
             default: // for the case there is no action to do 
@@ -297,6 +320,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
     }
+
     this->alg_.setOn(false);
   }
 

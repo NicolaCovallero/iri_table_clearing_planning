@@ -115,6 +115,7 @@ class TableClearingDecisionMakerAlgorithm
 
     int pushing_discretization;
     double pushing_step;
+    double pushing_object_distance;
 
     std::vector<geometry_msgs::PoseStamped> pushing_cartesian_trajectory; 
 
@@ -244,6 +245,8 @@ class TableClearingDecisionMakerAlgorithm
     void setCentroids(std::vector<geometry_msgs::Point> centroids);
     void setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients);
     void setPrincipalDirections(std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions);
+
+    void setPushingObjectDistance(double pushing_object_distance);
 
     visualization_msgs::Marker firstActionMarker();
 
