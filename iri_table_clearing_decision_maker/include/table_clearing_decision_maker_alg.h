@@ -58,6 +58,8 @@
 
 #include <string>
 
+#include <tf/transform_datatypes.h>
+
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 /**
@@ -118,6 +120,8 @@ class TableClearingDecisionMakerAlgorithm
     double pushing_object_distance;
 
     std::vector<geometry_msgs::PoseStamped> pushing_cartesian_trajectory; 
+
+    geometry_msgs::PoseStamped dropping_pose,pre_dropping_pose;
 
   public:
 
@@ -267,6 +271,8 @@ class TableClearingDecisionMakerAlgorithm
 
     void setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step);
 
+    void setDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z);
+    void setPreDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z);
     /**
      * @brief set the ik_unfeasible predicate for the current first action
      * @details 

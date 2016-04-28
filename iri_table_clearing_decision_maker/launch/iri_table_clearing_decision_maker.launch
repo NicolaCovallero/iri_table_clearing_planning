@@ -35,15 +35,21 @@
       <param name="execution" value="$(arg execution)"/>
       <param name="pushing_discretization" value="4"/>
       <param name="pushing_step" value="2.5"/>
-      <!-- This goal is to say to grasp all the objects -->                                 
-      <!--
-      <param name="goal" value="(not (exists (?x - obj)(not (grasped ?x))))"/>
-      -->                         
+      
+      <!-- Dropping pose definition - Orientation Downforawrd -->
+      <param name="dropping_pose_x" value="0.2"/>
+      <param name="dropping_pose_y" value="0.9"/>
+      <param name="dropping_pose_z" value="-0.1"/>
+
+      <!-- pre Dropping pose definition - Orientation Downforawrd -->
+      <param name="pre_dropping_pose_x" value="0.2"/>
+      <param name="pre_dropping_pose_y" value="0.9"/>
+      <param name="pre_dropping_pose_z" value="0.3"/>
                                
   </node>
 
   <!-- Launch Rqt_gui with the correct configuration -->
-  <include file="$(find iri_table_clearing_decision_maker)/launch/rqt_gui.launch">
+  <include file="$(find iri_table_clearing_config)/launch/rqt_gui.launch">
     <arg name="rqt" value="$(arg rqt)"/>
   </include>
 

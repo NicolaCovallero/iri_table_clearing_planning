@@ -11,10 +11,21 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
   this->public_node_handle_.param("goal", this->alg_.goal, GOAL);
   int pushing_discretization;
-  double pushing_step;
+  double  pushing_step,dropping_pose_x,dropping_pose_y,dropping_pose_z,
+          pre_dropping_pose_x,pre_dropping_pose_y,pre_dropping_pose_z;
   this->public_node_handle_.param("pushing_discretization", pushing_discretization, PUSHING_DISCRETIZATION);
   this->public_node_handle_.param("pushing_step", pushing_step, PUSHING_STEP);
   this->alg_.setPushingDiscretizationAndStep(pushing_discretization, pushing_step);
+
+  this->public_node_handle_.param("dropping_pose_x", dropping_pose_x, DROPPING_POSE_X);
+  this->public_node_handle_.param("dropping_pose_y", dropping_pose_y, DROPPING_POSE_Y);
+  this->public_node_handle_.param("dropping_pose_z", dropping_pose_z, DROPPING_POSE_Z);
+  this->alg_.setDroppingPose(dropping_pose_x, dropping_pose_y, dropping_pose_z);
+
+  this->public_node_handle_.param("pre_dropping_pose_x", pre_dropping_pose_x, PRE_DROPPING_POSE_X);
+  this->public_node_handle_.param("pre_dropping_pose_y", pre_dropping_pose_y, PRE_DROPPING_POSE_Y);
+  this->public_node_handle_.param("pre_dropping_pose_z", pre_dropping_pose_z, PRE_DROPPING_POSE_Z);
+  this->alg_.setPreDroppingPose(pre_dropping_pose_x, pre_dropping_pose_y, pre_dropping_pose_z);
 
   this->public_node_handle_.param("segmentation_service", segmentation_service, SEGMENTATION_SERVICE);
   this->public_node_handle_.param("predicates_service", predicates_service, PREDICATES_SERVICE);
@@ -23,7 +34,6 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("execute_grasping_service", execute_grasping_service, EXECUTE_GRASPING_SERVICE);
 
   this->public_node_handle_.param("execution", execution, EXECUTION);
-
 
   std::cout << "input_topic: " << input_topic << std::endl
   << "goal: " << this->alg_.goal << std::endl
@@ -34,7 +44,15 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "planner_service: " << planner_service << std::endl
   << "execute_pushing_service: " << execute_pushing_service << std::endl
   << "execute_grasping_service: " << execute_grasping_service << std::endl
-  << "execution: " << execution << std::endl;
+  << "execution: " << execution << std::endl
+  << "dropping_pose_x: " << dropping_pose_x << std::endl
+  << "dropping_pose_y: " << dropping_pose_y << std::endl
+  << "dropping_pose_z: " << dropping_pose_z << std::endl
+  << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
+  << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
+  << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl;
+
+  std::cout << "The goal set is:\n" << this->alg_.goal << "\n";
 
   // [init publishers]
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
@@ -236,8 +254,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
         fd_srv.request.symbolic_predicates = predicates;
         fd_srv.request.goal = this->alg_.prepareGoalMsg();
-
-        std::cout << "The goal set is:\n" << fd_srv.request.goal << "\n";
 
         if(!get_fast_downward_plan_client_.call(fd_srv))
         {

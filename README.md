@@ -31,5 +31,6 @@ $ rosrun pcl_ros pcd_to_pointcloud name_file.pcd
 
 
 ## TODO: ## 
-2. create the execution node
-3. create a function to predict the states by following the plan.
+1. create a function to predict the states by following the plan.
+2. filter cloud
+3. pickandplace action

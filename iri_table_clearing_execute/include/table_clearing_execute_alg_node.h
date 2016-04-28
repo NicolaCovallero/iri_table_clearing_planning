@@ -43,7 +43,11 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <actionlib/client/simple_action_client.h>
 
+#include <iri_common_drivers_msgs/tool_closeAction.h>
+#include <iri_common_drivers_msgs/tool_openAction.h>
+
 // [action server client headers]
+#include <actionlib/client/terminal_state.h>
 
 
 
@@ -97,6 +101,20 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     // [action server attributes]
 
     // [action client attributes]
+    actionlib::SimpleActionClient<iri_common_drivers_msgs::tool_closeAction> close_gripper_client_;
+    iri_common_drivers_msgs::tool_closeGoal close_gripper_goal_;
+    bool close_gripperMakeActionRequest();
+    void close_gripperDone(const actionlib::SimpleClientGoalState& state,  const iri_common_drivers_msgs::tool_closeResultConstPtr& result);
+    void close_gripperActive();
+    void close_gripperFeedback(const iri_common_drivers_msgs::tool_closeFeedbackConstPtr& feedback);
+
+    actionlib::SimpleActionClient<iri_common_drivers_msgs::tool_openAction> open_gripper_client_;
+    iri_common_drivers_msgs::tool_openGoal open_gripper_goal_;
+    bool open_gripperMakeActionRequest();
+    void open_gripperDone(const actionlib::SimpleClientGoalState& state,  const iri_common_drivers_msgs::tool_openResultConstPtr& result);
+    void open_gripperActive();
+    void open_gripperFeedback(const iri_common_drivers_msgs::tool_openFeedbackConstPtr& feedback);
+
 
    /**
     * \brief config variable
@@ -106,6 +124,9 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     */
     Config config_;
   public:
+
+    bool real_robot;
+
    /**
     * \brief Constructor
     * 

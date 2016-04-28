@@ -4,7 +4,9 @@ const std::string IK_SERVICE = "/estirabot/estirabot_tcp_ik/get_wam_ik";
 const std::string FROM_POSE_IK_SERVICE = "/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose";
 
 TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
-  algorithm_base::IriBaseAlgorithm<TableClearingExecuteAlgorithm>()
+  algorithm_base::IriBaseAlgorithm<TableClearingExecuteAlgorithm>(),
+  close_gripper_client_("close_gripper", true),
+  open_gripper_client_("open_gripper", true)
 {
   //init class attributes if necessary
   //this->loop_rate_ = 2;//in [Hz]
@@ -13,6 +15,7 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   this->public_node_handle_.param("ik_service", ik_service,IK_SERVICE);
   this->public_node_handle_.param("from_pose_ik_service", from_pose_ik_service, FROM_POSE_IK_SERVICE);
   this->public_node_handle_.param("automatic", this->alg_.automatic, false);
+  this->public_node_handle_.param("real_robot", this->real_robot, false);
 
 
   std::string execution_str;
@@ -46,12 +49,12 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
 
   estirabot_gripper_ik_from_pose_client_ = this->public_node_handle_.serviceClient<iri_wam_common_msgs::QueryWamInverseKinematicsFromPose>(from_pose_ik_service);
 
-  traj_client_ = new TrajClient("/estirabot/estirabot_controller/follow_joint_trajectory", true);
+  
 
   // [init action servers]
   
   // [init action clients]
-
+  traj_client_ = new TrajClient("/estirabot/estirabot_controller/follow_joint_trajectory", true);
 
 
   // // initialize the homeState variable
@@ -133,6 +136,44 @@ void TableClearingExecuteAlgNode::mainNodeThread(void)
   //}
 
   // [fill action structure and make request to the action server]
+  // variable to hold the state of the current goal on the server
+  //actionlib::SimpleClientGoalState close_gripper_state(actionlib::SimpleClientGoalState::PENDING);
+  // to get the state of the current goal
+  //alg_.unlock();
+  //close_gripper_state=close_gripper_client_.getState();
+  // Possible state values are: PENDING,ACTIVE,RECALLED,REJECTED,PREEMPTED,ABORTED,SUCCEEDED and LOST
+  //alg_.lock();
+  //if(close_gripper_state==actionlib::SimpleClientGoalState::ABORTED)
+  //{
+  //  do something
+  //}
+  //else if(close_gripper_state==actionlib::SimpleClientGoalState::SUCCEEDED)
+  //{
+  //  do something else
+  //}
+  //close_gripperMakeActionRequest();
+
+  // variable to hold the state of the current goal on the server
+  //actionlib::SimpleClientGoalState open_gripper_state(actionlib::SimpleClientGoalState::PENDING);
+  // to get the state of the current goal
+  //alg_.unlock();
+  //open_gripper_state=open_gripper_client_.getState();
+  // Possible state values are: PENDING,ACTIVE,RECALLED,REJECTED,PREEMPTED,ABORTED,SUCCEEDED and LOST
+  //alg_.lock();
+  //if(open_gripper_state==actionlib::SimpleClientGoalState::ABORTED)
+  //{
+  //  do something
+  //}
+  //else if(open_gripper_state==actionlib::SimpleClientGoalState::SUCCEEDED)
+  //{
+  //  do something else
+  //}
+  //open_gripperMakeActionRequest();
+
+  // IMPORTANT: Please note that all mutex used in the client callback functions
+  // must be unlocked before calling any of the client class functions from an
+  // other thread (MainNodeThread).
+
 
   // [publish messages]
   // Uncomment the following line to publish the topic message
@@ -181,7 +222,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   //this->execute_grasping_mutex_enter();
 
   ROS_DEBUG("Publishing grasping pose");
-  action_pose_publisher_.publish(req.grasping_pose);
+  //action_pose_publisher_.publish(req.grasping_pose);
+  action_pose_publisher_.publish(req.approaching_pose);
 
   //ROS_INFO("TableClearingExecuteAlgNode::execute_graspingCallback: Processing New Request!");
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
@@ -189,49 +231,60 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   srv.request.desired_pose = req.approaching_pose;
 
   std::vector<sensor_msgs::JointState> joints_trajectory;
-  joints_trajectory.resize(2);
+  joints_trajectory.resize(4);
 
   res.success = true;
-  if (estirabot_gripper_ik_from_pose_client_.call(srv))
+  for (uint i = 0; i < 4; ++i)
   {
-    joints_trajectory[0] = srv.response.desired_joints;
-    std::cout << "Approaching Pose " << 
-        " joint 1: " << joints_trajectory[0].position[0] <<
-        " joint 2: " << joints_trajectory[0].position[1] <<
-        " joint 3: " << joints_trajectory[0].position[2] <<
-        " joint 4: " << joints_trajectory[0].position[3] <<
-        " joint 5: " << joints_trajectory[0].position[4] <<
-        " joint 6: " << joints_trajectory[0].position[5] <<
-        " joint 7: " << joints_trajectory[0].position[6] << std::endl;
+    switch(i)
+    {
+      case 0: 
+        srv.request.current_joints = this->alg_.home_joint_state;
+        srv.request.desired_pose = req.approaching_pose;
+        break;
+      case 1: 
+        srv.request.current_joints = joints_trajectory[0];
+        srv.request.desired_pose = req.grasping_pose;
+        break;
+      case 2:
+        srv.request.current_joints = joints_trajectory[1];
+        srv.request.desired_pose = req.pre_dropping_pose;
+        srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
+        break;
+      case 3:
+        srv.request.current_joints = joints_trajectory[2];
+        srv.request.desired_pose = req.dropping_pose;
+        srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
+        break;
+      default: break;
+    }  
+    srv.request.desired_pose.header.stamp = ros::Time::now();
+    if (estirabot_gripper_ik_from_pose_client_.call(srv))
+    {
+      joints_trajectory[i] = srv.response.desired_joints;
+    }
+    else
+    {
+      switch(i)
+      {
+        case 0:
+          ROS_ERROR("Impossible calling %s service or solution not found for approaching pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+          break;    
+        case 1:
+          ROS_ERROR("Impossible calling %s service or solution not found for grasping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+          break;
+        case 2:
+          ROS_ERROR("Impossible calling %s service or solution not found for pre dropping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+          break;
+        case 3:
+          ROS_ERROR("Impossible calling %s service or solution not found for dropping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+          break;
+        default:break;        
+      }
+      res.success = false; 
+      return true;
+    }
   }
-  else
-  {
-    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-    res.success = false; 
-    return true;
-  }
-
-  srv.request.current_joints = joints_trajectory[0];
-  srv.request.desired_pose = req.grasping_pose;
-  if (estirabot_gripper_ik_from_pose_client_.call(srv))
-  {
-    joints_trajectory[1] = srv.response.desired_joints;
-    std::cout << "Grasping pose " << 
-        " joint 1: " << joints_trajectory[1].position[0] <<
-        " joint 2: " << joints_trajectory[1].position[1] <<
-        " joint 3: " << joints_trajectory[1].position[2] <<
-        " joint 4: " << joints_trajectory[1].position[3] <<
-        " joint 5: " << joints_trajectory[1].position[4] <<
-        " joint 6: " << joints_trajectory[1].position[5] <<
-        " joint 7: " << joints_trajectory[1].position[6] << std::endl;
-  }
-  else
-  {
-    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-    res.success = false; 
-    return true;
-  }
-
 
   ROS_INFO("Waiting for the joint_trajectory_action server");
   while(!traj_client_->waitForServer(ros::Duration(5.0))){
@@ -265,22 +318,68 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   } 
 
 
+  
+  // Go to pregrasping pose - Approaching pose
+  ROS_INFO("Going to pre grasping pose");
   this->alg_.goToPose(traj_client_,joints_trajectory[0]);
   
   // OPEN THE GRIPPER
-
+  if(this->real_robot)
+  { 
+    ROS_INFO("Opening gripper");
+    this->open_gripperMakeActionRequest();
+    ros::Duration(1).sleep(); // sleep for a second
+  }
 
   // Go to grasping pose
+  ROS_INFO("Going to grasping pose");
   this->alg_.goToPose(traj_client_,joints_trajectory[1]);
+  ros::Duration(1).sleep(); // sleep for a second
 
-  // CLOSED THE GRIPPER
+  // CLOSE THE GRIPPER
+  if(this->real_robot)
+  { 
+    ROS_INFO("Closing gripper");
+    this->close_gripperMakeActionRequest();
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+
+  // Go to Pregrasping pose again
+  ROS_INFO("Going to pre grasping pose again");
+  this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+  ros::Duration(1).sleep(); // sleep for a second
 
   // Go to bin
+  ROS_INFO("Going to pre dropping pose");
+  this->alg_.goToPose(traj_client_,joints_trajectory[2]);
+  ros::Duration(1).sleep(); // sleep for a second
 
+  ROS_INFO("Going to dropping pose");
+  this->alg_.goToPose(traj_client_,joints_trajectory[3]);
+  ros::Duration(1).sleep(); // sleep for a second
+
+  // OPEN GRIPPER
+  if(this->real_robot)
+  { 
+    ROS_INFO("Opening gripper");
+    this->open_gripperMakeActionRequest();
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+
+  // wait 
+  ros::Duration(1).sleep(); // sleep for a second
+
+  // CLOSE GRIPPER
+  if(this->real_robot)
+  { 
+    ROS_INFO("Closing gripper");
+    this->close_gripperMakeActionRequest();
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+  
   // Go home
+  ROS_INFO("Going home");
   this->alg_.goHome(traj_client_);
-
-  // 
 
   //unlock previously blocked shared variables
   //this->execute_grasping_mutex_exit();
@@ -552,8 +651,138 @@ void TableClearingExecuteAlgNode::execute_pushing_mutex_exit(void)
 
 
 /*  [action callbacks] */
+void TableClearingExecuteAlgNode::close_gripperDone(const actionlib::SimpleClientGoalState& state,  const iri_common_drivers_msgs::tool_closeResultConstPtr& result)
+{
+  alg_.lock();
+  if( state == actionlib::SimpleClientGoalState::SUCCEEDED )
+    ROS_INFO("TableClearingExecuteAlgNode::close_gripperDone: Goal Achieved!");
+  else
+    ROS_INFO("TableClearingExecuteAlgNode::close_gripperDone: %s", state.toString().c_str());
+
+  //copy & work with requested result
+  alg_.unlock();
+}
+
+void TableClearingExecuteAlgNode::close_gripperActive()
+{
+  alg_.lock();
+  //ROS_INFO("TableClearingExecuteAlgNode::close_gripperActive: Goal just went active!");
+  alg_.unlock();
+}
+
+void TableClearingExecuteAlgNode::close_gripperFeedback(const iri_common_drivers_msgs::tool_closeFeedbackConstPtr& feedback)
+{
+  alg_.lock();
+  //ROS_INFO("TableClearingExecuteAlgNode::close_gripperFeedback: Got Feedback!");
+
+  bool feedback_is_ok = true;
+
+  //analyze feedback
+  //my_var = feedback->var;
+
+  //if feedback is not what expected, cancel requested goal
+  if( !feedback_is_ok )
+  {
+    close_gripper_client_.cancelGoal();
+    //ROS_INFO("TableClearingExecuteAlgNode::close_gripperFeedback: Cancelling Action!");
+  }
+  alg_.unlock();
+}
+
+void TableClearingExecuteAlgNode::open_gripperDone(const actionlib::SimpleClientGoalState& state,  const iri_common_drivers_msgs::tool_openResultConstPtr& result)
+{
+  alg_.lock();
+  if( state == actionlib::SimpleClientGoalState::SUCCEEDED )
+    ROS_INFO("TableClearingExecuteAlgNode::open_gripperDone: Goal Achieved!");
+  else
+    ROS_INFO("TableClearingExecuteAlgNode::open_gripperDone: %s", state.toString().c_str());
+
+  //copy & work with requested result
+  alg_.unlock();
+}
+
+void TableClearingExecuteAlgNode::open_gripperActive()
+{
+  alg_.lock();
+  //ROS_INFO("TableClearingExecuteAlgNode::open_gripperActive: Goal just went active!");
+  alg_.unlock();
+}
+
+void TableClearingExecuteAlgNode::open_gripperFeedback(const iri_common_drivers_msgs::tool_openFeedbackConstPtr& feedback)
+{
+  alg_.lock();
+  //ROS_INFO("TableClearingExecuteAlgNode::open_gripperFeedback: Got Feedback!");
+
+  bool feedback_is_ok = true;
+
+  //analyze feedback
+  //my_var = feedback->var;
+
+  //if feedback is not what expected, cancel requested goal
+  if( !feedback_is_ok )
+  {
+    open_gripper_client_.cancelGoal();
+    //ROS_INFO("TableClearingExecuteAlgNode::open_gripperFeedback: Cancelling Action!");
+  }
+  alg_.unlock();
+}
+
 
 /*  [action requests] */
+bool TableClearingExecuteAlgNode::close_gripperMakeActionRequest()
+{
+  // IMPORTANT: Please note that all mutex used in the client callback functions
+  // must be unlocked before calling any of the client class functions from an
+  // other thread (MainNodeThread).
+  // this->alg_.unlock();
+  if(close_gripper_client_.isServerConnected())
+  {
+    //ROS_DEBUG("TableClearingExecuteAlgNode::close_gripperMakeActionRequest: Server is Available!");
+    //send a goal to the action server
+    //close_gripper_goal_.data = my_desired_goal;
+    close_gripper_client_.sendGoal(close_gripper_goal_,
+                boost::bind(&TableClearingExecuteAlgNode::close_gripperDone,     this, _1, _2),
+                boost::bind(&TableClearingExecuteAlgNode::close_gripperActive,   this),
+                boost::bind(&TableClearingExecuteAlgNode::close_gripperFeedback, this, _1));
+    // this->alg_.lock();
+    // ROS_DEBUG("TableClearingExecuteAlgNode::MakeActionRequest: Goal Sent.");
+    return true;
+  }
+  else
+  {
+    // this->alg_.lock();
+    // ROS_DEBUG("TableClearingExecuteAlgNode::close_gripperMakeActionRequest: HRI server is not connected");
+    return false;
+  }
+}
+
+bool TableClearingExecuteAlgNode::open_gripperMakeActionRequest()
+{
+  // IMPORTANT: Please note that all mutex used in the client callback functions
+  // must be unlocked before calling any of the client class functions from an
+  // other thread (MainNodeThread).
+  this->alg_.unlock();
+  if(open_gripper_client_.isServerConnected())
+  {
+    //ROS_DEBUG("TableClearingExecuteAlgNode::open_gripperMakeActionRequest: Server is Available!");
+    //send a goal to the action server
+    //open_gripper_goal_.data = my_desired_goal;
+    open_gripper_client_.sendGoal(open_gripper_goal_,
+                boost::bind(&TableClearingExecuteAlgNode::open_gripperDone,     this, _1, _2),
+                boost::bind(&TableClearingExecuteAlgNode::open_gripperActive,   this),
+                boost::bind(&TableClearingExecuteAlgNode::open_gripperFeedback, this, _1));
+    this->alg_.lock();
+    ROS_DEBUG("TableClearingExecuteAlgNode::MakeActionRequest: Goal Sent.");
+    return true;
+  }
+  else
+  {
+    this->alg_.lock();
+    ROS_DEBUG("TableClearingExecuteAlgNode::open_gripperMakeActionRequest: HRI server is not connected");
+    return false;
+  }
+}
+
 
 void TableClearingExecuteAlgNode::node_config_update(Config &config, uint32_t level)
 {

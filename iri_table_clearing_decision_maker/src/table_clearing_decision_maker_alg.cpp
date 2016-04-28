@@ -245,6 +245,36 @@ void TableClearingDecisionMakerAlgorithm::setAABBs(std::vector<iri_table_clearin
 {
 	this->aabbs = aabbs;
 }
+void TableClearingDecisionMakerAlgorithm::setDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z)
+{
+	this->dropping_pose.pose.position.x = dropping_pose_x;
+	this->dropping_pose.pose.position.y = dropping_pose_y;
+	this->dropping_pose.pose.position.z = dropping_pose_z;
+
+	// vertical orientation - Pointing down
+    tf::Quaternion quat;
+    quat.setRPY(0,M_PI,0);
+	this->dropping_pose.pose.orientation.w = quat.w();
+	this->dropping_pose.pose.orientation.x = quat.x();
+	this->dropping_pose.pose.orientation.y = quat.y();
+	this->dropping_pose.pose.orientation.z = quat.z();
+	this->dropping_pose.header.frame_id = "/estirabot_link_footprint";
+}
+void TableClearingDecisionMakerAlgorithm::setPreDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z)
+{
+	this->pre_dropping_pose.pose.position.x = dropping_pose_x;
+	this->pre_dropping_pose.pose.position.y = dropping_pose_y;
+	this->pre_dropping_pose.pose.position.z = dropping_pose_z;
+
+	// vertical orientation - Pointing down
+    tf::Quaternion quat;
+    quat.setRPY(0,M_PI,0);
+	this->pre_dropping_pose.pose.orientation.w = quat.w();
+	this->pre_dropping_pose.pose.orientation.x = quat.x();
+	this->pre_dropping_pose.pose.orientation.y = quat.y();
+	this->pre_dropping_pose.pose.orientation.z = quat.z();
+	this->pre_dropping_pose.header.frame_id = "/estirabot_link_footprint";
+}
 
 void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
 {
@@ -681,6 +711,9 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 		grasping.request.grasping_pose = grasping_pose;
 		grasping.request.approaching_pose = approaching_pose;
+
+		grasping.request.pre_dropping_pose = this->pre_dropping_pose;
+		grasping.request.dropping_pose = this->dropping_pose;
 		return 1;
 	}
 	else

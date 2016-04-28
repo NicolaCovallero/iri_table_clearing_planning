@@ -56,6 +56,16 @@ const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/e
 
 const bool EXECUTION = false;
 
+/**
+ * Default Position To Drop the object
+ */
+const double DROPPING_POSE_X = 0.5;
+const double DROPPING_POSE_Y = 0.3;
+const double DROPPING_POSE_Z = 0.5;
+const double PRE_DROPPING_POSE_X = 0.5;
+const double PRE_DROPPING_POSE_Y = 0.3;
+const double PRE_DROPPING_POSE_Z = 0.5;
+
 // services name
 std::string segmentation_service, predicates_service, planner_service, execute_pushing_service, execute_grasping_service;
 
