@@ -1,5 +1,0 @@
-<launch>
-
- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find iri_table_clearing_decision_maker)/config/rviz.rviz"/>
-
-</launch>
