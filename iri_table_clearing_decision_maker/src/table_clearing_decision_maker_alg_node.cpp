@@ -241,9 +241,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
         if(!get_fast_downward_plan_client_.call(fd_srv))
         {
-          ROS_ERROR("Impossible getting the Fast Downward plan");
+          ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
           this->alg_.setOn(false);
-          return;
+          feasible = true; // there is not IK influence here
         }
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
