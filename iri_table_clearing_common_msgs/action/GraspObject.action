@@ -1,0 +1,12 @@
+# goal definition
+geometry_msgs/PoseStamped grasping_pose
+geometry_msgs/PoseStamped approaching_pose
+geometry_msgs/PoseStamped pre_dropping_pose
+geometry_msgs/PoseStamped dropping_pose
+---
+# result definition
+bool success
+string info
+---
+# feedback
+string info 

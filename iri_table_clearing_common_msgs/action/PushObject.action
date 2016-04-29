@@ -1,0 +1,9 @@
+# goal definition
+geometry_msgs/PoseStamped[] pushing_cartesian_trajectory 
+--- 
+# result
+bool success
+string info
+---
+# feedback
+string info
