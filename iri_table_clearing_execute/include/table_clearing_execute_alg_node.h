@@ -186,6 +186,8 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     void testTrajectory();
     void testIK();
 
+    trajectory_msgs::JointTrajectoryPoint setTrajectoryPoint(sensor_msgs::JointState joint_state, double secs_ = 3.0);
+
 };
 
 #endif

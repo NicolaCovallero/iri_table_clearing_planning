@@ -2,6 +2,7 @@
 
   <arg name="rqt" default="false"/>
   <arg name="execution" default="true"/>
+  <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
 
   <!-- services -->
   <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
@@ -11,7 +12,7 @@
   <!-- Launch the main node to control the process -->
   <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
        name="iri_table_clearing_decision_maker" output="screen">
-       <param name="input_topic" value="/estirabot/kinect/depth_registered/points"/>
+       <param name="input_topic" value="$(arg input_topic)"/>
 
        <!-- This goal is just to separate the objects, without grasping them-->
       

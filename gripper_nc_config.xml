@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+ 
+<dynamixel_gripper_config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="dynamixel_gripper_cfg_file.xsd"> 
+ 
+  <name>my_gripper</name> 
+  <bus_id>A4012B3G</bus_id> 
+  <baudrate>1000000</baudrate> 
+  <servo_config> 
+    <id>24</id>
+    <speed>250</speed> 
+    <open_limit>-70</open_limit> 
+    <close_limit>-110</close_limit> 
+    <config_file>/home/robot/code/iri/ros/iri_ws/src/iri_common_drivers/iri_dynamixel_nc_gripper/config/dyn_config.xml</config_file> 
+  </servo_config> 
+</dynamixel_gripper_config>

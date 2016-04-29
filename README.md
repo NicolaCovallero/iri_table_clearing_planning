@@ -33,4 +33,4 @@ $ rosrun pcl_ros pcd_to_pointcloud name_file.pcd
 ## TODO: ## 
 1. create a function to predict the states by following the plan.
 2. filter cloud
-3. pickandplace action
+3. collision checking along the path for the EE

@@ -533,84 +533,24 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   goal.trajectory.joint_names[5] = "estirabot_joint_6";
   goal.trajectory.joint_names[6] = "estirabot_joint_7";  
 
-  goal.trajectory.points.resize(joints_trajectory.size());
+  double time_offset = 3.0;
   for (int i = 0; i < joints_trajectory.size(); ++i)
   {
-      goal.trajectory.points[i].positions.resize(7);
-      goal.trajectory.points[i].positions[0] = joints_trajectory[i].position[0];
-      goal.trajectory.points[i].positions[1] = joints_trajectory[i].position[1];
-      goal.trajectory.points[i].positions[2] = joints_trajectory[i].position[2];
-      goal.trajectory.points[i].positions[3] = joints_trajectory[i].position[3];
-      goal.trajectory.points[i].positions[4] = joints_trajectory[i].position[4];
-      goal.trajectory.points[i].positions[5] = joints_trajectory[i].position[5];
-      goal.trajectory.points[i].positions[6] = joints_trajectory[i].position[6];
-
-      std::cout << "Current joint state\n";
-      std::cout << " joint 1: " << joints_trajectory[i].position[0] <<
-      " joint 2: " << joints_trajectory[i].position[1] <<
-      " joint 3: " << joints_trajectory[i].position[2] <<
-      " joint 4: " << joints_trajectory[i].position[3] <<
-      " joint 5: " << joints_trajectory[i].position[4] <<
-      " joint 6: " << joints_trajectory[i].position[5] <<
-      " joint 7: " << joints_trajectory[i].position[6] << std::endl;
-
-      goal.trajectory.points[i].velocities.resize(7);
-      goal.trajectory.points[i].velocities[0] = 0.02f;
-      goal.trajectory.points[i].velocities[1] = 0.02f;
-      goal.trajectory.points[i].velocities[2] = 0.02f;
-      goal.trajectory.points[i].velocities[3] = 0.02f;
-      goal.trajectory.points[i].velocities[5] = 0.02f;
-      goal.trajectory.points[i].velocities[4] = 0.02f;
-      goal.trajectory.points[i].velocities[6] = 0.02f;
-      goal.trajectory.points[i].accelerations.resize(7);
-      goal.trajectory.points[i].accelerations[0] = 0.0f;
-      goal.trajectory.points[i].accelerations[1] = 0.0f;
-      goal.trajectory.points[i].accelerations[2] = 0.0f;
-      goal.trajectory.points[i].accelerations[3] = 0.0f;
-      goal.trajectory.points[i].accelerations[4] = 0.0f;
-      goal.trajectory.points[i].accelerations[5] = 0.0f;
-      goal.trajectory.points[i].accelerations[6] = 0.0f;
-      if(i == 0)
-        goal.trajectory.points[i].time_from_start = ros::Duration(3); 
-      else
-        goal.trajectory.points[i].time_from_start = goal.trajectory.points[i-1].time_from_start + ros::Duration(1); 
-
+    if(i == 0)
+      goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],time_offset));
+    else
+      goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
+                   time_offset + goal.trajectory.points.size() )); 
   }
 
-  
-  trajectory_msgs::JointTrajectoryPoint final_point;
+  // come back to the first point of the trajectory, in order to go home with out touching any object
+  for (int i = joints_trajectory.size() -2; i >= 0; i--)
+  {
+    goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
+                      time_offset + goal.trajectory.points.size() )); 
+  }
 
-  // go back to the initial position in order to avoid to collide with the interesting object when coming home
-  final_point.positions.resize(7);
-  final_point.positions[0] = joints_trajectory[joints_trajectory.size()-2].position[0];
-  final_point.positions[1] = joints_trajectory[joints_trajectory.size()-2].position[1];
-  final_point.positions[2] = joints_trajectory[joints_trajectory.size()-2].position[2];
-  final_point.positions[3] = joints_trajectory[joints_trajectory.size()-2].position[3];
-  final_point.positions[5] = joints_trajectory[joints_trajectory.size()-2].position[5];
-  final_point.positions[4] = joints_trajectory[joints_trajectory.size()-2].position[4];
-  final_point.positions[5] = joints_trajectory[joints_trajectory.size()-2].position[5];
-  final_point.positions[6] = joints_trajectory[joints_trajectory.size()-2].position[6];
-
-  final_point.velocities.resize(7);
-  final_point.velocities[0] = 0.02f;
-  final_point.velocities[1] = 0.02f;
-  final_point.velocities[2] = 0.02f;
-  final_point.velocities[3] = 0.02f;
-  final_point.velocities[5] = 0.02f;
-  final_point.velocities[4] = 0.02f;
-  final_point.velocities[6] = 0.02f;
-  final_point.accelerations.resize(7);
-  final_point.accelerations[0] = 0.0f;
-  final_point.accelerations[1] = 0.0f;
-  final_point.accelerations[2] = 0.0f;
-  final_point.accelerations[3] = 0.0f;
-  final_point.accelerations[4] = 0.0f;
-  final_point.accelerations[5] = 0.0f;
-  final_point.accelerations[6] = 0.0f;
-  final_point.time_from_start = goal.trajectory.points[joints_trajectory.size() -1].time_from_start + ros::Duration(2); 
-
-  goal.trajectory.points.push_back(final_point);  
-
+  // assign time stamp
   goal.trajectory.header.stamp = ros::Time::now();
 
   ROS_INFO("sending trajectory trajectory");
@@ -628,7 +568,6 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       traj_client_->cancelGoal();
       ROS_INFO("Action (Go Home) did not finish before the time out.\n"); 
   }
-
 
   //unlock previously blocked shared variables
   //this->execute_pushing_mutex_exit();
@@ -853,6 +792,42 @@ void TableClearingExecuteAlgNode::testTrajectory()
 void TableClearingExecuteAlgNode::testIK()
 {
    
+}
+
+trajectory_msgs::JointTrajectoryPoint TableClearingExecuteAlgNode::setTrajectoryPoint(sensor_msgs::JointState joint_state, double secs_)
+{
+
+  trajectory_msgs::JointTrajectoryPoint joints_trajectory_point;
+
+  joints_trajectory_point.positions.resize(7);
+  joints_trajectory_point.positions[0] = joint_state.position[0];
+  joints_trajectory_point.positions[1] = joint_state.position[1];
+  joints_trajectory_point.positions[2] = joint_state.position[2];
+  joints_trajectory_point.positions[3] = joint_state.position[3];
+  joints_trajectory_point.positions[4] = joint_state.position[4];
+  joints_trajectory_point.positions[5] = joint_state.position[5];
+  joints_trajectory_point.positions[6] = joint_state.position[6];
+
+  joints_trajectory_point.velocities.resize(7);
+  joints_trajectory_point.velocities[0] = 0.02f;
+  joints_trajectory_point.velocities[1] = 0.02f;
+  joints_trajectory_point.velocities[2] = 0.02f;
+  joints_trajectory_point.velocities[3] = 0.02f;
+  joints_trajectory_point.velocities[5] = 0.02f;
+  joints_trajectory_point.velocities[4] = 0.02f;
+  joints_trajectory_point.velocities[6] = 0.02f;
+  joints_trajectory_point.accelerations.resize(7);
+  joints_trajectory_point.accelerations[0] = 0.0f;
+  joints_trajectory_point.accelerations[1] = 0.0f;
+  joints_trajectory_point.accelerations[2] = 0.0f;
+  joints_trajectory_point.accelerations[3] = 0.0f;
+  joints_trajectory_point.accelerations[4] = 0.0f;
+  joints_trajectory_point.accelerations[5] = 0.0f;
+  joints_trajectory_point.accelerations[6] = 0.0f;
+
+  joints_trajectory_point.time_from_start = ros::Duration(secs_);
+
+  return joints_trajectory_point;
 }
 
 void TableClearingExecuteAlgNode::addNodeDiagnostics(void)
