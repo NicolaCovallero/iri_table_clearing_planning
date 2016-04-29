@@ -712,6 +712,13 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		grasping.request.grasping_pose = grasping_pose;
 		grasping.request.approaching_pose = approaching_pose;
 
+		// std::cout << "pre dropping_pose \n x: " <<this->pre_dropping_pose.pose.position.x << std::endl
+		// << "  y: " <<this->pre_dropping_pose.pose.position.y << std::endl
+		// << "  z: " <<this->pre_dropping_pose.pose.position.z << std::endl
+		// << "  w: " <<this->pre_dropping_pose.pose.orientation.w << std::endl
+		// << "  quat x: " <<this->pre_dropping_pose.pose.orientation.x << std::endl
+		// << "  quat y: " <<this->pre_dropping_pose.pose.orientation.y << std::endl
+		// << "  quat z: " <<this->pre_dropping_pose.pose.orientation.z << std::endl;
 		grasping.request.pre_dropping_pose = this->pre_dropping_pose;
 		grasping.request.dropping_pose = this->dropping_pose;
 		return 1;

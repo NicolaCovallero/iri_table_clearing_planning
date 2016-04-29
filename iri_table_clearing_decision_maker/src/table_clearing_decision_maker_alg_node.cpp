@@ -195,6 +195,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // Uncomment the following line to publish the topic message
   //this->cloud_publisher_.publish(this->cloud_PointCloud2_msg_);
 
+  uint n_objs = 0;
   if(this->alg_.getOn())
   {
     std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
@@ -204,11 +205,11 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     tos_srv.request.point_cloud = (*msg);
     if(!segments_objects_client_.call(tos_srv))
     {
-      ROS_ERROR("Impossible segmenting the image");
+      ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
-      return;
     }
-    std::cout << tos_srv.response.objects.objects.size() << " Object detected\n";
+    n_objs = tos_srv.response.objects.objects.size();
+    std::cout << n_objs << " Object detected\n";
     if(tos_srv.response.objects.objects.size() > 0) // if we have more than 1 object do the stuff
     {
       this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
@@ -335,12 +336,12 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
-    }
+    }// end if supervoxels
 
     this->alg_.setOn(false);
   }
 
-  if(this->alg_.getPlanLength() == 0)
+  if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
   {
     std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)";
     char response;
@@ -372,18 +373,19 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
 {
   
   //ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_callback: New Message Received");
+  //use appropiate mutex to shared variables if necessary
+  this->alg_.lock();
+  this->kinect_mutex_enter();
+
   this->alg_.setFrameId(msg->header.frame_id); 
   this->alg_.setPointCloud(*msg);
   this->alg_.setOn(true);
-  //use appropiate mutex to shared variables if necessary
-  //this->alg_.lock();
-  //this->kinect_mutex_enter();
 
   
   //std::cout << msg->data << std::endl;
   //unlock previously blocked shared variables
-  //this->alg_.unlock();
-  //this->kinect_mutex_exit();
+  this->alg_.unlock();
+  this->kinect_mutex_exit();
 }
 
 void TableClearingDecisionMakerAlgNode::kinect_mutex_enter(void)
