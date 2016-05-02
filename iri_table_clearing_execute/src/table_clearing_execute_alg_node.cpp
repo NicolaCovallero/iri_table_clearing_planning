@@ -677,6 +677,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   // assign time stamp
   goal.trajectory.header.stamp = ros::Time::now();
 
+  // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
+  move2JointsPose(joints_trajectory[0],0,0);
   ROS_INFO("sending trajectory trajectory");
   traj_client_->sendGoal(goal);
   if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
@@ -686,12 +688,10 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
 
   ROS_INFO("Action finished - going home");
-  this->alg_.goHome(traj_client_);
-  if (!traj_client_->waitForResult(ros::Duration(5)))
-  { 
-      traj_client_->cancelGoal();
-      ROS_INFO("Action (Go Home) did not finish before the time out.\n"); 
-  }
+  if(atHomePosition())
+    return true;
+  else
+    return false;
 
   //unlock previously blocked shared variables
   //this->execute_pushing_mutex_exit();
