@@ -643,6 +643,12 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     }
   } 
 
+  
+
+  
+  // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
+  move2JointsPose(joints_trajectory[0],0.5,0.5);
+
   // reset the time stamp for all the trajectory points
   for (int i = 0; i < joints_trajectory.size(); ++i)
     joints_trajectory[i].header.stamp = ros::Time::now();
@@ -673,13 +679,10 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
                       time_offset + goal.trajectory.points.size() )); 
   }
-
-  // assign time stamp
-  goal.trajectory.header.stamp = ros::Time::now();
-
-  // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
-  move2JointsPose(joints_trajectory[0],0,0);
+  
   ROS_INFO("sending trajectory trajectory");
+  // assign time stamp
+  goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
   traj_client_->sendGoal(goal);
   if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
   { 
@@ -988,8 +991,8 @@ bool TableClearingExecuteAlgNode::askForUserInput(std::string text)
 bool TableClearingExecuteAlgNode::move2JointsPose(sensor_msgs::JointState joint_state,double velocity , double acceleration)
 {
   move_joints_srv_.request.positions = joint_state.position;
-  move_joints_srv_.request.velocity = velocity;
-  move_joints_srv_.request.acceleration = acceleration;
+  move_joints_srv_.request.velocity = 0.5;
+  move_joints_srv_.request.acceleration = 0.5;
   
   if (move_joints_client_.call(move_joints_srv_)) 
   {
