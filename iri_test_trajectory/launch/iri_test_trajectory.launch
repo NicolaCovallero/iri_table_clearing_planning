@@ -1,0 +1,8 @@
+<launch>
+   <node name="iri_test_trajectory" pkg="iri_test_trajectory" type="iri_test_trajectory">
+   		<remap from="trajectory" to="/estirabot/estirabot_controller/follow_joint_trajectory"/>
+<remap from="~joints_move" to="/estirabot/estirabot_controller/joints_move"/> 
+
+  </node>
+
+</launch>
