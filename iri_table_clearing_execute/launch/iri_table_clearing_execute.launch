@@ -9,6 +9,7 @@
 	       	<remap from="open_gripper" to="gripper/tool_open_action" />
 	    	<remap from="close_gripper" to="gripper/tool_close_action" />
 	    	<remap from="follow_joint_trajectory" to="/$(arg ROBOT)/$(arg ROBOT)_controller/follow_joint_trajectory" />
+	    	<remap from="~move_joints" to="/$(arg ROBOT)/$(arg ROBOT)_controller/joints_move"/>
 	  	</node>
     </group>
 	

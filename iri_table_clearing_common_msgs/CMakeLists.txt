@@ -9,9 +9,11 @@ find_package(catkin REQUIRED)
 find_package(catkin REQUIRED COMPONENTS iri_base_algorithm
 			 std_msgs
 			 geometry_msgs
+			 control_msgs
 			 sensor_msgs 
 			 message_generation
 			 actionlib_msgs
+			 trajectory_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -44,12 +46,13 @@ add_action_files(
    FILES
    GraspObject.action
    PushObject.action
+   FollowJointTrajectory.action
 )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
-   std_msgs geometry_msgs sensor_msgs actionlib_msgs
+   std_msgs geometry_msgs sensor_msgs actionlib_msgs control_msgs trajectory_msgs
 )
 
 # ******************************************************************** 
@@ -66,7 +69,8 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm std_msgs geometry_msgs sensor_msgs message_generation actionlib_msgs
+ CATKIN_DEPENDS iri_base_algorithm std_msgs control_msgs geometry_msgs 
+ sensor_msgs message_generation actionlib_msgs trajectory_msgs
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 

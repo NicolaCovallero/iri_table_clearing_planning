@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm actionlib sensor_msgs
 	iri_base_driver
 	iri_action_server 
 	iri_common_drivers_msgs
+	iri_table_clearing_common_msgs
 	iri_wam_common_msgs
 	iri_action_server)
 
@@ -57,6 +58,7 @@ generate_messages(
    std_msgs  # Or other packages containing msgs
    geometry_msgs
    control_msgs
+   iri_table_clearing_common_msgs
 )
 
 # ******************************************************************** 
@@ -76,7 +78,7 @@ catkin_package(
  CATKIN_DEPENDS iri_base_algorithm actionlib sensor_msgs geometry_msgs iri_common_drivers_msgs
  message_generation geometry_msgs std_msgs
  trajectory_msgs control_msgs iri_base_driver iri_action_server iri_common_drivers_msgs
-  iri_wam_common_msgs iri_action_server sensor_msgs
+  iri_wam_common_msgs iri_action_server sensor_msgs iri_table_clearing_common_msgs
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 

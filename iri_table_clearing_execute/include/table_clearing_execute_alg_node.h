@@ -90,6 +90,9 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
 
 
     // [client attributes]
+    ros::ServiceClient move_joints_client_;
+    iri_common_drivers_msgs::QueryJointsMovement move_joints_srv_;
+
     ros::ServiceClient estirabot_gripper_ik_client_;
     iri_common_drivers_msgs::QueryInverseKinematics estirabot_gripper_ik_srv_;
 
@@ -189,6 +192,10 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     trajectory_msgs::JointTrajectoryPoint setTrajectoryPoint(sensor_msgs::JointState joint_state, double secs_ = 3.0);
 
     bool askForUserInput(std::string text);
+
+    bool move2JointsPose(sensor_msgs::JointState joint_state,double velocity , double acceleration);
+
+    bool atHomePosition();
 
 };
 

@@ -45,6 +45,8 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
 
   
   // [init clients]
+  move_joints_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryJointsMovement>("move_joints");
+
   estirabot_gripper_ik_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryInverseKinematics>(ik_service);
 
   estirabot_gripper_ik_from_pose_client_ = this->public_node_handle_.serviceClient<iri_wam_common_msgs::QueryWamInverseKinematicsFromPose>(from_pose_ik_service);
@@ -112,6 +114,18 @@ void TableClearingExecuteAlgNode::mainNodeThread(void)
 
   
   // [fill srv structure and make request to the server]
+  //move_joints_srv_.request.data = my_var;
+  //ROS_INFO("TableClearingExecuteAlgNode:: Sending New Request!");
+  //if (move_joints_client_.call(move_joints_srv_))
+  //{
+    //ROS_INFO("TableClearingExecuteAlgNode:: Response: %s", move_joints_srv_.response.result);
+  //}
+  //else
+  //{
+    //ROS_INFO("TableClearingExecuteAlgNode:: Failed to Call Server on topic move_joints ");
+  //}
+
+
   //estirabot_gripper_ik_srv_.request.data = my_var;
   //ROS_INFO("TableClearingExecuteAlgNode:: Sending New Request!");
   //if (estirabot_gripper_ik_client_.call(estirabot_gripper_ik_srv_))
@@ -323,7 +337,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   if(askForUserInput("Going to pre grasping pose"))
   {
     ROS_INFO("Going to pre grasping pose");
-    this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+    if(!move2JointsPose(joints_trajectory[0],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
   }
   
   // OPEN THE GRIPPER
@@ -339,8 +356,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
 
@@ -348,14 +367,19 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   if(askForUserInput("Going to grasping pose"))
   {
     ROS_INFO("Going to grasping pose");
-    this->alg_.goToPose(traj_client_,joints_trajectory[1]);
+    if(!move2JointsPose(joints_trajectory[1],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
     ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
   // CLOSE THE GRIPPER
@@ -371,51 +395,66 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
   // Go to Pregrasping pose again
   if(askForUserInput("Going to pre grasping pose again"))
   {
     ROS_INFO("Going to pre grasping pose again");
-    this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+    if(!move2JointsPose(joints_trajectory[0],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
     ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
-
-
 
   // Go to bin
   if(askForUserInput("Going to pre dropping pose"))
   {
     ROS_INFO("Going to pre dropping pose");
-    this->alg_.goToPose(traj_client_,joints_trajectory[2]);
+    if(!move2JointsPose(joints_trajectory[2],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
     ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
   if(askForUserInput("Going to dropping pose"))
   {
     ROS_INFO("Going to dropping pose");
-    this->alg_.goToPose(traj_client_,joints_trajectory[3]);
+    if(!move2JointsPose(joints_trajectory[3],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
     ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
   // OPEN GRIPPER
@@ -431,8 +470,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
 
   // wait 
@@ -451,13 +492,18 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   else // go home
   {
     ROS_INFO("Going home");
-    this->alg_.goHome(traj_client_);
-    return true;
+    if(atHomePosition())
+      return true;
+    else
+      return false;
   }
   
   // Go home
   ROS_INFO("Going home");
-  this->alg_.goHome(traj_client_);
+  if(atHomePosition())
+    return true;
+  else
+    return false;
 
   //unlock previously blocked shared variables
   //this->execute_grasping_mutex_exit();
@@ -939,6 +985,27 @@ bool TableClearingExecuteAlgNode::askForUserInput(std::string text)
     return true;
 }
 
+bool TableClearingExecuteAlgNode::move2JointsPose(sensor_msgs::JointState joint_state,double velocity , double acceleration)
+{
+  move_joints_srv_.request.positions = joint_state.position;
+  move_joints_srv_.request.velocity = velocity;
+  move_joints_srv_.request.acceleration = acceleration;
+  
+  if (move_joints_client_.call(move_joints_srv_)) 
+  {
+    ROS_INFO("Movement in joints succedded");
+    return true;
+  }
+  else
+  {
+    ROS_ERROR("Impossible calling %s",move_joints_client_.getService().c_str());
+    return false;
+  } 
+}
+bool TableClearingExecuteAlgNode::atHomePosition()
+{
+  return move2JointsPose(this->alg_.home_joint_state,0,0);
+}
 void TableClearingExecuteAlgNode::addNodeDiagnostics(void)
 {
 }

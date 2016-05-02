@@ -29,11 +29,13 @@
 #include <iri_table_clearing_execute/TableClearingExecuteConfig.h>
 
 #include <control_msgs/FollowJointTrajectoryAction.h>
+#include <iri_table_clearing_common_msgs/FollowJointTrajectoryAction.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <actionlib/client/simple_action_client.h>
 #include "sensor_msgs/JointState.h"
 
 typedef actionlib::SimpleActionClient< control_msgs::FollowJointTrajectoryAction > TrajClient;
+//typedef actionlib::SimpleActionClient< iri_table_clearing_common_msgs::FollowJointTrajectoryAction > TrajClient;
 
 /**
  * \brief IRI ROS Specific Driver Class
