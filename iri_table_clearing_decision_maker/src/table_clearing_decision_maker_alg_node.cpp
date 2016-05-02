@@ -36,26 +36,6 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("execution", execution, EXECUTION);
   this->public_node_handle_.param("filtering", this->alg_.filtering, FILTERING);
 
-  std::cout << "input_topic: " << input_topic << std::endl
-  << "goal: " << this->alg_.goal << std::endl
-  << "pushing_discretization: " << pushing_discretization << std::endl
-  << "pushing_step: " << pushing_step << std::endl
-  << "segmentation_service: " << segmentation_service << std::endl
-  << "predicates_service: " << predicates_service << std::endl
-  << "planner_service: " << planner_service << std::endl
-  << "execute_pushing_service: " << execute_pushing_service << std::endl
-  << "execute_grasping_service: " << execute_grasping_service << std::endl
-  << "execution: " << execution << std::endl
-  << "filtering: " << this->alg_.filtering << std::endl
-  << "dropping_pose_x: " << dropping_pose_x << std::endl
-  << "dropping_pose_y: " << dropping_pose_y << std::endl
-  << "dropping_pose_z: " << dropping_pose_z << std::endl
-  << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
-  << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
-  << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl;
-
-  std::cout << "The goal set is:\n" << this->alg_.goal << "\n";
-
   // [init publishers]
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
@@ -86,6 +66,28 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init action servers]
   
   // [init action clients]
+
+
+
+  std::cout << "input_topic: " << input_topic << std::endl
+  << "goal: " << this->alg_.goal << std::endl
+  << "pushing_discretization: " << pushing_discretization << std::endl
+  << "pushing_step: " << pushing_step << std::endl
+  << "segmentation_service: " << segments_objects_client_.getService().c_str() << std::endl
+  << "predicates_service: " << get_symbolic_predicates_client_.getService().c_str()<< std::endl
+  << "planner_service: " << get_fast_downward_plan_client_.getService().c_str() << std::endl
+  << "execute_pushing_service: " << execute_pushing_client_.getService().c_str() << std::endl
+  << "execute_grasping_service: " << execute_grasping_client_.getService().c_str() << std::endl
+  << "execution: " << execution << std::endl
+  << "filtering: " << this->alg_.filtering << std::endl
+  << "dropping_pose_x: " << dropping_pose_x << std::endl
+  << "dropping_pose_y: " << dropping_pose_y << std::endl
+  << "dropping_pose_z: " << dropping_pose_z << std::endl
+  << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
+  << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
+  << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl;
+
+  std::cout << "The goal set is:\n" << this->alg_.goal << "\n";
 }
 
 TableClearingDecisionMakerAlgNode::~TableClearingDecisionMakerAlgNode(void)

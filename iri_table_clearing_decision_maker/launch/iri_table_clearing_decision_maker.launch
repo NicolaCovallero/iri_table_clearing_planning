@@ -3,6 +3,7 @@
   <arg name="rqt" default="false"/>
   <arg name="execution" default="true"/>
   <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="ROBOT" default="estirabot"/>
 
   <!-- services -->
   <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
@@ -10,45 +11,48 @@
   </include>
 
   <!-- Launch the main node to control the process -->
-  <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
-       name="iri_table_clearing_decision_maker" output="screen">
-       <param name="input_topic" value="$(arg input_topic)"/>
+  <group ns="$(arg ROBOT)">
+    <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
+         name="iri_table_clearing_decision_maker" output="screen">
+         <param name="input_topic" value="$(arg input_topic)"/>
 
-       <!-- This goal is just to separate the objects, without grasping them-->
-      
-      <!--
-       <param name="goal" value="(and (not (exists (?x - obj)(or
-                                  (exists(?y - obj)(block_dir1 ?y ?x))
-                                  (exists(?y - obj)(block_dir2 ?y ?x))
-                                  (exists(?y - obj)(block_dir3 ?y ?x))
-                                  (exists(?y - obj)(block_dir4 ?y ?x))
-                                  ))
-                                  )
-                                  (not (exists(?x - obj)(grasped ?x)))
-                                  )
-                                 "/>
-      
-      -->
-       <param name="goal" value="(not (exists(?x - obj)(not (grasped ?x))))"/>
-      
-      <param name="execute_pushing_service" value="/table_clearing_execute_alg_node/execute_pushing"/>
-      <param name="execute_grasping_service" value="/table_clearing_execute_alg_node/execute_grasping"/>
-      <param name="execution" value="$(arg execution)"/>
-      <param name="pushing_discretization" value="4"/>
-      <param name="pushing_step" value="2.5"/>
-      
-      <!-- Dropping pose definition - Orientation Downforawrd -->
-      <param name="dropping_pose_x" value="0.2"/>
-      <param name="dropping_pose_y" value="0.9"/>
-      <param name="dropping_pose_z" value="-0.1"/>
+         <!-- This goal is just to separate the objects, without grasping them-->
+        
+        <!--
+         <param name="goal" value="(and (not (exists (?x - obj)(or
+                                    (exists(?y - obj)(block_dir1 ?y ?x))
+                                    (exists(?y - obj)(block_dir2 ?y ?x))
+                                    (exists(?y - obj)(block_dir3 ?y ?x))
+                                    (exists(?y - obj)(block_dir4 ?y ?x))
+                                    ))
+                                    )
+                                    (not (exists(?x - obj)(grasped ?x)))
+                                    )
+                                   "/>
+        
+        -->
+         <param name="goal" value="(not (exists(?x - obj)(not (grasped ?x))))"/>
+        
+        <param name="execute_pushing_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_pushing"/>
+        <param name="execute_grasping_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_grasping"/>
+        <param name="predicates_service" value="/$(arg ROBOT)/table_clearing_predicates_alg_node/get_symbolic_predicates"/>
 
-      <!-- pre Dropping pose definition - Orientation Downforawrd -->
-      <param name="pre_dropping_pose_x" value="0.2"/>
-      <param name="pre_dropping_pose_y" value="0.9"/>
-      <param name="pre_dropping_pose_z" value="0.3"/>
-                               
-  </node>
+        <param name="execution" value="$(arg execution)"/>
+        <param name="pushing_discretization" value="4"/>
+        <param name="pushing_step" value="2.5"/>
+        
+        <!-- Dropping pose definition - Orientation Downforawrd -->
+        <param name="dropping_pose_x" value="0.2"/>
+        <param name="dropping_pose_y" value="0.9"/>
+        <param name="dropping_pose_z" value="-0.1"/>
 
+        <!-- pre Dropping pose definition - Orientation Downforawrd -->
+        <param name="pre_dropping_pose_x" value="0.2"/>
+        <param name="pre_dropping_pose_y" value="0.9"/>
+        <param name="pre_dropping_pose_z" value="0.3"/>
+                                 
+    </node>
+  </group>
   <!-- Launch Rqt_gui with the correct configuration -->
   <include file="$(find iri_table_clearing_config)/launch/rqt_gui.launch">
     <arg name="rqt" value="$(arg rqt)"/>

@@ -4,7 +4,7 @@
 
 	<group ns="$(arg ROBOT)">
 		<node pkg="iri_table_clearing_execute" type="iri_table_clearing_execute"
-	       name="table_clearing_execute_alg_node" output="screen">
+	       name="iri_table_clearing_execute" output="screen">
 	       	<param name="from_pose_ik_service" value="/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose"/>  
 	       	<remap from="open_gripper" to="gripper/tool_open_action" />
 	    	<remap from="close_gripper" to="gripper/tool_close_action" />
