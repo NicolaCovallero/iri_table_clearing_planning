@@ -320,61 +320,139 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   
   // Go to pregrasping pose - Approaching pose
-  ROS_INFO("Going to pre grasping pose");
-  this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+  if(askForUserInput("Going to pre grasping pose"))
+  {
+    ROS_INFO("Going to pre grasping pose");
+    this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+  }
   
   // OPEN THE GRIPPER
-  if(this->real_robot)
-  { 
-    ROS_INFO("Opening gripper");
-    this->open_gripperMakeActionRequest();
-    ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Opening gripper"))
+  {
+    if(this->real_robot)
+    { 
+      ROS_INFO("Opening gripper");
+      this->open_gripperMakeActionRequest();
+      ros::Duration(1).sleep(); // sleep for a second
+    }
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
   }
 
+
   // Go to grasping pose
-  ROS_INFO("Going to grasping pose");
-  this->alg_.goToPose(traj_client_,joints_trajectory[1]);
-  ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Going to grasping pose"))
+  {
+    ROS_INFO("Going to grasping pose");
+    this->alg_.goToPose(traj_client_,joints_trajectory[1]);
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
+  }
 
   // CLOSE THE GRIPPER
-  if(this->real_robot)
-  { 
-    ROS_INFO("Closing gripper");
-    this->close_gripperMakeActionRequest();
-    ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Closing gripper"))
+  {
+    if(this->real_robot)
+    { 
+      ROS_INFO("Closing gripper");
+      this->close_gripperMakeActionRequest();
+      ros::Duration(1).sleep(); // sleep for a second
+    }
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
   }
 
   // Go to Pregrasping pose again
-  ROS_INFO("Going to pre grasping pose again");
-  this->alg_.goToPose(traj_client_,joints_trajectory[0]);
-  ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Going to pre grasping pose again"))
+  {
+    ROS_INFO("Going to pre grasping pose again");
+    this->alg_.goToPose(traj_client_,joints_trajectory[0]);
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
+  }
+
+
 
   // Go to bin
-  ROS_INFO("Going to pre dropping pose");
-  this->alg_.goToPose(traj_client_,joints_trajectory[2]);
-  ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Going to pre dropping pose"))
+  {
+    ROS_INFO("Going to pre dropping pose");
+    this->alg_.goToPose(traj_client_,joints_trajectory[2]);
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
+  }
 
-  ROS_INFO("Going to dropping pose");
-  this->alg_.goToPose(traj_client_,joints_trajectory[3]);
-  ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Going to dropping pose"))
+  {
+    ROS_INFO("Going to dropping pose");
+    this->alg_.goToPose(traj_client_,joints_trajectory[3]);
+    ros::Duration(1).sleep(); // sleep for a second
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
+  }
 
   // OPEN GRIPPER
-  if(this->real_robot)
-  { 
-    ROS_INFO("Opening gripper");
-    this->open_gripperMakeActionRequest();
-    ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Opening gripper"))
+  {
+    if(this->real_robot)
+    { 
+      ROS_INFO("Opening gripper");
+      this->open_gripperMakeActionRequest();
+      ros::Duration(1).sleep(); // sleep for a second
+    }
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
   }
 
   // wait 
   ros::Duration(1).sleep(); // sleep for a second
 
   // CLOSE GRIPPER
-  if(this->real_robot)
-  { 
-    ROS_INFO("Closing gripper");
-    this->close_gripperMakeActionRequest();
-    ros::Duration(1).sleep(); // sleep for a second
+  if(askForUserInput("Closing gripper"))
+  {
+    if(this->real_robot)
+    { 
+      ROS_INFO("Closing gripper");
+      this->close_gripperMakeActionRequest();
+      ros::Duration(1).sleep(); // sleep for a second
+    }
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    this->alg_.goHome(traj_client_);
+    return true;
   }
   
   // Go home
@@ -828,6 +906,37 @@ trajectory_msgs::JointTrajectoryPoint TableClearingExecuteAlgNode::setTrajectory
   joints_trajectory_point.time_from_start = ros::Duration(secs_);
 
   return joints_trajectory_point;
+}
+
+bool TableClearingExecuteAlgNode::askForUserInput(std::string text)
+{
+  if(this->alg_.automatic == MANUAL_EXECUTION)
+  {
+    char response;
+    bool wrong_character = true;
+    while(wrong_character)
+    {
+      std::cout << "\n\n " << text << ". Do you want to execute?(y,n)";
+      std::cin >> response;
+      switch(response)
+      {
+        case 'y':
+        case 'Y':
+            wrong_character = false;
+            std::cout << "\n";
+            return true;
+            break;
+        case 'n':
+        case 'N':
+            std::cout << "\nYou decided to NOT execute the action\n";
+            return false; // return false because the trajectory is not executed
+            break;
+        default: break;
+      }
+    }
+  } 
+  else
+    return true;
 }
 
 void TableClearingExecuteAlgNode::addNodeDiagnostics(void)

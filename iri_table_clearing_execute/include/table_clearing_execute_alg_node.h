@@ -188,6 +188,8 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
 
     trajectory_msgs::JointTrajectoryPoint setTrajectoryPoint(sensor_msgs::JointState joint_state, double secs_ = 3.0);
 
+    bool askForUserInput(std::string text);
+
 };
 
 #endif

@@ -80,7 +80,7 @@ void TableClearingExecuteAlgorithm::goHome(TrajClient* traj_client_)
     goal.trajectory.points[0].accelerations[4] = 0.0f;
     goal.trajectory.points[0].accelerations[5] = 0.0f;
     goal.trajectory.points[0].accelerations[6] = 0.0f;
-    goal.trajectory.points[0].time_from_start = ros::Duration(2); 
+    goal.trajectory.points[0].time_from_start = ros::Duration(4); 
 
     // uint counter = 0;
     // while(!this->isAtHome())
@@ -88,7 +88,7 @@ void TableClearingExecuteAlgorithm::goHome(TrajClient* traj_client_)
       goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
       ROS_INFO("sending trajectory");
       traj_client_->sendGoal(goal);
-      if (!traj_client_->waitForResult(ros::Duration(4)))
+      if (!traj_client_->waitForResult(ros::Duration(5)))
       { 
           traj_client_->cancelGoal();
           ROS_INFO("Action did not finish before the time out.\n"); 
