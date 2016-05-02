@@ -34,6 +34,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("execute_grasping_service", execute_grasping_service, EXECUTE_GRASPING_SERVICE);
 
   this->public_node_handle_.param("execution", execution, EXECUTION);
+  this->public_node_handle_.param("filtering", this->alg_.filtering, FILTERING);
 
   std::cout << "input_topic: " << input_topic << std::endl
   << "goal: " << this->alg_.goal << std::endl
@@ -45,6 +46,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "execute_pushing_service: " << execute_pushing_service << std::endl
   << "execute_grasping_service: " << execute_grasping_service << std::endl
   << "execution: " << execution << std::endl
+  << "filtering: " << this->alg_.filtering << std::endl
   << "dropping_pose_x: " << dropping_pose_x << std::endl
   << "dropping_pose_y: " << dropping_pose_y << std::endl
   << "dropping_pose_z: " << dropping_pose_z << std::endl
@@ -378,10 +380,30 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   this->kinect_mutex_enter();
 
   this->alg_.setFrameId(msg->header.frame_id); 
-  this->alg_.setPointCloud(*msg);
+  
+  if(this->alg_.filtering)
+  {
+    // http://pointclouds.org/documentation/tutorials/statistical_outlier.php
+    pcl::PointCloud<pcl::PointXYZRGBA> cloud;
+    pcl::fromROSMsg(*msg,cloud);
+
+    // Filtering
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
+    sor.setInputCloud (cloud.makeShared());
+    sor.setMeanK (50);
+    sor.setStddevMulThresh (1.0);
+    sor.filter (cloud);
+  
+    sensor_msgs::PointCloud2 cloud_msg;
+    pcl::toROSMsg(cloud,cloud_msg);
+
+    this->alg_.setPointCloud(cloud_msg);
+  }
+  else
+    this->alg_.setPointCloud(*msg);
+
   this->alg_.setOn(true);
 
-  
   //std::cout << msg->data << std::endl;
   //unlock previously blocked shared variables
   this->alg_.unlock();

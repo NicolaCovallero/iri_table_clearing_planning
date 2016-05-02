@@ -60,6 +60,8 @@
 
 #include <tf/transform_datatypes.h>
 
+#include <pcl/filters/statistical_outlier_removal.h>
+
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 /**
@@ -126,6 +128,7 @@ class TableClearingDecisionMakerAlgorithm
   public:
 
     std::string goal;
+    bool filtering;
 
    /**
     * \brief define config type

@@ -55,6 +55,7 @@ const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/ex
 const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
 
 const bool EXECUTION = false;
+const bool FILTERING = true;
 
 /**
  * Default Position To Drop the object

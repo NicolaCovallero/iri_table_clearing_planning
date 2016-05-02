@@ -54,7 +54,7 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   // [init action servers]
   
   // [init action clients]
-  traj_client_ = new TrajClient("/estirabot/estirabot_controller/follow_joint_trajectory", true);
+  traj_client_ = new TrajClient("follow_joint_trajectory", true);
 
 
   // // initialize the homeState variable

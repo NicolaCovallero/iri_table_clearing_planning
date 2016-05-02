@@ -1,8 +1,16 @@
 <launch>
-	<node pkg="iri_table_clearing_execute" type="iri_table_clearing_execute"
-       name="table_clearing_execute_alg_node" output="screen">
-       <param name="from_pose_ik_service" value="/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose"/>          
-  	</node>
+
+	<arg name="ROBOT" default="estirabot" />
+
+	<group ns="$(arg ROBOT)">
+		<node pkg="iri_table_clearing_execute" type="iri_table_clearing_execute"
+	       name="table_clearing_execute_alg_node" output="screen">
+	       	<param name="from_pose_ik_service" value="/estirabot/estirabot_tcp_ik/get_wam_ik_from_pose"/>  
+	       	<remap from="open_gripper" to="gripper/tool_open_action" />
+	    	<remap from="close_gripper" to="gripper/tool_close_action" />
+	    	<remap from="follow_joint_trajectory" to="/$(arg ROBOT)/$(arg ROBOT)_controller/follow_joint_trajectory" />
+	  	</node>
+    </group>
 	
 
 </launch>
