@@ -18,7 +18,11 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm actionlib sensor_msgs
 	iri_common_drivers_msgs
 	iri_table_clearing_common_msgs
 	iri_wam_common_msgs
-	iri_action_server)
+	iri_action_server
+	moveit_core 
+ 	moveit_ros_planning
+ 	moveit_ros_planning_interface
+	)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -76,9 +80,20 @@ catkin_package(
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
  CATKIN_DEPENDS iri_base_algorithm actionlib sensor_msgs geometry_msgs iri_common_drivers_msgs
- message_generation geometry_msgs std_msgs
- trajectory_msgs control_msgs iri_base_driver iri_action_server iri_common_drivers_msgs
-  iri_wam_common_msgs iri_action_server sensor_msgs iri_table_clearing_common_msgs
+    message_generation
+    geometry_msgs std_msgs
+    trajectory_msgs 
+    control_msgs 
+    iri_base_driver 
+    iri_action_server
+    iri_common_drivers_msgs
+	iri_wam_common_msgs
+	iri_action_server
+	sensor_msgs 
+	iri_table_clearing_common_msgs
+	moveit_core 
+	moveit_ros_planning
+	moveit_ros_planning_interface
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 

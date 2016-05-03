@@ -3,7 +3,7 @@
   <arg name="rqt" default="false"/>
   <arg name="execution" default="true"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
 
   <!-- services -->
