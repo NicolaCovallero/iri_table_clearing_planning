@@ -7,11 +7,11 @@
       <node pkg="iri_table_clearing_predicates" type="iri_table_clearing_predicates"
          name="table_clearing_predicates_alg_node" output="screen">
          <param name="opening_width" value="0.08"/>
-         <param name="closing_width" value="0.025"/>
+         <param name="closing_width" value="0.03"/>
          <param name="finger_width" value="0.03"/>
-         <param name="gripper_height" value="0.055"/>
+         <param name="gripper_height" value="0.10"/>
          <param name="closing_region_height" value="0.045"/>
-         <param name="finger_deep" value="0.03"/>
+         <param name="finger_deep" value="0.025"/>
          <param name="pushing_method" value="0"/>
          <!--
          <param name="pushing_distance_plane" value="0.025"/>

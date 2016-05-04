@@ -3,7 +3,7 @@
   <arg name="rqt" default="false"/>
   <arg name="execution" default="true"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>
+  <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
 
   <!-- services -->
@@ -31,7 +31,7 @@
                                     )
                                    "/>
         -->
-
+        
          <param name="goal" value="(not (exists(?x - obj)(not (grasped ?x))))"/>
         
         <param name="execute_pushing_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_pushing"/>
@@ -60,3 +60,4 @@
   </include>
 
 </launch>
+

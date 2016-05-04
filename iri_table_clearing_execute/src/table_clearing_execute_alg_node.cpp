@@ -17,7 +17,6 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   this->public_node_handle_.param("automatic", this->alg_.automatic, false);
   this->public_node_handle_.param("real_robot", this->real_robot, false);
 
-
   std::string execution_str;
   if(this->alg_.automatic)
     execution_str = "automatic";
@@ -643,11 +642,9 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     }
   } 
 
-  
-
-  
   // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
   move2JointsPose(joints_trajectory[0],0.5,0.5);
+  
 
   // reset the time stamp for all the trajectory points
   for (int i = 0; i < joints_trajectory.size(); ++i)
@@ -1016,5 +1013,6 @@ void TableClearingExecuteAlgNode::addNodeDiagnostics(void)
 /* main function */
 int main(int argc,char *argv[])
 {
+
   return algorithm_base::main<TableClearingExecuteAlgNode>(argc, argv, "table_clearing_execute_alg_node");
 }

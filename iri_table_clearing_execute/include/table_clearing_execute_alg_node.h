@@ -129,6 +129,7 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
   public:
 
     bool real_robot;
+    bool use_moveit;
 
    /**
     * \brief Constructor

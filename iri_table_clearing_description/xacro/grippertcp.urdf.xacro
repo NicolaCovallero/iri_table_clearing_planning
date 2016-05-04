@@ -4,12 +4,12 @@
   <xacro:property name="M_PI" value="3.1415926535897931" />
   <xacro:property name="mass" value="0.05" /> <!-- arbitrary value for mass -->
   <xacro:property name="height" value="0.07" /> <!-- z axis -->
-  <xacro:property name="width" value="0.065" /> <!-- width  is along the x axis -->
-  <xacro:property name="deep" value="0.06" /> <!-- y axis -->
+  <xacro:property name="width" value="0.07" /> <!-- width  is along the x axis -->
+  <xacro:property name="deep" value="0.05" /> <!-- y axis -->
   <xacro:property name="finger_height" value="0.045" /> <!-- z axis -->
-  <xacro:property name="finger_width" value="0.02" /> <!-- width  is along the x axis -->
+  <xacro:property name="finger_width" value="0.03" /> <!-- width  is along the x axis -->
   <xacro:property name="finger_deep" value="0.025" /> <!-- y axis -->
-  <xacro:property name="closing_width" value="0.025" /> <!-- distance between the fingers when closed -->
+  <xacro:property name="closing_width" value="0.03" /> <!-- distance between the fingers when closed -->
 
   <!-- This offset is due to avoid the collision between the gripper and the end effector "boundary"-->
   <xacro:property name="offset" value="0.0051" /> 

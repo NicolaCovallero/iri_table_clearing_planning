@@ -41,7 +41,49 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>iri_base_algorithm</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>iri_common_drivers_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>trajectory_msgs</build_depend>
+  <build_depend>control_msgs</build_depend>
+  <build_depend>iri_base_driver</build_depend>
+  <build_depend>iri_common_drivers_msgs</build_depend>
+  <build_depend>iri_wam_common_msgs</build_depend>
+  <build_depend>iri_action_server</build_depend>
+  <build_depend>iriutils</build_depend>
+  <build_depend>iri_wamik</build_depend>
+  <build_depend>iri_table_clearing_common_msgs</build_depend>
+  <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>moveit_ros_planning</build_depend>
+  <build_depend>moveit_ros_perception</build_depend>
+  <build_depend>moveit_msgs</build_depend>
+
+  
   <run_depend>iri_base_algorithm</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>iri_common_drivers_msgs</run_depend>
+  <run_depend>message_generation</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>trajectory_msgs</run_depend>
+  <run_depend>control_msgs</run_depend>
+  <run_depend>iri_base_driver</run_depend> 
+  <run_depend>iri_common_drivers_msgs</run_depend>
+  <run_depend>iri_wam_common_msgs</run_depend>
+  <run_depend>iri_action_server</run_depend>
+  <run_depend>iriutils</run_depend>
+  <run_depend>iri_wamik</run_depend>
+  <run_depend>iri_table_clearing_common_msgs</run_depend>
+  <run_depend>moveit_core</run_depend>
+  <run_depend>moveit_ros_planning_interface</run_depend>
+  <run_depend>moveit_ros_planning</run_depend>
+  <run_depend>moveit_ros_perception</run_depend>
+  <run_depend>moveit_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

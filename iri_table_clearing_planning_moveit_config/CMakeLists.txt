@@ -6,7 +6,24 @@ find_package(catkin REQUIRED)
 # ******************************************************************** 
 #                 Add catkin additional components here
 # ******************************************************************** 
-find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
+find_package(catkin REQUIRED COMPONENTS iri_base_algorithm actionlib sensor_msgs geometry_msgs iri_common_drivers_msgs 
+	message_generation 
+	geometry_msgs 
+	std_msgs 
+	trajectory_msgs 
+	control_msgs 
+	sensor_msgs
+	iri_base_driver
+	iri_action_server 
+	iri_common_drivers_msgs
+	iri_table_clearing_common_msgs
+	iri_wam_common_msgs
+	iri_action_server
+	moveit_core 
+	moveit_msgs
+ 	moveit_ros_planning
+ 	moveit_ros_planning_interface
+	)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -49,7 +66,7 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm)
 # ******************************************************************** 
 #                 Add the dynamic reconfigure file 
 # ******************************************************************** 
-generate_dynamic_reconfigure_options(cfg/TableClearingPlanningMoveitConfig.cfg)
+#generate_dynamic_reconfigure_options(cfg/TableClearingPlanningMoveitConfig.cfg)
 
 # ******************************************************************** 
 #                 Add run time dependencies here
@@ -60,7 +77,24 @@ catkin_package(
 # ******************************************************************** 
 #            Add ROS and IRI ROS run time dependencies
 # ******************************************************************** 
- CATKIN_DEPENDS iri_base_algorithm
+ CATKIN_DEPENDS 
+ iri_base_algorithm actionlib sensor_msgs geometry_msgs iri_common_drivers_msgs 
+	message_generation 
+	geometry_msgs 
+	std_msgs 
+	trajectory_msgs 
+	control_msgs 
+	sensor_msgs
+	iri_base_driver
+	iri_action_server 
+	iri_common_drivers_msgs
+	iri_table_clearing_common_msgs
+	iri_wam_common_msgs
+	iri_action_server
+	moveit_core 
+	moveit_msgs
+ 	moveit_ros_planning
+ 	moveit_ros_planning_interface
 # ******************************************************************** 
 #      Add system and labrobotica run time dependencies here
 # ******************************************************************** 
@@ -74,7 +108,7 @@ catkin_package(
 # ******************************************************************** 
 #                   Add the include directories 
 # ******************************************************************** 
-include_directories(include)
+#include_directories(include)
 include_directories(${catkin_INCLUDE_DIRS})
 # include_directories(${<dependency>_INCLUDE_DIR})
 
@@ -82,12 +116,12 @@ include_directories(${catkin_INCLUDE_DIRS})
 # add_library(${PROJECT_NAME} <list of source files>)
 
 ## Declare a cpp executable
-add_executable(${PROJECT_NAME} src/table_clearing_planning_moveit_config_alg.cpp src/table_clearing_planning_moveit_config_alg_node.cpp)
-
+#add_executable(${PROJECT_NAME} src/table_clearing_planning_moveit_config_alg.cpp src/table_clearing_planning_moveit_config_alg_node.cpp)
+add_executable(moveit_test src/moveit_test.cpp)
 # ******************************************************************** 
 #                   Add the libraries
 # ******************************************************************** 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(moveit_test ${catkin_LIBRARIES})
 # target_link_libraries(${PROJECT_NAME} ${<dependency>_LIBRARY})
 
 # ******************************************************************** 
@@ -97,4 +131,4 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 # ******************************************************************** 
 #               Add dynamic reconfigure dependencies 
 # ******************************************************************** 
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+#add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
