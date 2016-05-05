@@ -260,7 +260,7 @@ class TableClearingDecisionMakerAlgorithm
     void showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_);
 
     void showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
-                              ros::Publisher& label_pub,
+                            visualization_msgs::MarkerArray& objects_labels_markers,
                               std::vector<iri_table_clearing_predicates::AABB> aabbs);
 
     void showFirstActionRViz(ros::Publisher& action_pub);

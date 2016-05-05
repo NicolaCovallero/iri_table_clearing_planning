@@ -190,6 +190,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // Uncomment the following line to publish the topic message
   //this->action_trajectory_publisher_.publish(this->action_trajectory_MarkerArray_msg_);
 
+
   // Uncomment the following line to publish the topic message
   //this->action_publisher_.publish(this->action_Marker_msg_);
 
@@ -203,6 +204,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   if(this->alg_.getOn())
   {
     std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
+
+
 
     sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
     iri_tos_supervoxels::object_segmentation tos_srv;
@@ -231,13 +234,17 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         return;
       } 
 
-      //publish label markers 
-      this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
-                                      this->objects_label_publisher_,
-                                      pre_srv.response.aabbs);
-
       this->alg_.setCentroids(pre_srv.response.centroids);
       this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
+
+      //publish label markers 
+      // init message
+      objects_labels_markers.markers.resize(0);
+      this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
+                                      objects_labels_markers,
+                                      pre_srv.response.aabbs);
+      objects_label_publisher_.publish(objects_labels_markers);
+
 
       //save the predicates
       this->alg_.setBlockPredicates(pre_srv.response.block_predicates);
@@ -282,7 +289,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         
         if(execution)
         { 
-          // until know it works only with pushing action (action_type == 0)
           switch(action_type)
           {
             case 0:
@@ -354,6 +360,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     ROS_INFO("Point cloud received");
   }
 
+  // ask the user to repeat the main thread
   if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
   {
     std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)";
@@ -372,6 +379,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         case 'n':
         case 'N':
             std::cout << "\n You decided to NOT repeat the task. Shutdown the node...\n";
+            std::cout << "\n Please press CTRL-C\n";
             ros::shutdown();
             break;
         default: break;
@@ -394,6 +402,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   
   if(this->alg_.filtering)
   {
+    if(!this->alg_.getOn())
+      ROS_INFO("New Point cloud received - Let's filter it! :)");
     // http://pointclouds.org/documentation/tutorials/statistical_outlier.php
     pcl::PointCloud<pcl::PointXYZRGBA> cloud;
     pcl::fromROSMsg(*msg,cloud);
@@ -411,7 +421,12 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     this->alg_.setPointCloud(cloud_msg);
   }
   else
+  {
+    if(!this->alg_.getOn())
+      ROS_INFO("New Point cloud received :)");
     this->alg_.setPointCloud(*msg);
+  }
+
 
   this->alg_.setOn(true);
 

@@ -193,6 +193,11 @@ void TableClearingExecuteAlgNode::mainNodeThread(void)
   // Uncomment the following line to publish the topic message
   //this->current_joint_state_publisher_.publish(this->current_joint_state_JointState_msg_);
 
+  // publish only if there is a message, without this check the terminal of the rviz will be 
+  // filled by warning messages
+  if(first_pose.header.frame_id.length() > 0)
+    action_pose_publisher_.publish(first_pose);
+
   // Uncomment the following line to publish the topic message
   //this->action_pose_publisher_.publish(this->action_pose_PoseStamped_msg_);
 
@@ -237,7 +242,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   ROS_DEBUG("Publishing grasping pose");
   //action_pose_publisher_.publish(req.grasping_pose);
-  action_pose_publisher_.publish(req.approaching_pose);
+  //action_pose_publisher_.publish(req.approaching_pose);
+  first_pose = req.approaching_pose;
 
   //ROS_INFO("TableClearingExecuteAlgNode::execute_graspingCallback: Processing New Request!");
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
@@ -393,25 +399,29 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       while(!succeded)
       {
         if(!this->close_gripperMakeActionRequest())
-          ROS_WARN("Closing gripper service not connected");
-
-        // control that the action has been executed, if not make again
-        // a request, if we have done too many request without success 
-        // an messagge error appears, but the program still is executing
-        // and will ask to the use to close the gripper with the 
-        //actionlib axclient.py node
-        while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
-        succeded = this->close_gripper_client_.getResult()->successful;
-                
-        if(it > 10)
         {
-          // The user should at this point close the gripper with the axclient.py node
-          ROS_ERROR("Failing more than 10 times to close the gripper");
-          askForUserInput("Please close the gripper with the axclient.py and go on.");
+          ROS_WARN("Closing gripper service not connected");
           succeded = true;
         }
-        it++;
-
+        else
+        {
+          // control that the action has been executed, if not make again
+          // a request, if we have done too many request without success 
+          // an messagge error appears, but the program still is executing
+          // and will ask to the use to close the gripper with the 
+          //actionlib axclient.py node
+          while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
+          succeded = this->close_gripper_client_.getResult()->successful;
+                  
+          if(it > 10)
+          {
+            // The user should at this point close the gripper with the axclient.py node
+            ROS_ERROR("Failing more than 10 times to close the gripper");
+            askForUserInput("Please close the gripper with the axclient.py and go on.");
+            succeded = true;
+          }
+          it++;
+        }
       }
       ros::Duration(1).sleep(); // sleep for a second
     }
@@ -515,25 +525,29 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       while(!succeded)
       {
         if(!this->close_gripperMakeActionRequest())
-          ROS_WARN("Closing gripper service not connected");
-
-        // control that the action has been executed, if not make again
-        // a request, if we have done too many request without success 
-        // an messagge error appears, but the program still is executing
-        // and will ask to the use to close the gripper with the 
-        //actionlib axclient.py node
-        while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
-        succeded = this->close_gripper_client_.getResult()->successful;
-                
-        if(it > 10)
         {
-          // The user should at this point close the gripper with the axclient.py node
-          ROS_ERROR("Failing more than 10 times to close the gripper");
-          askForUserInput("Please close the gripper with the axclient.py and go on.");
+          ROS_WARN("Closing gripper service not connected");
           succeded = true;
         }
-        it++;
-
+        else
+        {
+          // control that the action has been executed, if not make again
+          // a request, if we have done too many request without success 
+          // an messagge error appears, but the program still is executing
+          // and will ask to the use to close the gripper with the 
+          //actionlib axclient.py node
+          while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
+          succeded = this->close_gripper_client_.getResult()->successful;
+                  
+          if(it > 10)
+          {
+            // The user should at this point close the gripper with the axclient.py node
+            ROS_ERROR("Failing more than 10 times to close the gripper");
+            askForUserInput("Please close the gripper with the axclient.py and go on.");
+            succeded = true;
+          }
+          it++;
+        }
       }
       ros::Duration(1).sleep(); // sleep for a second
     }
@@ -596,7 +610,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
 
   ROS_DEBUG("Publishing pose");
-  action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
+  //action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
+  first_pose = req.pushing_cartesian_trajectory[0];
   
   srv.request.current_joints = this->alg_.home_joint_state;
   //srv.request.current_joints = this->alg_.current_joint_state_;

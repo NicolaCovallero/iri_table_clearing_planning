@@ -278,46 +278,46 @@ void TableClearingDecisionMakerAlgorithm::setPreDroppingPose(double dropping_pos
 
 void TableClearingDecisionMakerAlgorithm::showObjectsRViz(std::vector<sensor_msgs::PointCloud2> segmented_objects, std_msgs::Header header, ros::Publisher& cloud_publisher_)
 {
-  // std::cout << "Creating cloud message\n";
-  //creating new point cloud for debugging with random color for each segmented object
-  sensor_msgs::PointCloud2 segmented_objects_msg;
-    pcl::PointCloud<pcl::PointXYZRGBA> segmented_objects_cloud; 
+	// std::cout << "Creating cloud message\n";
+	//creating new point cloud for debugging with random color for each segmented object
+	sensor_msgs::PointCloud2 segmented_objects_msg;
+	pcl::PointCloud<pcl::PointXYZRGB> segmented_objects_cloud; 
 
-    for (int i = 0; i < segmented_objects.size(); ++i)
-    {
-      
-      pcl::PointCloud<pcl::PointXYZRGBA> tmp;
-      pcl::fromROSMsg(segmented_objects[i],tmp);
-      float r,g,b;
-      r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-      g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-      b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-      for (int h = 0; h < tmp.points.size(); ++h)
-      {
-        tmp.points.at(h).r = r*255;
-        tmp.points.at(h).g = g*255;
-        tmp.points.at(h).b = b*255;
-        tmp.points.at(h).a = 1;
-      }
+	for (int i = 0; i < segmented_objects.size(); ++i)
+	{
+	  
+	  pcl::PointCloud<pcl::PointXYZRGB> tmp;
+	  pcl::fromROSMsg(segmented_objects[i],tmp);
+	  float r,g,b;
+	  r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	  g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	  b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	  for (int h = 0; h < tmp.points.size(); ++h)
+	  {
+	    tmp.points.at(h).r = r*255;
+	    tmp.points.at(h).g = g*255;
+	    tmp.points.at(h).b = b*255;
+	    //tmp.points.at(h).a = 1;
+	  }
 
-      segmented_objects_cloud += tmp;
-    }
+	  segmented_objects_cloud += tmp;
+	}
 
-    segmented_objects_cloud.width = segmented_objects_cloud.points.size();
-    segmented_objects_cloud.height = 1;
-    segmented_objects_cloud.is_dense = true;
+	segmented_objects_cloud.width = segmented_objects_cloud.points.size();
+	segmented_objects_cloud.height = 1;
+	segmented_objects_cloud.is_dense = true;
 
-    //std::cout << "segmented_objects_cloud.points.size() " << segmented_objects_cloud.points.size() << "\n";
-    pcl::toROSMsg(segmented_objects_cloud,segmented_objects_msg);
-    //std::cout << "segmented_objects_msg.data.size() " << segmented_objects_msg.data.size() << "\n";
+	//std::cout << "segmented_objects_cloud.points.size() " << segmented_objects_cloud.points.size() << "\n";
+	pcl::toROSMsg(segmented_objects_cloud,segmented_objects_msg);
+	//std::cout << "segmented_objects_msg.data.size() " << segmented_objects_msg.data.size() << "\n";
 
-    segmented_objects_msg.header = header;
-    segmented_objects_msg.header.stamp = ros::Time::now();
-    cloud_publisher_.publish(segmented_objects_msg);
+	segmented_objects_msg.header = header;
+	segmented_objects_msg.header.stamp = ros::Time::now();
+	cloud_publisher_.publish(segmented_objects_msg);
 }
 void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
-                              ros::Publisher& label_pub,
-                              std::vector<iri_table_clearing_predicates::AABB> aabbs)
+								visualization_msgs::MarkerArray& objects_labels_markers,
+                              	std::vector<iri_table_clearing_predicates::AABB> aabbs)
 {
 	visualization_msgs::MarkerArray markers;
 	if(aabbs.size() != centroids.size())
@@ -333,9 +333,9 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 		marker.id = i;
 		marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
 		marker.action = visualization_msgs::Marker::ADD;
-		marker.pose.position.x = centroids[i].x;
-		marker.pose.position.y = centroids[i].y;
-		marker.pose.position.z = centroids[i].z;
+		marker.pose.position.x = centroids[i].x - 0.10*this->plane_normal.x;
+		marker.pose.position.y = centroids[i].y - 0.10*this->plane_normal.y;
+		marker.pose.position.z = centroids[i].z - 0.10*this->plane_normal.z; //we translate it by 10 cm
 		marker.pose.orientation.x = 0.0;
 		marker.pose.orientation.y = 0.0;
 		marker.pose.orientation.z = 0.0;
@@ -351,7 +351,8 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 		marker.text =  object_label;
 		markers.markers.push_back(marker);
 	}
-	label_pub.publish(markers);
+	objects_labels_markers = markers;
+	
 }
 void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& action_pub)
 {

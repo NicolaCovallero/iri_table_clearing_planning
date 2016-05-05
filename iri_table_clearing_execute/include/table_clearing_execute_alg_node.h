@@ -119,6 +119,8 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     void open_gripperFeedback(const iri_common_drivers_msgs::tool_openFeedbackConstPtr& feedback);
 
 
+    geometry_msgs::PoseStamped first_pose;
+
    /**
     * \brief config variable
     *

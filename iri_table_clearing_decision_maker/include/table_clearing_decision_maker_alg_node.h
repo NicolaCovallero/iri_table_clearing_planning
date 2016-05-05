@@ -125,6 +125,10 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 
     // [action client attributes]
 
+
+    // messages to publish
+    visualization_msgs::MarkerArray objects_labels_markers;
+
    /**
     * \brief config variable
     *

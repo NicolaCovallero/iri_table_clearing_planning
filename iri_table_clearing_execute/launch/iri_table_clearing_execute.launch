@@ -3,7 +3,8 @@
 	<arg name="ROBOT" default="estirabot" />
 	<arg name="MOVEIT" default="false"/>
 	<arg name="REAL_ROBOT" default="false"/>
-
+	<arg name="AUTOMATIC" default="false"/>
+	
 	<group ns="$(arg ROBOT)">
 		<node pkg="iri_table_clearing_execute" type="iri_table_clearing_execute"
 	       name="iri_table_clearing_execute" output="screen">
@@ -13,6 +14,7 @@
 	    	<remap from="follow_joint_trajectory" to="/$(arg ROBOT)/$(arg ROBOT)_controller/follow_joint_trajectory" />
 	    	<remap from="~move_joints" to="/$(arg ROBOT)/$(arg ROBOT)_controller/joints_move"/>
 	    	<param name="real_robot" value="$(arg REAL_ROBOT)"/>
+	     	<param name="automatic" value="$(arg AUTOMATIC)"/>
 
 	  	</node>
     </group>

@@ -1,0 +1,30 @@
+<launch>
+  <arg name="screen" default="false"/>
+  <!-- service -->
+  <group if="$(arg screen)">
+      <node pkg="iri_tos_supervoxels" type="iri_tos_supervoxels"
+       name="iri_tos_supervoxels_alg" output="screen">
+          <param name="seed_resolution" value="0.015"/>
+          <param name="voxel_resolution" value="0.005"/>
+          <param name="zmin" value="0.04"/>
+          <param name="th_points" value="100"/>
+          <param name="min_segmente_size" value="5"/>
+          <param name="concavity_threshold" value="20"/>
+          <param name="service_name" value="object_segmentation"/>
+      </node>
+  </group>
+  <group unless="$(arg screen)">
+      <node pkg="iri_tos_supervoxels" type="iri_tos_supervoxels"
+       name="iri_tos_supervoxels_alg">
+          <param name="seed_resolution" value="0.015"/>
+          <param name="voxel_resolution" value="0.005"/>
+          <param name="zmin" value="0.04"/>
+          <param name="th_points" value="100"/>
+          <param name="min_segmente_size" value="5"/>
+          <param name="concavity_threshold" value="20"/>
+          <param name="service_name" value="object_segmentation"/>
+      </node>
+  </group>
+
+
+</launch>
