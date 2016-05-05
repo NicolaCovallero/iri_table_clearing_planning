@@ -344,6 +344,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
     this->alg_.setOn(false);
   }
+  else // it the algorithm is not set to ON it means it is still waiting for a point cloud
+  {
+    while(!this->alg_.getOn())
+    {
+      ROS_INFO("Waiting for a point cloud from %s",kinect_subscriber_.getTopic().c_str());   
+      ros::Duration(0.5).sleep();
+    }
+    ROS_INFO("Point cloud received");
+  }
 
   if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
   {

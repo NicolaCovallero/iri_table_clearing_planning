@@ -40,7 +40,7 @@
 
         <param name="execution" value="$(arg execution)"/>
         <param name="pushing_discretization" value="4"/>
-        <param name="pushing_step" value="2.5"/>
+        <param name="pushing_step" value="1.5"/>
         
         <!-- Dropping pose definition - Orientation Downforawrd -->
         <param name="dropping_pose_x" value="0.2"/>
@@ -60,4 +60,6 @@
   </include>
 
 </launch>
+
+
 
