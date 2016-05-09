@@ -3,11 +3,11 @@
   <arg name="rqt" default="false"/>
   <arg name="execution" default="true"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
 
   <!-- services -->
-  <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
+  <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
     <arg name="screen" value="false"/>
   </include>
 
@@ -40,7 +40,7 @@
 
         <param name="execution" value="$(arg execution)"/>
         <param name="pushing_discretization" value="4"/>
-        <param name="pushing_step" value="1.5"/>
+        <param name="pushing_step" value="2.5"/>
         
         <!-- Dropping pose definition - Orientation Downforawrd -->
         <param name="dropping_pose_x" value="0.2"/>
@@ -60,6 +60,3 @@
   </include>
 
 </launch>
-
-
-

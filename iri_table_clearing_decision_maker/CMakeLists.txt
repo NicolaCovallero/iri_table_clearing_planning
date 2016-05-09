@@ -93,7 +93,7 @@ include_directories(${fcl_INCLUDE_DIR} )
 # add_library(${PROJECT_NAME} <list of source files>)
 
 ## Declare a cpp executable
-add_executable(${PROJECT_NAME} src/table_clearing_decision_maker_alg.cpp src/table_clearing_decision_maker_alg_node.cpp)
+add_executable(${PROJECT_NAME} src/table_clearing_decision_maker_alg.cpp src/table_clearing_decision_maker_alg_node.cpp src/experiment_handler.cpp)
 
 # ******************************************************************** 
 #                   Add the libraries

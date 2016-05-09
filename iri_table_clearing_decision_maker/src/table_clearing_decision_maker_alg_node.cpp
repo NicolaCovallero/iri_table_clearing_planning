@@ -1,5 +1,6 @@
 #include "table_clearing_decision_maker_alg_node.h"
 
+
 TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>()
 {

@@ -62,6 +62,8 @@
 
 #include <pcl/filters/statistical_outlier_removal.h>
 
+#include "experiment_handler.h"
+
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 /**
