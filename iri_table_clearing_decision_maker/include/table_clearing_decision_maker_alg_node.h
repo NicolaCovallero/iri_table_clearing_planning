@@ -29,6 +29,12 @@
 #include "table_clearing_decision_maker_alg.h"
 
 // [publisher subscriber headers]
+#include <camera_info_manager/camera_info_manager.h>
+#include <image_transport/image_transport.h>
+
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/Image.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -39,6 +45,8 @@
 #include <iri_fast_downward_wrapper/FastDownwardPlan.h>
 #include <iri_tos_supervoxels/object_segmentation.h>
 #include <iri_table_clearing_predicates/Predicates.h>
+
+#include "experiment_handler.h"
 
 // [action server client headers]
 
@@ -53,6 +61,8 @@ const std::string PREDICATES_SERVICE = "/table_clearing_predicates_alg_node/get_
 const std::string PLANNER_SERVICE = "/get_fast_downward_plan";
 const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/execute_pushing";
 const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
+
+const std::string WORKING_FOLDER = "~/tests";
 
 const bool EXECUTION = false;
 const bool FILTERING = true;
@@ -95,6 +105,16 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 
 
     // [subscriber attributes]
+    image_transport::CameraSubscriber kinect_raw_rgb_subscriber_;
+    void kinect_raw_rgb_callback(const sensor_msgs::Image::ConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& info);
+    pthread_mutex_t kinect_raw_rgb_mutex_;
+    void kinect_raw_rgb_mutex_enter(void);
+    void kinect_raw_rgb_mutex_exit(void);
+
+    // Uncomment to use the openCV <-> ROS bridge
+    cv_bridge::CvImagePtr cv_image_;
+    image_transport::ImageTransport it;
+
     ros::Subscriber kinect_subscriber_;
     void kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
     pthread_mutex_t kinect_mutex_;
@@ -128,6 +148,11 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 
     // messages to publish
     visualization_msgs::MarkerArray objects_labels_markers;
+
+    // experiment stuff
+    bool save_experiment;
+    std::string working_folder;
+    ExperimentDataHandler eh;
 
    /**
     * \brief config variable

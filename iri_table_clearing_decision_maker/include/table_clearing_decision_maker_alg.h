@@ -113,10 +113,10 @@ class TableClearingDecisionMakerAlgorithm
     geometry_msgs::Vector3 plane_normal;
     std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions;
 
-    iri_fast_downward_wrapper::Plan plan;
     std::string frame_id;   
 
     sensor_msgs::PointCloud2 point_cloud;
+
     bool set;
 
     int pushing_discretization;
@@ -128,6 +128,9 @@ class TableClearingDecisionMakerAlgorithm
     geometry_msgs::PoseStamped dropping_pose,pre_dropping_pose;
 
   public:
+
+    iri_fast_downward_wrapper::Plan plan;
+    sensor_msgs::Image  image;
 
     std::string goal;
     bool filtering;

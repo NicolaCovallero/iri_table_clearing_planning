@@ -11,6 +11,15 @@
 #include <string.h>
 #include <algorithm>
 #include <ctime>
+#include "iri_fast_downward_wrapper/Plan.h"
+#include <pcl_conversions/pcl_conversions.h>
+#include "sensor_msgs/PointCloud2.h"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/core/core.hpp"
+#include <cv_bridge/cv_bridge.h>
+
+
 
 /**
  * @brief Class to handle the experiments data
@@ -35,20 +44,39 @@ class ExperimentDataHandler{
 	std::ofstream file;
 
 
+	std::vector<std::string> labels;
+
+	cv::Mat image;
+
+    // TO DO:
+    // 1) add the total solution time at the end
+	// 2) write labels of the objects on the image
+	// 3) show pushing direction 
+
 	public:
 
-		ExperimentDataHandler(std::string working_folder);
+		ExperimentDataHandler();
 
 		~ExperimentDataHandler();
 
-
+		void setUp(std::string working_folder);
 
 		/**
 		 * @brief Update the experiment number
 		 * @details It just updates the exp_num member in order to make 
 		 * the algorithm know it is going to do a new experiments. This has to be called externally.
 		 */
-		void updateExperimentNumber();
+		void newExperiment();
+		void closeFile();
+
+
+		// the function does not do any control over the size of data
+		void updateExperiment(std::vector<double>& data,
+		               iri_fast_downward_wrapper::Plan& plan,
+		                bool feasible,
+		                cv_bridge::CvImagePtr image_ptr);
+
+
 };
 
 #endif

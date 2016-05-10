@@ -2,7 +2,8 @@
 
 
 TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
-  algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>()
+  algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>(),
+  it(this->public_node_handle_)
 {
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
@@ -37,6 +38,10 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("execution", execution, EXECUTION);
   this->public_node_handle_.param("filtering", this->alg_.filtering, FILTERING);
 
+  // experiment stuff
+  this->public_node_handle_.param("save_experiment", this->save_experiment, false);
+  this->public_node_handle_.param("working_folder", this->working_folder, WORKING_FOLDER);
+
   // [init publishers]
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
@@ -44,6 +49,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->cloud_publisher_ = this->public_node_handle_.advertise<sensor_msgs::PointCloud2>("cloud", 1);
   
   // [init subscribers]
+  this->kinect_raw_rgb_subscriber_ = this->it.subscribeCamera("/estirabot/kinect/rgb/image_raw", 1, &TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback, this);
+  pthread_mutex_init(&this->kinect_raw_rgb_mutex_,NULL);
+
   //this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
   this->kinect_subscriber_ = this->public_node_handle_.subscribe(input_topic, 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
   pthread_mutex_init(&this->kinect_mutex_,NULL);
@@ -88,12 +96,19 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
   << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl;
 
+  if(save_experiment)
+  {
+    std::cout << "Your experiment are going to be saved in folder: " << working_folder << std::endl;
+    eh.setUp(working_folder);
+  }
+
   std::cout << "The goal set is:\n" << this->alg_.goal << "\n";
 }
 
 TableClearingDecisionMakerAlgNode::~TableClearingDecisionMakerAlgNode(void)
 {
   // [free dynamic memory]
+  pthread_mutex_destroy(&this->kinect_raw_rgb_mutex_);
   pthread_mutex_destroy(&this->kinect_mutex_);
 }
 
@@ -206,8 +221,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   {
     std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
 
-
-
     sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
     iri_tos_supervoxels::object_segmentation tos_srv;
     tos_srv.request.point_cloud = (*msg);
@@ -273,7 +286,10 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
           this->alg_.setOn(false);
           feasible = true; // there is not IK influence here
+
         }
+
+
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
 
@@ -345,6 +361,23 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         } 
       }//exit while
 
+
+      // update experiment data
+      if(save_experiment) 
+      {
+        if(alg_.plan.actions.size() == 0)
+        {
+          eh.newExperiment();
+        }
+        else
+        {
+          std::vector<double> fake; // just to test - This should contains the values of the timers
+          fake.push_back(0.0);
+          std::cout << "updating experiment\n";
+          eh.updateExperiment(fake,alg_.plan,true,this->cv_image_);
+        }
+      }
+
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
     }// end if supervoxels
@@ -381,6 +414,11 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         case 'N':
             std::cout << "\n You decided to NOT repeat the task. Shutdown the node...\n";
             std::cout << "\n Please press CTRL-C\n";
+            if(save_experiment)
+            {
+              std::cout << "Closing file experiment file\n";
+              eh.closeFile();
+            }
             ros::shutdown();
             break;
         default: break;
@@ -391,6 +429,37 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 }
 
 /*  [subscriber callbacks] */
+void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback(const sensor_msgs::Image::ConstPtr& msg, const sensor_msgs::CameraInfoConstPtr& info)
+{
+  ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback: New Message Received");
+
+  //use appropiate mutex to shared variables if necessary
+  this->alg_.lock();
+  this->kinect_raw_rgb_mutex_enter();
+
+  //std::cout << msg->data << std::endl;
+  // Uncomment the following line to convert the input image to OpenCV format
+  if (sensor_msgs::image_encodings::isColor(msg->encoding) or
+      sensor_msgs::image_encodings::isBayer(msg->encoding))
+    cv_image_ = cv_bridge::toCvCopy(msg,"bgr8");
+  else
+    cv_image_ = cv_bridge::toCvCopy(msg,"mono8");
+
+  //unlock previously blocked shared variables
+  this->alg_.unlock();
+  this->kinect_raw_rgb_mutex_exit();
+}
+
+void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_mutex_enter(void)
+{
+  pthread_mutex_lock(&this->kinect_raw_rgb_mutex_);
+}
+
+void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_mutex_exit(void)
+{
+  pthread_mutex_unlock(&this->kinect_raw_rgb_mutex_);
+}
+
 void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
   
