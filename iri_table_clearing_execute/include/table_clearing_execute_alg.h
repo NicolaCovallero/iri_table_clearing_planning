@@ -47,6 +47,9 @@
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_state/conversions.h>
 
+// this is actually just to compute the time
+#include "table_clearing_planning.h"
+
 typedef actionlib::SimpleActionClient< control_msgs::FollowJointTrajectoryAction > TrajClient;
 //typedef actionlib::SimpleActionClient< iri_table_clearing_common_msgs::FollowJointTrajectoryAction > TrajClient;
 

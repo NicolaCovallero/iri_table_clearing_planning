@@ -71,9 +71,19 @@ class ExperimentDataHandler{
 
 
 		// the function does not do any control over the size of data
+
+		/**
+		 * @brief Update the data of the experiment
+		 * @details Update the data of the experiment
+		 * 
+		 * @param data data to save (the labels have to be specified in the cosntructor)
+		 * @param plan The plan
+		 * @param ik_feasible boolean variable to specify if the ik is feasible or not
+		 * @param image_ptr [description]
+		 */
 		void updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool feasible,
+		                bool ik_feasible,
 		                cv_bridge::CvImagePtr image_ptr);
 
 

@@ -4,3 +4,4 @@ geometry_msgs/PoseStamped pre_dropping_pose
 geometry_msgs/PoseStamped dropping_pose
 ---
 bool success
+float32 ik_time

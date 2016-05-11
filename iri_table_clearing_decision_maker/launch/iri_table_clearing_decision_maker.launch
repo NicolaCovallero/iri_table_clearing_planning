@@ -1,11 +1,11 @@
 <launch>
 
-  <arg name="rqt" default="false"/>
-  <arg name="execution" default="false"/>
+  <arg name="RQT" default="false"/>
+  <arg name="EXECUTION" default="false"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
-  <arg name="SAVE_EXPERIMENT" default="False"/>
+  <arg name="SAVE_EXPERIMENT" default="True"/>
 
   <!-- services -->
   <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
@@ -16,7 +16,7 @@
   <group ns="$(arg ROBOT)">
     <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
          name="iri_table_clearing_decision_maker" output="screen">
-         <param name="input_topic" value="$(arg input_topic)"/>
+         <param name="input_topic" value="$(arg INPUT_TOPIC)"/>
 
          <!-- This goal is just to separate the objects, without grasping them-->
         
@@ -39,7 +39,7 @@
         <param name="execute_grasping_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_grasping"/>
         <param name="predicates_service" value="/$(arg ROBOT)/table_clearing_predicates_alg_node/get_symbolic_predicates"/>
 
-        <param name="execution" value="$(arg execution)"/>
+        <param name="execution" value="$(arg EXECUTION)"/>
         <param name="pushing_discretization" value="4"/>
         <param name="pushing_step" value="2.5"/>
         
@@ -61,7 +61,7 @@
   </group>
   <!-- Launch Rqt_gui with the correct configuration -->
   <include file="$(find iri_table_clearing_config)/launch/rqt_gui.launch">
-    <arg name="rqt" value="$(arg rqt)"/>
+    <arg name="rqt" value="$(arg RQT)"/>
   </include>
 
 </launch>

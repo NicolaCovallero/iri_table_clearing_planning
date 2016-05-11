@@ -253,6 +253,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   std::vector<sensor_msgs::JointState> joints_trajectory;
   joints_trajectory.resize(4);
 
+  util::uint64 t_init_ik = util::GetTimeMs64(); 
   res.success = true;
   for (uint i = 0; i < 4; ++i)
   {
@@ -302,9 +303,12 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
         default:break;        
       }
       res.success = false; 
+      res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);  
       return true;
     }
   }
+  res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
+
 
   ROS_INFO("Waiting for the joint_trajectory_action server");
   while(!traj_client_->waitForServer(ros::Duration(5.0))){
@@ -619,6 +623,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
 
   ROS_INFO("Trying calling the IK service");
+  util::uint64 t_init_ik = util::GetTimeMs64(); 
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
     joints_trajectory[0] = srv.response.desired_joints;
@@ -635,6 +640,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   {
     ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
+    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     return true;
   }
 
@@ -669,9 +675,11 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     {
       ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
       res.success = false; 
+      res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       return true;
     }
   }
+  res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
 
   ROS_INFO("Waiting for the joint_trajectory_action server");
   while(!traj_client_->waitForServer(ros::Duration(5.0))){

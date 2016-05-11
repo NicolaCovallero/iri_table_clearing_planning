@@ -42,26 +42,25 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	}
 
 	labels.push_back("n_objects");
-	labels.push_back("seg_time");
-	labels.push_back("predicates_time");
-	labels.push_back("planning_time");
-	labels.push_back("IK");
-	labels.push_back("on_predicates");
-	labels.push_back("block_predicates");
-	labels.push_back("block_grasp_predicates");
-	labels.push_back("objects_collisions");
-	labels.push_back("objects_collisions");
-	labels.push_back("ee_collisions");
-	labels.push_back("average_objects_collision");
-	labels.push_back("average_ee_collision");
-	labels.push_back("executed_action");
-	labels.push_back("plan_feasible");
+	labels.push_back("seg_time[ms]");
+	labels.push_back("predicates_time[ms]");
+	labels.push_back("planning_time[ms]");
+	labels.push_back("IK[ms]");
+	labels.push_back("on_predicates[ms]");
+	labels.push_back("block_predicates[ms]");
+	labels.push_back("block_grasp_predicates[ms]");
+	labels.push_back("objects_collisions[ms]");
+	labels.push_back("ee_collisions[ms]");
+	labels.push_back("average_objects_collision[ms]");
+	labels.push_back("average_ee_collision[ms]");
+	labels.push_back("action");
+	labels.push_back("ik_feasible");
 
 }
 
 void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool feasible,
+		               bool ik_feasible, 
 		                cv_bridge::CvImagePtr image_ptr)
 {
 	if(this->file.is_open())
@@ -71,8 +70,15 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		{
 			std::ostringstream exp_num_str;
 			exp_num_str << exp_num; 
-			std::cout << "writing name experiment\n";
 			file << "--exp" + exp_num_str.str() + "\n";
+
+			// ask for user for comments about the experiment
+			std::cout << "\nNew experiment, please write some comments about this experiment:";
+			std::string comments;
+			// little hack - putting twice it works as expected
+			getline(std::cin, comments); 
+			getline(std::cin, comments); 
+    		file << "comments: " + comments + "\n";
 
 			//write plan
 			file << "plan: ";
@@ -82,8 +88,8 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			}
 			file << "\n";
 
-			std::cout << "writing labels\n";
 			// write labels
+			file << "labels: ";			
 			for(uint i = 0; i < labels.size() ; i++)
 			{
 				file << labels[i] + " ";
@@ -100,11 +106,14 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			num_str << data[i];
 			file << num_str.str() + " ";
 		}
-		file << plan.actions[0].action_name;
+		file << plan.actions[0].action_name + "-" + plan.actions[0].objects[0] + " ";
 
-		std::ostringstream feasible_str;
-		feasible_str << feasible;
-		file << feasible_str.str() + "\n";
+		std::ostringstream ik_feasible_str;
+		ik_feasible_str << ik_feasible;
+		file << ik_feasible_str.str() + " ";
+
+		file << "\n";
+		
 	}
 	else
 	{
@@ -138,6 +147,9 @@ void ExperimentDataHandler::closeFile()
 }
 void ExperimentDataHandler::newExperiment()
 {
+	//update only if it has been done something dyring this experiment
+	if(exp_iteration == 0)
+		return;
 	exp_iteration = 0;
 	exp_num++;
 }

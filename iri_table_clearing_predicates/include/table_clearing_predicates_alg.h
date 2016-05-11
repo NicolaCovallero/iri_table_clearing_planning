@@ -367,6 +367,8 @@ class TableClearingPredicatesAlgorithm
     void setOnTopParameters(double on_th1, double on_th2);
 
     void reset();
+
+    ExecutionTimes getExecutionTimes();
 };
 
 #endif

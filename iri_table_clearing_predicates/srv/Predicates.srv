@@ -13,3 +13,12 @@ iri_table_clearing_predicates/AABB[] aabbs
 geometry_msgs/Point[] centroids
 iri_table_clearing_predicates/PrincipalDirections[] principal_directions
 float32 pushing_object_distance
+
+# times for experiments data
+float32 on_predicates_time
+float32 block_predicates_time
+float32 block_grasp_predicates_time
+float32 objects_collisions_time
+float32 ee_collisions_time
+float32 average_objects_collision_time
+float32 average_ee_collision_time

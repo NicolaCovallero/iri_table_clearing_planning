@@ -1,3 +1,4 @@
 geometry_msgs/PoseStamped[] pushing_cartesian_trajectory 
 --- 
 bool success
+float32 ik_time

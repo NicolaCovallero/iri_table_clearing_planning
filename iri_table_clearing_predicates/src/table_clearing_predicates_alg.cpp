@@ -398,3 +398,7 @@ void TableClearingPredicatesAlgorithm::setOnTopParameters(double on_th1, double 
 	this->on_th1 = on_th1;
 	this->on_th2 = on_th2;
 }
+ExecutionTimes TableClearingPredicatesAlgorithm::getExecutionTimes()
+{
+	return this->tcp.getExecutionTimes();
+}

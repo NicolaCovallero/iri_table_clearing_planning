@@ -32,6 +32,11 @@ find_package(catkin REQUIRED COMPONENTS iri_base_algorithm actionlib sensor_msgs
 # ******************************************************************** 
 # find_package(<dependency> REQUIRED)
 find_package(iriutils REQUIRED)
+find_package(table_clearing_planning REQUIRED)
+find_package(PCL 1.8 REQUIRED)
+find_package(fcl REQUIRED)
+find_package(OpenCV REQUIRED)
+
 # ******************************************************************** 
 #           Add topic, service and action definition here
 # ******************************************************************** 
@@ -109,6 +114,15 @@ catkin_package(
 # ******************************************************************** 
 include_directories(include)
 include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${table_clearing_planning_INCLUDE_DIR})
+IF (PCL_FOUND)
+  INCLUDE_DIRECTORIES(${PCL_INCLUDE_DIRS})
+  LINK_DIRECTORIES(${PCL_LIBRARY_DIRS})
+  ADD_DEFINITIONS(${PCL_DEFINITIONS})
+ENDIF (PCL_FOUND) 
+
+include_directories(${fcl_INCLUDE_DIR} )
+
 # include_directories(${<dependency>_INCLUDE_DIR})
 
 ## Declare a cpp library
@@ -121,7 +135,7 @@ add_executable(${PROJECT_NAME} src/table_clearing_execute_alg.cpp src/table_clea
 #                   Add the libraries
 # ******************************************************************** 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-# target_link_libraries(${PROJECT_NAME} ${<dependency>_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${table_clearing_planning_LIBRARY} ${PCL_LIBRARIES} ${fcl_LIBRARIES} ${OpenCV_LIBS})
 
 # ******************************************************************** 
 #               Add message headers dependencies 

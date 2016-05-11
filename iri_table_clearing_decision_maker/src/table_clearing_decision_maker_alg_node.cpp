@@ -224,11 +224,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
     iri_tos_supervoxels::object_segmentation tos_srv;
     tos_srv.request.point_cloud = (*msg);
+
+    util::uint64 t_init_seg = util::GetTimeMs64(); 
     if(!segments_objects_client_.call(tos_srv))
     {
       ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
     }
+    segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
+
     n_objs = tos_srv.response.objects.objects.size();
     std::cout << n_objs << " Object detected\n";
     if(tos_srv.response.objects.objects.size() > 0) // if we have more than 1 object do the stuff
@@ -241,12 +245,22 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       pre_srv.request.original_cloud = (*msg);
       pre_srv.request.segmented_objects = tos_srv.response.objects.objects;
       pre_srv.request.plane_coefficients = tos_srv.response.plane_coeff;
+
+      util::uint64 t_init_predicates = util::GetTimeMs64(); 
       if(!get_symbolic_predicates_client_.call(pre_srv))
       {
         ROS_ERROR("Impossible getting the predicates");
         this->alg_.setOn(false);
         return;
       } 
+      predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
+      on_predicates_time = pre_srv.response.on_predicates_time;
+      block_predicates_time = pre_srv.response.block_predicates_time;
+      block_grasp_predicates_time = pre_srv.response.block_grasp_predicates_time;
+      objects_collisions_time = pre_srv.response.objects_collisions_time;
+      ee_collisions_time = pre_srv.response.ee_collisions_time;
+      average_objects_collision_time = pre_srv.response.average_objects_collision_time;
+      average_ee_collision_time = pre_srv.response.average_ee_collision_time;
 
       this->alg_.setCentroids(pre_srv.response.centroids);
       this->alg_.setPlaneCoefficients(tos_srv.response.plane_coeff);
@@ -281,14 +295,19 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         fd_srv.request.symbolic_predicates = predicates;
         fd_srv.request.goal = this->alg_.prepareGoalMsg();
 
+        util::uint64 t_init_planning = util::GetTimeMs64(); 
+        plan_feasible = true;
+        // reset plan
+        alg_.plan.actions.resize(0);
+        alg_.plan.cost = 0;
         if(!get_fast_downward_plan_client_.call(fd_srv))
         {
           ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
           this->alg_.setOn(false);
           feasible = true; // there is not IK influence here
-
+          plan_feasible = false;
         }
-
+        planning_time = (double)(util::GetTimeMs64() - t_init_planning);
 
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
@@ -304,6 +323,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         if(action_type == 0)
           this->alg_.showActionTrajectory(action_trajectory_publisher_);
         
+        double ik_time = 0;
+        ik_feasible = true;
         if(execution)
         { 
           switch(action_type)
@@ -312,15 +333,18 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
               ROS_INFO("Calling execution service for pushing action");
               if(execute_pushing_client_.call(pushing_srv)) 
               {
-                if(!pushing_srv.response.success) 
+                if(!pushing_srv.response.success) // because the IK had no solution
                 {
                   ROS_WARN("Pushing action unfeasible");
                   this->alg_.setIKUnfeasiblePredicate();
                   feasible = false;
+                  ik_feasible = false;
+                  ik_time = pushing_srv.response.ik_time;
                 }
                 else
                 {
                   feasible = true; 
+                  ik_time = pushing_srv.response.ik_time;
                 }
               }
               else
@@ -337,10 +361,13 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                   ROS_WARN("Grasping action unfeasible");
                   this->alg_.setIKUnfeasiblePredicate();
                   feasible = false;
+                  ik_feasible = false;
+                  ik_time = grasping_srv.response.ik_time;
                 }
                 else
                 {
                   feasible = true; 
+                  ik_time = grasping_srv.response.ik_time;
                 }
               }
               else
@@ -359,28 +386,50 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         {
           feasible = true;
         } 
+
+        // update experiment data
+        if(save_experiment) 
+        {
+          if(!fd_srv.response.success)
+          {
+            std::cout << "new experiment\n";
+            eh.newExperiment();
+          }
+          else
+          {
+            // set data vector
+            std::vector<double> data; // just to test - This should contains the values of the timers
+            data.push_back(n_objs); 
+            data.push_back(segmentation_time);
+            data.push_back(predicates_time);
+            data.push_back(planning_time);
+            data.push_back(ik_time);
+            data.push_back(pre_srv.response.on_predicates_time);
+            data.push_back(pre_srv.response.block_predicates_time);
+            data.push_back(pre_srv.response.block_grasp_predicates_time);
+            data.push_back(pre_srv.response.objects_collisions_time);
+            data.push_back(pre_srv.response.ee_collisions_time);
+            data.push_back(pre_srv.response.average_objects_collision_time);
+            data.push_back(pre_srv.response.average_ee_collision_time);
+
+            std::cout << "updating experiment\n";
+            eh.updateExperiment(data,alg_.plan,ik_feasible,this->cv_image_);
+          }
+        }
+
       }//exit while
 
 
-      // update experiment data
-      if(save_experiment) 
-      {
-        if(alg_.plan.actions.size() == 0)
-        {
-          eh.newExperiment();
-        }
-        else
-        {
-          std::vector<double> fake; // just to test - This should contains the values of the timers
-          fake.push_back(0.0);
-          std::cout << "updating experiment\n";
-          eh.updateExperiment(fake,alg_.plan,true,this->cv_image_);
-        }
-      }
+      
 
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
     }// end if supervoxels
+    else if(save_experiment) // if there are no objects update experiment
+    {
+      std::cout << "new experiment\n";
+      eh.newExperiment();
+    }
 
     this->alg_.setOn(false);
   }
@@ -397,7 +446,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // ask the user to repeat the main thread
   if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
   {
-    std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)";
+    std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)\n";
+    if(save_experiment)
+      std::cout << "[to save the experiment you have to close in this way the node - Press E/e to repeat as a new experiment]\n";
     char response;
     std::cin >> response;
     bool wrong_character = true;
@@ -420,6 +471,20 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
               eh.closeFile();
             }
             ros::shutdown();
+            break;
+        case 'e':
+        case 'E':
+            if(save_experiment)
+            {
+              std::cout << "new experiment\n";
+              eh.newExperiment();
+              wrong_character = false;
+              std::cout << "\n";
+            }
+            else
+            {
+              std::cout << "You have chosen to do not save the experiment, E/e options is not available";
+            }
             break;
         default: break;
       }

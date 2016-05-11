@@ -153,6 +153,11 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     bool save_experiment;
     std::string working_folder;
     ExperimentDataHandler eh;
+    double planning_time,segmentation_time,ik_time,predicates_time;
+    double  on_predicates_time, block_predicates_time, block_grasp_predicates_time,
+            objects_collisions_time, ee_collisions_time, average_objects_collision_time,
+            average_ee_collision_time;
+    bool plan_feasible,ik_feasible;
 
    /**
     * \brief config variable

@@ -130,6 +130,9 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   this->alg_.computeOnTopPredicates(on_th1, on_th2, true);
   this->alg_.computeBlockGraspPredicates(true);
 
+  // get the execution times
+  ExecutionTimes exe_times = this->alg_.getExecutionTimes();
+
   // prepare the output
   res.block_predicates = this->alg_.getBlockPredicates();
   res.on_top_predicates = this->alg_.getOnTopPredicates();
@@ -142,6 +145,17 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.centroids = this->alg_.getCentroids();
   res.principal_directions = this->alg_.getPrincipalDirections();
   res.pushing_object_distance = this->alg_.getPushingObjectDistance();
+
+  // set times
+  res.on_predicates_time = exe_times.on_predicates;
+  res.block_predicates_time = exe_times.block_predicates;
+  res.block_grasp_predicates_time = exe_times.block_grasp_predicates;
+  res.objects_collisions_time = exe_times.objects_collisions;
+  res.ee_collisions_time = exe_times.ee_collisions;
+  res.average_objects_collision_time = exe_times.average_objects_collision;
+  res.average_ee_collision_time = exe_times.average_ee_collision;
+
+
   for (int i = 0; i < res.grasping_poses.size(); ++i)
   {
     for (int g = 0; g < res.grasping_poses[i].grasping_poses.size(); ++g)
