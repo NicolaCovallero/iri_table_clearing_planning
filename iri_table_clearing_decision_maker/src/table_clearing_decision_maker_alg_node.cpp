@@ -2,8 +2,7 @@
 
 
 TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
-  algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>(),
-  it(this->public_node_handle_)
+  algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>()
 {
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
@@ -48,9 +47,6 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->objects_label_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_label", 1);
   this->cloud_publisher_ = this->public_node_handle_.advertise<sensor_msgs::PointCloud2>("cloud", 1);
   
-  // [init subscribers]
-  this->kinect_raw_rgb_subscriber_ = this->it.subscribeCamera("/estirabot/kinect/rgb/image_raw", 1, &TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback, this);
-  pthread_mutex_init(&this->kinect_raw_rgb_mutex_,NULL);
 
   //this->kinect_subscriber_ = this->public_node_handle_.subscribe("/camera/depth_registered/points", 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
   this->kinect_subscriber_ = this->public_node_handle_.subscribe(input_topic, 1, &TableClearingDecisionMakerAlgNode::kinect_callback, this);
@@ -108,7 +104,6 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 TableClearingDecisionMakerAlgNode::~TableClearingDecisionMakerAlgNode(void)
 {
   // [free dynamic memory]
-  pthread_mutex_destroy(&this->kinect_raw_rgb_mutex_);
   pthread_mutex_destroy(&this->kinect_mutex_);
 }
 
@@ -413,7 +408,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             data.push_back(pre_srv.response.average_ee_collision_time);
 
             std::cout << "updating experiment\n";
-            eh.updateExperiment(data,alg_.plan,ik_feasible,this->cv_image_);
+            eh.updateExperiment(data,alg_.plan,ik_feasible);
           }
         }
 
@@ -493,37 +488,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
 }
 
-/*  [subscriber callbacks] */
-void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback(const sensor_msgs::Image::ConstPtr& msg, const sensor_msgs::CameraInfoConstPtr& info)
-{
-  ROS_INFO("TableClearingDecisionMakerAlgNode::kinect_raw_rgb_callback: New Message Received");
 
-  //use appropiate mutex to shared variables if necessary
-  this->alg_.lock();
-  this->kinect_raw_rgb_mutex_enter();
-
-  //std::cout << msg->data << std::endl;
-  // Uncomment the following line to convert the input image to OpenCV format
-  if (sensor_msgs::image_encodings::isColor(msg->encoding) or
-      sensor_msgs::image_encodings::isBayer(msg->encoding))
-    cv_image_ = cv_bridge::toCvCopy(msg,"bgr8");
-  else
-    cv_image_ = cv_bridge::toCvCopy(msg,"mono8");
-
-  //unlock previously blocked shared variables
-  this->alg_.unlock();
-  this->kinect_raw_rgb_mutex_exit();
-}
-
-void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_mutex_enter(void)
-{
-  pthread_mutex_lock(&this->kinect_raw_rgb_mutex_);
-}
-
-void TableClearingDecisionMakerAlgNode::kinect_raw_rgb_mutex_exit(void)
-{
-  pthread_mutex_unlock(&this->kinect_raw_rgb_mutex_);
-}
 
 void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {

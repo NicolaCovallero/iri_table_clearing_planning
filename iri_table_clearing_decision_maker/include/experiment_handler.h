@@ -83,8 +83,7 @@ class ExperimentDataHandler{
 		 */
 		void updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool ik_feasible,
-		                cv_bridge::CvImagePtr image_ptr);
+		                bool ik_feasible);
 
 
 };

@@ -60,8 +60,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 
 void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		               bool ik_feasible, 
-		                cv_bridge::CvImagePtr image_ptr)
+		               bool ik_feasible)
 {
 	if(this->file.is_open())
 	{

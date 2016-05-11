@@ -105,15 +105,6 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 
 
     // [subscriber attributes]
-    image_transport::CameraSubscriber kinect_raw_rgb_subscriber_;
-    void kinect_raw_rgb_callback(const sensor_msgs::Image::ConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& info);
-    pthread_mutex_t kinect_raw_rgb_mutex_;
-    void kinect_raw_rgb_mutex_enter(void);
-    void kinect_raw_rgb_mutex_exit(void);
-
-    // Uncomment to use the openCV <-> ROS bridge
-    cv_bridge::CvImagePtr cv_image_;
-    image_transport::ImageTransport it;
 
     ros::Subscriber kinect_subscriber_;
     void kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
