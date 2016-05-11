@@ -99,6 +99,7 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		}
 
 		//write time and executed action 
+		file << "data: ";
 		for (int i = 0; i < data.size(); ++i)
 		{
 			std::ostringstream num_str;
@@ -153,3 +154,12 @@ void ExperimentDataHandler::newExperiment()
 	exp_num++;
 }
 
+void ExperimentDataHandler::writeUnfeasiblePlan()
+{
+	file << "NO_FEASIBLE\n";
+}
+void ExperimentDataHandler::writeExperimentInterrupeted()
+{
+	if(exp_iteration != 0)
+		file << "EXP_INTERRUPTED\n";
+}

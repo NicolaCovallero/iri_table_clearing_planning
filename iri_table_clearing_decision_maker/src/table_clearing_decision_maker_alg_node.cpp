@@ -301,6 +301,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           this->alg_.setOn(false);
           feasible = true; // there is not IK influence here
           plan_feasible = false;
+
         }
         planning_time = (double)(util::GetTimeMs64() - t_init_planning);
 
@@ -409,6 +410,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
             std::cout << "updating experiment\n";
             eh.updateExperiment(data,alg_.plan,ik_feasible);
+            if(!fd_srv.response.success)
+              eh.writeUnfeasiblePlan();
           }
         }
 
@@ -471,6 +474,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         case 'E':
             if(save_experiment)
             {
+              if(alg_.plan.actions.size() > 0) // if there was a plan
+                eh.writeExperimentInterrupeted();
+
               std::cout << "new experiment\n";
               eh.newExperiment();
               wrong_character = false;

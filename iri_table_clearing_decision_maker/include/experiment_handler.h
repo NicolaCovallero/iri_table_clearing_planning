@@ -86,6 +86,11 @@ class ExperimentDataHandler{
 		                bool ik_feasible);
 
 
+		void writeUnfeasiblePlan();
+
+		void writeExperimentInterrupeted();
+
+
 };
 
 #endif
