@@ -613,7 +613,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose.header.frame_id = this->frame_id;
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
-		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir1.x * step;  
@@ -663,7 +662,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose.header.frame_id = this->frame_id;
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
-		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir2.x * step;  
@@ -714,7 +712,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose.header.frame_id = this->frame_id;
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
-		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir3.x * step;  
@@ -764,7 +761,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose.header.frame_id = this->frame_id;
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
-		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
 			pose.pose.position.x += this->pushing_directions[idx_obj].dir4.x * step;  

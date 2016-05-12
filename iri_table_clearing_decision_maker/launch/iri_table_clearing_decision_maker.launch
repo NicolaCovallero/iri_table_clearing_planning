@@ -1,9 +1,9 @@
 <launch>
 
   <arg name="RQT" default="false"/>
-  <arg name="EXECUTION" default="false"/>
+  <arg name="EXECUTION" default="True"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="True"/>
   <arg name="FILTERING" default="True"/>
@@ -44,7 +44,7 @@
 
         <param name="execution" value="$(arg EXECUTION)"/>
         <param name="pushing_discretization" value="3"/> <!-- Minimum 2 -->
-        <param name="pushing_step" value="1.5"/> <!-- length to push accordingly to the length of the object -->
+        <param name="pushing_step" value="0.5"/> <!-- length to push accordingly to the length of the object -->
         
         <!-- Dropping pose definition - Orientation Downforawrd -->
         <param name="dropping_pose_x" value="0.2"/>

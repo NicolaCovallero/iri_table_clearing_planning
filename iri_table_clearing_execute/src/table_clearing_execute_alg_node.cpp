@@ -56,7 +56,7 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   // [init action servers]
   
   // [init action clients]
-  traj_client_ = new TrajClient("follow_joint_trajectory", true);
+  // traj_client_ = new TrajClient("follow_joint_trajectory", true);
 
 
   // // initialize the homeState variable
@@ -92,6 +92,8 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   this->alg_.home_joint_state.name[4] = "estirabot_joint_5";
   this->alg_.home_joint_state.name[5] = "estirabot_joint_6";
   this->alg_.home_joint_state.name[6] = "estirabot_joint_7";  
+
+  this->alg_.current_joint_state_ = this->alg_.home_joint_state;
 
   joints_dropping_pose.position.resize(7);
   joints_dropping_pose.position[0] = 1.62731;
@@ -243,6 +245,13 @@ void TableClearingExecuteAlgNode::current_joint_state_callback(const sensor_msgs
   //ROS_INFO("TableClearingExecuteAlgNode::current_joint_state_callback: New Message Received");
 
   this->alg_.current_joint_state_ = *msg;
+  this->alg_.current_joint_state_.name[0] = "estirabot_joint_1";
+  this->alg_.current_joint_state_.name[1] = "estirabot_joint_2";
+  this->alg_.current_joint_state_.name[2] = "estirabot_joint_3";
+  this->alg_.current_joint_state_.name[3] = "estirabot_joint_4";
+  this->alg_.current_joint_state_.name[4] = "estirabot_joint_5";
+  this->alg_.current_joint_state_.name[5] = "estirabot_joint_6";
+  this->alg_.current_joint_state_.name[6] = "estirabot_joint_7";  
 
   //use appropiate mutex to shared variables if necessary
   //this->alg_.lock();
@@ -346,10 +355,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
 
 
-  ROS_INFO("Waiting for the joint_trajectory_action server");
-  while(!traj_client_->waitForServer(ros::Duration(5.0))){
-      ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
+  // ROS_INFO("Waiting for the joint_trajectory_action server");
+  // while(!traj_client_->waitForServer(ros::Duration(5.0))){
+  //     ROS_INFO("Waiting for the joint_trajectory_action server");
+  // }
   
   if(this->alg_.automatic == MANUAL_EXECUTION)
   {
@@ -433,36 +442,50 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   {
     if(this->real_robot)
     { 
-      ROS_INFO("Closing gripper");
-      bool succeded = false;
-      uint it = 0;
-      while(!succeded)
+      if(!this->close_gripperMakeActionRequest())
       {
-        if(!this->close_gripperMakeActionRequest())
-        {
-          ROS_WARN("Closing gripper service not connected");
-          succeded = true;
-        }
-        if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
-        { 
-          close_gripper_client_.cancelGoal();
-          ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
-        }
-        else
-        {
-          succeded = true;
-        }
-        if(it > 10)
-        {
-          // The user should at this point close the gripper with the axclient.py node
-          ROS_ERROR("Failing more than 10 times to close the gripper");
-          askForUserInput("Please close the gripper with the axclient.py and go on.");
-          succeded = true;
-        }
-        it++;
+        ROS_WARN("Closing gripper service not connected");
       }
-      ros::Duration(1).sleep(); // sleep for a second
+      else
+      {
+        ros::Duration(1).sleep(); // sleep for a second
+      }
     }
+    // if(this->real_robot)
+    // { 
+    //   ROS_INFO("Closing gripper");
+    //   bool succeded = false;
+    //   uint it = 0;
+    //   while(!succeded)
+    //   {
+    //     if(!this->close_gripperMakeActionRequest())
+    //     {
+    //       ROS_WARN("Closing gripper service not connected");
+    //       succeded = true;
+    //     }
+    //     if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
+    //     { 
+    //       close_gripper_client_.cancelGoal();
+    //       ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
+    //     }
+    //     else
+    //     {
+    //       succeded = true;
+    //     }
+    //     if(it > 10)
+    //     {
+    //       // The user should at this point close the gripper with the axclient.py node
+    //       ROS_ERROR("Failing more than 10 times to close the gripper");
+    //       askForUserInput("Please close the gripper with the axclient.py and go on.");
+    //       succeded = true;
+    //     }
+    //     std::cout << it ;
+
+    //     it++;
+    //   }
+    //   std:cout << std::endl;  
+    //   ros::Duration(1).sleep(); // sleep for a second
+    // }
   }
   else // go home
   {
@@ -554,39 +577,50 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   // CLOSE THE GRIPPER
   if(askForUserInput("Closing gripper"))
-  {
+  {    
     if(this->real_robot)
     { 
-      ROS_INFO("Closing gripper");
-      bool succeded = false;
-      uint it = 0;
-      while(!succeded)
+      if(!this->close_gripperMakeActionRequest())
       {
-        if(!this->close_gripperMakeActionRequest())
-        {
-          ROS_WARN("Closing gripper service not connected");
-          succeded = true;
-        }
-        if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
-        { 
-          close_gripper_client_.cancelGoal();
-          ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
-        }
-        else
-        {
-          succeded = true;
-        }
-        if(it > 10)
-        {
-          // The user should at this point close the gripper with the axclient.py node
-          ROS_ERROR("Failing more than 10 times to close the gripper");
-          askForUserInput("Please close the gripper with the axclient.py and go on.");
-          succeded = true;
-        }
-        it++;
+        ROS_WARN("Closing gripper service not connected");
       }
-      ros::Duration(1).sleep(); // sleep for a second
+      else
+      {
+        ros::Duration(1).sleep(); // sleep for a second
+      }
     }
+    // if(this->real_robot)
+    // { 
+    //   ROS_INFO("Closing gripper");
+    //   bool succeded = false;
+    //   uint it = 0;
+    //   while(!succeded)
+    //   {
+    //     if(!this->close_gripperMakeActionRequest())
+    //     {
+    //       ROS_WARN("Closing gripper service not connected");
+    //       succeded = true;
+    //     }
+    //     if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
+    //     { 
+    //       close_gripper_client_.cancelGoal();
+    //       ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
+    //     }
+    //     else
+    //     {
+    //       succeded = true;
+    //     }
+    //     if(it > 10)
+    //     {
+    //       // The user should at this point close the gripper with the axclient.py node
+    //       ROS_ERROR("Failing more than 10 times to close the gripper");
+    //       askForUserInput("Please close the gripper with the axclient.py and go on.");
+    //       succeded = true;
+    //     }
+    //     it++;
+    //   }
+    //   ros::Duration(1).sleep(); // sleep for a second
+    // }
   }
   else // go home
   {
@@ -654,9 +688,10 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   srv.request.current_joints = this->alg_.current_joint_state_;
 
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
+  srv.request.desired_pose.header.stamp = ros::Time::now(); // IMPORTANT
 
   ROS_INFO("Trying calling the IK service");
-  util::uint64 t_init_ik = util::GetTimeMs64(); 
+  util::uint64 t_init_ik = util::GetTimeMs64();
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
     joints_trajectory[0] = srv.response.desired_joints;
@@ -671,7 +706,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
   else
   {
-    ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+    ROS_ERROR("Impossible calling %s service or solution not found for the first pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
     res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     return true;
@@ -683,7 +718,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     srv.request.current_joints = joints_trajectory[i-1];
     srv.request.desired_pose = req.pushing_cartesian_trajectory[i];
     // std::cout << "frame_id: " << req.pushing_cartesian_trajectory[i].header.frame_id << std::endl;
-    srv.request.desired_pose.header.stamp = ros::Time::now();
+    srv.request.desired_pose.header.stamp = ros::Time::now(); // IMPORTANT
     // std::cout << "Requesting IK of x: " << req.pushing_cartesian_trajectory[i].pose.position.x << " y: " <<
     //                                         req.pushing_cartesian_trajectory[i].pose.position.y << " z: " <<
     //                                          req.pushing_cartesian_trajectory[i].pose.position.z << std::endl 
@@ -706,7 +741,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     }
     else
     {
-      ROS_ERROR("Impossible calling %s service or solution not found",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+      ROS_ERROR("Impossible calling %s service or solution not found, for pose %d",estirabot_gripper_ik_from_pose_client_.getService().c_str(),i);
       res.success = false; 
       res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       return true;
@@ -714,10 +749,10 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
 
-  ROS_INFO("Waiting for the joint_trajectory_action server");
-  while(!traj_client_->waitForServer(ros::Duration(5.0))){
-      ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
+  // ROS_INFO("Waiting for the joint_trajectory_action server");
+  // while(!traj_client_->waitForServer(ros::Duration(5.0))){
+  //     ROS_INFO("Waiting for the joint_trajectory_action server");
+  // }
   control_msgs::FollowJointTrajectoryGoal goal;
   goal.trajectory.header.frame_id = req.pushing_cartesian_trajectory[0].header.frame_id;
 
@@ -970,9 +1005,9 @@ void TableClearingExecuteAlgNode::node_config_update(Config &config, uint32_t le
 
 void TableClearingExecuteAlgNode::testTrajectory()
 {
-  while(!traj_client_->waitForServer(ros::Duration(5.0))){
-                ROS_INFO("Waiting for the joint_trajectory_action server");
-  }
+  // while(!traj_client_->waitForServer(ros::Duration(5.0))){
+  //               ROS_INFO("Waiting for the joint_trajectory_action server");
+  // }
 
   control_msgs::FollowJointTrajectoryGoal goal;
   // frame_id
@@ -1018,12 +1053,12 @@ void TableClearingExecuteAlgNode::testTrajectory()
 
   goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
   ROS_INFO("Going home");
-  traj_client_->sendGoal(goal);
-  if (!traj_client_->waitForResult(ros::Duration(10.0)))
-  { 
-      traj_client_->cancelGoal();
-      ROS_INFO("Action did not finish before the time out.\n"); 
-  }
+  // traj_client_->sendGoal(goal);
+  // if (!traj_client_->waitForResult(ros::Duration(10.0)))
+  // { 
+  //     traj_client_->cancelGoal();
+  //     ROS_INFO("Action did not finish before the time out.\n"); 
+  // }
 
   sleep(3.0);
 }

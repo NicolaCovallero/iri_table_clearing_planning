@@ -119,7 +119,7 @@ class TableClearingDecisionMakerAlgorithm
 
     bool set;
 
-    static const double dist_last_pose = 0.2; //20 cm above ther last and first pushign psoe
+    static const double dist_last_pose = 0.1; //20 cm above ther last and first pushign psoe
 
     int pushing_discretization;
     double pushing_step;
