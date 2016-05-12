@@ -121,6 +121,8 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
 
     geometry_msgs::PoseStamped first_pose;
 
+    sensor_msgs::JointState joints_dropping_pose;
+
    /**
     * \brief config variable
     *

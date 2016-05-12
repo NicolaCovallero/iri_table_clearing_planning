@@ -93,6 +93,40 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   this->alg_.home_joint_state.name[5] = "estirabot_joint_6";
   this->alg_.home_joint_state.name[6] = "estirabot_joint_7";  
 
+  joints_dropping_pose.position.resize(7);
+  joints_dropping_pose.position[0] = 1.62731;
+  joints_dropping_pose.position[1] = 0.999324;
+  joints_dropping_pose.position[2] = -0.0757397;
+  joints_dropping_pose.position[3] = 1.16821;
+  joints_dropping_pose.position[4] = -3.06471;
+  joints_dropping_pose.position[5] = -0.976739;
+  joints_dropping_pose.position[6] = -1.5984;
+  joints_dropping_pose.velocity.resize(7);
+  joints_dropping_pose.velocity[0] = 0.0f;
+  joints_dropping_pose.velocity[1] = 0.0f;
+  joints_dropping_pose.velocity[2] = 0.0f;
+  joints_dropping_pose.velocity[3] = 0.0f;
+  joints_dropping_pose.velocity[4] = 0.0f;
+  joints_dropping_pose.velocity[5] = 0.0f;
+  joints_dropping_pose.velocity[6] = 0.0f;
+  joints_dropping_pose.effort.resize(7);
+  joints_dropping_pose.effort[0] = 0.0f;
+  joints_dropping_pose.effort[1] = 0.0f;
+  joints_dropping_pose.effort[2] = 0.0f;
+  joints_dropping_pose.effort[3] = 0.0f;
+  joints_dropping_pose.effort[4] = 0.0f;
+  joints_dropping_pose.effort[5] = 0.0f;
+  joints_dropping_pose.effort[6] = 0.0f;
+  joints_dropping_pose.name.resize(7);
+  joints_dropping_pose.name[0] = "estirabot_joint_1";
+  joints_dropping_pose.name[1] = "estirabot_joint_2";
+  joints_dropping_pose.name[2] = "estirabot_joint_3";
+  joints_dropping_pose.name[3] = "estirabot_joint_4";
+  joints_dropping_pose.name[4] = "estirabot_joint_5";
+  joints_dropping_pose.name[5] = "estirabot_joint_6";
+  joints_dropping_pose.name[6] = "estirabot_joint_7";  
+
+
 }
 
 TableClearingExecuteAlgNode::~TableClearingExecuteAlgNode(void)
@@ -247,15 +281,16 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   //ROS_INFO("TableClearingExecuteAlgNode::execute_graspingCallback: Processing New Request!");
   iri_wam_common_msgs::QueryWamInverseKinematicsFromPose srv;
-  srv.request.current_joints = this->alg_.home_joint_state;
+  //srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.current_joints = this->alg_.current_joint_state_;
   srv.request.desired_pose = req.approaching_pose;
 
   std::vector<sensor_msgs::JointState> joints_trajectory;
-  joints_trajectory.resize(4);
+  joints_trajectory.resize(2);
 
   util::uint64 t_init_ik = util::GetTimeMs64(); 
   res.success = true;
-  for (uint i = 0; i < 4; ++i)
+  for (uint i = 0; i < 2; ++i) // we don't care about the dropping pose
   {
     switch(i)
     {
@@ -267,16 +302,16 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
         srv.request.current_joints = joints_trajectory[0];
         srv.request.desired_pose = req.grasping_pose;
         break;
-      case 2:
-        srv.request.current_joints = joints_trajectory[1];
-        srv.request.desired_pose = req.pre_dropping_pose;
-        srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
-        break;
-      case 3:
-        srv.request.current_joints = joints_trajectory[2];
-        srv.request.desired_pose = req.dropping_pose;
-        srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
-        break;
+      // case 2:
+      //   srv.request.current_joints = joints_trajectory[1];
+      //   srv.request.desired_pose = req.pre_dropping_pose;
+      //   srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
+      //   break;
+      // case 3:
+      //   srv.request.current_joints = joints_trajectory[2];
+      //   srv.request.desired_pose = req.dropping_pose;
+      //   srv.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
+      //   break;
       default: break;
     }  
     srv.request.desired_pose.header.stamp = ros::Time::now();
@@ -307,6 +342,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       return true;
     }
   }
+  joints_trajectory.push_back(joints_dropping_pose);
   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
 
 
@@ -407,25 +443,23 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
           ROS_WARN("Closing gripper service not connected");
           succeded = true;
         }
+        if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
+        { 
+          close_gripper_client_.cancelGoal();
+          ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
+        }
         else
         {
-          // control that the action has been executed, if not make again
-          // a request, if we have done too many request without success 
-          // an messagge error appears, but the program still is executing
-          // and will ask to the use to close the gripper with the 
-          //actionlib axclient.py node
-          while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
-          succeded = this->close_gripper_client_.getResult()->successful;
-                  
-          if(it > 10)
-          {
-            // The user should at this point close the gripper with the axclient.py node
-            ROS_ERROR("Failing more than 10 times to close the gripper");
-            askForUserInput("Please close the gripper with the axclient.py and go on.");
-            succeded = true;
-          }
-          it++;
+          succeded = true;
         }
+        if(it > 10)
+        {
+          // The user should at this point close the gripper with the axclient.py node
+          ROS_ERROR("Failing more than 10 times to close the gripper");
+          askForUserInput("Please close the gripper with the axclient.py and go on.");
+          succeded = true;
+        }
+        it++;
       }
       ros::Duration(1).sleep(); // sleep for a second
     }
@@ -533,25 +567,23 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
           ROS_WARN("Closing gripper service not connected");
           succeded = true;
         }
+        if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
+        { 
+          close_gripper_client_.cancelGoal();
+          ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
+        }
         else
         {
-          // control that the action has been executed, if not make again
-          // a request, if we have done too many request without success 
-          // an messagge error appears, but the program still is executing
-          // and will ask to the use to close the gripper with the 
-          //actionlib axclient.py node
-          while(!close_gripper_client_.waitForResult(ros::Duration(2.0))){}
-          succeded = this->close_gripper_client_.getResult()->successful;
-                  
-          if(it > 10)
-          {
-            // The user should at this point close the gripper with the axclient.py node
-            ROS_ERROR("Failing more than 10 times to close the gripper");
-            askForUserInput("Please close the gripper with the axclient.py and go on.");
-            succeded = true;
-          }
-          it++;
+          succeded = true;
         }
+        if(it > 10)
+        {
+          // The user should at this point close the gripper with the axclient.py node
+          ROS_ERROR("Failing more than 10 times to close the gripper");
+          askForUserInput("Please close the gripper with the axclient.py and go on.");
+          succeded = true;
+        }
+        it++;
       }
       ros::Duration(1).sleep(); // sleep for a second
     }
@@ -565,12 +597,13 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       return false;
   }
   
+  // we don't want to go home in order to save time
   // Go home
-  ROS_INFO("Going home");
-  if(atHomePosition())
-    return true;
-  else
-    return false;
+  // ROS_INFO("Going home");
+  // if(atHomePosition())
+  //   return true;
+  // else
+  //   return false;
 
   //unlock previously blocked shared variables
   //this->execute_grasping_mutex_exit();
@@ -617,8 +650,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   //action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
   first_pose = req.pushing_cartesian_trajectory[0];
   
-  srv.request.current_joints = this->alg_.home_joint_state;
-  //srv.request.current_joints = this->alg_.current_joint_state_;
+  //srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.current_joints = this->alg_.current_joint_state_;
 
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
 
@@ -627,14 +660,14 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
     joints_trajectory[0] = srv.response.desired_joints;
-    std::cout << "Point " << 0 << 
-        " joint 1: " << joints_trajectory[0].position[0] <<
-        " joint 2: " << joints_trajectory[0].position[1] <<
-        " joint 3: " << joints_trajectory[0].position[2] <<
-        " joint 4: " << joints_trajectory[0].position[3] <<
-        " joint 5: " << joints_trajectory[0].position[4] <<
-        " joint 6: " << joints_trajectory[0].position[5] <<
-        " joint 7: " << joints_trajectory[0].position[6] << std::endl;
+    // std::cout << "Point " << 0 << 
+    //     " joint 1: " << joints_trajectory[0].position[0] <<
+    //     " joint 2: " << joints_trajectory[0].position[1] <<
+    //     " joint 3: " << joints_trajectory[0].position[2] <<
+    //     " joint 4: " << joints_trajectory[0].position[3] <<
+    //     " joint 5: " << joints_trajectory[0].position[4] <<
+    //     " joint 6: " << joints_trajectory[0].position[5] <<
+    //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
   }
   else
   {
@@ -649,27 +682,27 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   {
     srv.request.current_joints = joints_trajectory[i-1];
     srv.request.desired_pose = req.pushing_cartesian_trajectory[i];
-    std::cout << "frame_id: " << req.pushing_cartesian_trajectory[i].header.frame_id << std::endl;
+    // std::cout << "frame_id: " << req.pushing_cartesian_trajectory[i].header.frame_id << std::endl;
     srv.request.desired_pose.header.stamp = ros::Time::now();
-    std::cout << "Requesting IK of x: " << req.pushing_cartesian_trajectory[i].pose.position.x << " y: " <<
-                                            req.pushing_cartesian_trajectory[i].pose.position.y << " z: " <<
-                                             req.pushing_cartesian_trajectory[i].pose.position.z << std::endl 
-              << "[quat] x:" << req.pushing_cartesian_trajectory[i].pose.orientation.x 
-              << " y: " << req.pushing_cartesian_trajectory[i].pose.orientation.y
-              << " z: " << req.pushing_cartesian_trajectory[i].pose.orientation.z
-              << " w: " << req.pushing_cartesian_trajectory[i].pose.orientation.w << std::endl;
+    // std::cout << "Requesting IK of x: " << req.pushing_cartesian_trajectory[i].pose.position.x << " y: " <<
+    //                                         req.pushing_cartesian_trajectory[i].pose.position.y << " z: " <<
+    //                                          req.pushing_cartesian_trajectory[i].pose.position.z << std::endl 
+    //           << "[quat] x:" << req.pushing_cartesian_trajectory[i].pose.orientation.x 
+    //           << " y: " << req.pushing_cartesian_trajectory[i].pose.orientation.y
+    //           << " z: " << req.pushing_cartesian_trajectory[i].pose.orientation.z
+    //           << " w: " << req.pushing_cartesian_trajectory[i].pose.orientation.w << std::endl;
     if (estirabot_gripper_ik_from_pose_client_.call(srv))
     {
       ROS_INFO("Inverse Kinematics done");
       joints_trajectory[i] = srv.response.desired_joints;       
-      std::cout << "Point " << i << 
-          " joint 1: " << joints_trajectory[i].position[0] <<
-          " joint 2: " << joints_trajectory[i].position[1] <<
-          " joint 3: " << joints_trajectory[i].position[2] <<
-          " joint 4: " << joints_trajectory[i].position[3] <<
-          " joint 5: " << joints_trajectory[i].position[4] <<
-          " joint 6: " << joints_trajectory[i].position[5] <<
-          " joint 7: " << joints_trajectory[i].position[6] << std::endl;
+      // std::cout << "Point " << i << 
+      //     " joint 1: " << joints_trajectory[i].position[0] <<
+      //     " joint 2: " << joints_trajectory[i].position[1] <<
+      //     " joint 3: " << joints_trajectory[i].position[2] <<
+      //     " joint 4: " << joints_trajectory[i].position[3] <<
+      //     " joint 5: " << joints_trajectory[i].position[4] <<
+      //     " joint 6: " << joints_trajectory[i].position[5] <<
+      //     " joint 7: " << joints_trajectory[i].position[6] << std::endl;
     }
     else
     {
@@ -716,49 +749,57 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   } 
 
   // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
-  move2JointsPose(joints_trajectory[0],0.5,0.5);
+  //move2JointsPose(joints_trajectory[0],0.5,0.5);
   
+  for (int i = 0; i < joints_trajectory.size(); ++i)
+  {
+   move2JointsPose(joints_trajectory[i],0.5,0.5);
+   ros::Duration(0.2).sleep();
+  }
 
   // reset the time stamp for all the trajectory points
-  for (int i = 0; i < joints_trajectory.size(); ++i)
-    joints_trajectory[i].header.stamp = ros::Time::now();
+  // for (int i = 0; i < joints_trajectory.size(); ++i)
+  //   joints_trajectory[i].header.stamp = ros::Time::now();
 
-  // joint names
-  goal.trajectory.joint_names.resize(7);
-  goal.trajectory.joint_names[0] = "estirabot_joint_1";
-  goal.trajectory.joint_names[1] = "estirabot_joint_2";
-  goal.trajectory.joint_names[2] = "estirabot_joint_3";
-  goal.trajectory.joint_names[3] = "estirabot_joint_4";
-  goal.trajectory.joint_names[4] = "estirabot_joint_5";
-  goal.trajectory.joint_names[5] = "estirabot_joint_6";
-  goal.trajectory.joint_names[6] = "estirabot_joint_7";  
 
-  double time_offset = 3.0;
-  for (int i = 0; i < joints_trajectory.size(); ++i)
-  {
-    if(i == 0)
-      goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],time_offset));
-    else
-      goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-                   time_offset + goal.trajectory.points.size() )); 
-  }
-
-  // come back to the first point of the trajectory, in order to go home with out touching any object
-  for (int i = joints_trajectory.size() -2; i >= 0; i--)
-  {
-    goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-                      time_offset + goal.trajectory.points.size() )); 
-  }
   
-  ROS_INFO("sending trajectory trajectory");
-  // assign time stamp
-  goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
-  traj_client_->sendGoal(goal);
-  if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
-  { 
-      traj_client_->cancelGoal();
-      ROS_INFO("Action did not finish before the time out.\n"); 
-  }
+
+  // // joint names
+  // goal.trajectory.joint_names.resize(7);
+  // goal.trajectory.joint_names[0] = "estirabot_joint_1";
+  // goal.trajectory.joint_names[1] = "estirabot_joint_2";
+  // goal.trajectory.joint_names[2] = "estirabot_joint_3";
+  // goal.trajectory.joint_names[3] = "estirabot_joint_4";
+  // goal.trajectory.joint_names[4] = "estirabot_joint_5";
+  // goal.trajectory.joint_names[5] = "estirabot_joint_6";
+  // goal.trajectory.joint_names[6] = "estirabot_joint_7";  
+
+  // double time_offset = 3.0;
+  // for (int i = 0; i < joints_trajectory.size(); ++i)
+  // {
+  //   if(i == 0)
+  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],time_offset));
+  //   else
+  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
+  //                  time_offset + goal.trajectory.points.size() )); 
+  // }
+
+  // // come back to the first point of the trajectory, in order to go home without touching any object
+  // // for (int i = joints_trajectory.size() -2; i >= 0; i--)
+  // // {
+  // //   goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
+  // //                     time_offset + goal.trajectory.points.size() )); 
+  // // }
+  
+  // ROS_INFO("sending trajectory trajectory");
+  // // assign time stamp
+  // goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
+  // traj_client_->sendGoal(goal);
+  // if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
+  // { 
+  //     traj_client_->cancelGoal();
+  //     ROS_INFO("Action did not finish before the time out.\n"); 
+  // }
 
   ROS_INFO("Action finished - going home");
   if(atHomePosition())

@@ -224,20 +224,20 @@ void TableClearingGraspExecutionAlgNode::mainNodeThread(void)
               return;
             }
             break;
-          case 3:
-            gripper_ik_from_pose_srv_.request.current_joints = joints_pre_dropping_pose;
-            gripper_ik_from_pose_srv_.request.desired_pose = dropping_pose;
-            gripper_ik_from_pose_srv_.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
-            if (gripper_ik_from_pose_client_.call(gripper_ik_from_pose_srv_))
-              joints_dropping_pose = gripper_ik_from_pose_srv_.response.desired_joints;
-            else
-            {
-              ROS_ERROR("Impossible calling %s service or solution not found for dropping pose",gripper_ik_from_pose_client_.getService().c_str());
-              feasible = false;
-              grasp_action_finished = true;
-              grasp_action_succeeded = true;
-              return;
-            }
+          // case 3:
+          //   gripper_ik_from_pose_srv_.request.current_joints = joints_pre_dropping_pose;
+          //   gripper_ik_from_pose_srv_.request.desired_pose = dropping_pose;
+          //   gripper_ik_from_pose_srv_.request.desired_pose.header.frame_id =  "/estirabot_link_footprint";
+          //   if (gripper_ik_from_pose_client_.call(gripper_ik_from_pose_srv_))
+          //     joints_dropping_pose = gripper_ik_from_pose_srv_.response.desired_joints;
+          //   else
+          //   {
+          //     ROS_ERROR("Impossible calling %s service or solution not found for dropping pose",gripper_ik_from_pose_client_.getService().c_str());
+          //     feasible = false;
+          //     grasp_action_finished = true;
+          //     grasp_action_succeeded = true;
+          //     return;
+          //   }
             break;
           default: break;
         }  

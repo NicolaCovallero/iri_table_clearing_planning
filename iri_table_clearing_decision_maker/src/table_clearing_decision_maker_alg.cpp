@@ -586,7 +586,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
 	{
 		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
-					this->pushing_discretization);
+					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -600,6 +600,19 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose = pushing_poses[idx_obj].pose_dir1;
 		pose.header.frame_id = this->frame_id;
 
+		// add a re pushing pose in roder to avoid collisions
+		pose.pose.position.x = 	pose.pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pose.pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pose.pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
+		pose = pushing_poses[idx_obj].pose_dir1;
+		pose.header.frame_id = this->frame_id;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
@@ -609,13 +622,22 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		// put the last pose to be above the last one, the robot will not come back to its first pose
+		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+						
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
 	{
 		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
-					this->pushing_discretization);
+					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -629,6 +651,18 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose = pushing_poses[idx_obj].pose_dir2;
 		pose.header.frame_id = this->frame_id;
 
+		pose.pose.position.x = 	pose.pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pose.pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pose.pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
+		pose = pushing_poses[idx_obj].pose_dir2;
+		pose.header.frame_id = this->frame_id;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
@@ -638,13 +672,22 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		// put the last pose to be above the last one, the robot will not come back to its first pose
+		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
 	{
 		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
-					this->pushing_discretization);
+					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -659,6 +702,18 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose = pushing_poses[idx_obj].pose_dir3;
 		pose.header.frame_id = this->frame_id;
 
+		pose.pose.position.x = 	pose.pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pose.pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pose.pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
+		pose = pushing_poses[idx_obj].pose_dir3;
+		pose.header.frame_id = this->frame_id;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
@@ -668,13 +723,22 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		// put the last pose to be above the last one, the robot will not come back to its first pose
+		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
 	{
 		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
-					this->pushing_discretization);		
+					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -688,6 +752,18 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pose = pushing_poses[idx_obj].pose_dir4;
 		pose.header.frame_id = this->frame_id;
 
+		pose.pose.position.x = 	pose.pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pose.pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pose.pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
+		pose = pushing_poses[idx_obj].pose_dir4;
+		pose.header.frame_id = this->frame_id;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		for (int i = 1; i < this->pushing_discretization; ++i)
 		{
@@ -697,6 +773,15 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 		}
+		// put the last pose to be above the last one, the robot will not come back to its first pose
+		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
+								 - dist_last_pose * this->plane_normal.x;
+		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
+								 - dist_last_pose * this->plane_normal.y;
+		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
+								 - dist_last_pose * this->plane_normal.z;
+		pushing.request.pushing_cartesian_trajectory.push_back(pose);
+
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
 		return 0;
 	}
