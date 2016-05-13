@@ -23,7 +23,7 @@
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>
-         <param name="pushing_step" value="1.5"/>
+         <param name="pushing_step" value="1.0"/>
     </node>
   </group>
   
