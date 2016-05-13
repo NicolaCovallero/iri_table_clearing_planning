@@ -3,7 +3,7 @@
   <arg name="RQT" default="false"/>
   <arg name="EXECUTION" default="True"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="True"/>
   <arg name="FILTERING" default="True"/>

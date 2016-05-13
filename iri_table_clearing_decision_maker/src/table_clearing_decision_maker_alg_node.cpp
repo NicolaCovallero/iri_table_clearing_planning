@@ -386,32 +386,38 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         // update experiment data
         if(save_experiment) 
         {
-          if(!fd_srv.response.success)
+          std::cout << "\n\n Update experiment?(y - yes / whatever key to don't save)\n";
+          char response;
+          std::cin >> response;
+          if(response == 'y' || response == 'Y')
           {
-            std::cout << "new experiment\n";
-            eh.newExperiment();
-          }
-          else
-          {
-            // set data vector
-            std::vector<double> data; // just to test - This should contains the values of the timers
-            data.push_back(n_objs); 
-            data.push_back(segmentation_time);
-            data.push_back(predicates_time);
-            data.push_back(planning_time);
-            data.push_back(ik_time);
-            data.push_back(pre_srv.response.on_predicates_time);
-            data.push_back(pre_srv.response.block_predicates_time);
-            data.push_back(pre_srv.response.block_grasp_predicates_time);
-            data.push_back(pre_srv.response.objects_collisions_time);
-            data.push_back(pre_srv.response.ee_collisions_time);
-            data.push_back(pre_srv.response.average_objects_collision_time);
-            data.push_back(pre_srv.response.average_ee_collision_time);
-
-            std::cout << "updating experiment\n";
-            eh.updateExperiment(data,alg_.plan,ik_feasible);
             if(!fd_srv.response.success)
-              eh.writeUnfeasiblePlan();
+            {
+              std::cout << "new experiment\n";
+              eh.newExperiment();
+            }
+            else
+            {
+              // set data vector
+              std::vector<double> data; // just to test - This should contains the values of the timers
+              data.push_back(n_objs); 
+              data.push_back(segmentation_time);
+              data.push_back(predicates_time);
+              data.push_back(planning_time);
+              data.push_back(ik_time);
+              data.push_back(pre_srv.response.on_predicates_time);
+              data.push_back(pre_srv.response.block_predicates_time);
+              data.push_back(pre_srv.response.block_grasp_predicates_time);
+              data.push_back(pre_srv.response.objects_collisions_time);
+              data.push_back(pre_srv.response.ee_collisions_time);
+              data.push_back(pre_srv.response.average_objects_collision_time);
+              data.push_back(pre_srv.response.average_ee_collision_time);
+
+              std::cout << "updating experiment\n";
+              eh.updateExperiment(data,alg_.plan,ik_feasible);
+              if(!fd_srv.response.success)
+                eh.writeUnfeasiblePlan();
+            }
           }
         }
 
