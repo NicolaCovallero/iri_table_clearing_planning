@@ -9,7 +9,7 @@
   <arg name="FILTERING" default="False"/>
 
   <!-- services -->
-  <include file="$(find iri_tos_supervoxels)/launch/tos_supervoxels_server.launch">
+  <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
     <arg name="screen" value="false"/>
   </include>
 
