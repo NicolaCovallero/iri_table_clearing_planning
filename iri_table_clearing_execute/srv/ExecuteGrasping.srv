@@ -1,7 +1,7 @@
 geometry_msgs/PoseStamped grasping_pose
 geometry_msgs/PoseStamped approaching_pose
 geometry_msgs/PoseStamped pre_dropping_pose
-geometry_msgs/PoseStamped dropping_pose
+geometry_msgs/PoseStamped post_grasping_pose
 ---
 bool success
 float32 ik_time

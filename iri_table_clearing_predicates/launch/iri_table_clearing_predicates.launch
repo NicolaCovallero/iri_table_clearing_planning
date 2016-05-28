@@ -1,4 +1,4 @@
-<launch>
+  <launch>
 
   <arg name="ROBOT" default="estirabot"/>
 
@@ -19,7 +19,7 @@
          <param name="pushing_distance_plane" value="0.01"/><!-- 1cm from the plane -->
 
          # this is only for the orthogonal pushing method
-         <param name="pushing_object_distance" value="0.05"/>
+         <param name="pushing_object_distance" value="0.03"/>
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>

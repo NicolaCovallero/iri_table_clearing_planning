@@ -295,11 +295,11 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   srv.request.desired_pose = req.approaching_pose;
 
   std::vector<sensor_msgs::JointState> joints_trajectory;
-  joints_trajectory.resize(2);
+  joints_trajectory.resize(3);
 
   util::uint64 t_init_ik = util::GetTimeMs64(); 
   res.success = true;
-  for (uint i = 0; i < 2; ++i) // we don't care about the dropping pose
+  for (uint i = 0; i < 3; ++i) // we don't care about the dropping pose
   {
     switch(i)
     {
@@ -310,6 +310,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       case 1: 
         srv.request.current_joints = joints_trajectory[0];
         srv.request.desired_pose = req.grasping_pose;
+        break;
+      case 2:
+        srv.request.current_joints = joints_trajectory[1];
+        srv.request.desired_pose = req.post_grasping_pose;
         break;
       // case 2:
       //   srv.request.current_joints = joints_trajectory[1];
@@ -339,7 +343,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
           ROS_ERROR("Impossible calling %s service or solution not found for grasping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
           break;
         case 2:
-          ROS_ERROR("Impossible calling %s service or solution not found for pre dropping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+          ROS_ERROR("Impossible calling %s service or solution not found for post_grasping_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
           break;
         case 3:
           ROS_ERROR("Impossible calling %s service or solution not found for dropping pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
@@ -497,10 +501,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   }
 
   // Go to Pregrasping pose again
-  if(askForUserInput("Going to pre grasping pose again"))
+  if(askForUserInput("Going to post_grasping_pose"))
   {
     ROS_INFO("Going to pre grasping pose again");
-    if(!move2JointsPose(joints_trajectory[0],config_.velocity_max,config_.acceleration_max))
+    if(!move2JointsPose(joints_trajectory[2],config_.velocity_max,config_.acceleration_max))
     {
       return false;
     }
@@ -519,13 +523,13 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   if(askForUserInput("Going to pre dropping pose"))
   {
     ROS_INFO("Going to pre dropping pose");
-    if(!move2JointsPose(joints_trajectory[2],config_.velocity_max,config_.acceleration_max))
+    if(!move2JointsPose(joints_trajectory[3],config_.velocity_max,config_.acceleration_max))
     {
       return false;
     }
     ros::Duration(1).sleep(); // sleep for a second
   }
-  else // go home
+  else // go home 
   {
     ROS_INFO("Going home");
     if(atHomePosition())

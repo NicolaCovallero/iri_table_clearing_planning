@@ -9,7 +9,7 @@
           <param name="zmin" value="0.04"/>
           <param name="th_points" value="100"/>
           <param name="min_segmente_size" value="5"/>
-          <param name="concavity_threshold" value="20"/>
+          <param name="concavity_tolerance_threshold" value="20"/>
           <param name="service_name" value="object_segmentation"/>
       </node>
   </group>
@@ -21,7 +21,7 @@
           <param name="zmin" value="0.04"/>
           <param name="th_points" value="100"/>
           <param name="min_segmente_size" value="5"/>
-          <param name="concavity_threshold" value="20"/>
+          <param name="concavity_tolerance_threshold" value="20"/>
           <param name="service_name" value="object_segmentation"/>
       </node>
   </group>

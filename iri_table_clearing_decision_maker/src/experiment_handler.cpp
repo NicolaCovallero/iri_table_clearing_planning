@@ -60,7 +60,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 
 void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		               bool ik_feasible)
+		               bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg)
 {
 	if(this->file.is_open())
 	{
@@ -136,6 +136,18 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
  //        fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
  //        return;
  //    }
+
+	//save point cloud
+	pcl::PointCloud<pcl::PointXYZRGBA>cloud;
+	pcl::fromROSMsg(*cloud_msg,cloud);
+	std::ostringstream pcd_name;
+	pcd_name << exp_num;
+	std::string pcd_name_str = working_folder + "/" + experiment_name + "/cloud_";
+	pcd_name_str += pcd_name.str();
+	pcd_name << exp_iteration;
+    pcd_name_str += "_" + pcd_name.str() + ".pcd";
+	pcl::io::savePCDFileASCII (pcd_name_str.c_str(), cloud);
+
 
 	exp_iteration++;
 

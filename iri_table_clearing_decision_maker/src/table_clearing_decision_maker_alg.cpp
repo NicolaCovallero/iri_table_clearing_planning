@@ -783,7 +783,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
 	{
-		geometry_msgs::PoseStamped grasping_pose, approaching_pose;
+		geometry_msgs::PoseStamped grasping_pose, approaching_pose, post_grasping_pose;
 
 		grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
 		grasping_pose.header.frame_id = this->frame_id;
@@ -791,8 +791,18 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
 		approaching_pose.header.frame_id = this->frame_id;
 
+		// post grasping pose is translated by other 10 cm
+		post_grasping_pose = approaching_pose;
+		post_grasping_pose.header.frame_id = this->frame_id;
+
+		post_grasping_pose.pose.position.x = post_grasping_pose.pose.position.x - 0.1 * this->plane_normal.x;
+		post_grasping_pose.pose.position.y = post_grasping_pose.pose.position.y - 0.1 * this->plane_normal.y;
+		post_grasping_pose.pose.position.z = post_grasping_pose.pose.position.z - 0.1 * this->plane_normal.z;
+
 		grasping.request.grasping_pose = grasping_pose;
 		grasping.request.approaching_pose = approaching_pose;
+		grasping.request.post_grasping_pose = post_grasping_pose;
+
 
 		// std::cout << "pre dropping_pose \n x: " <<this->pre_dropping_pose.pose.position.x << std::endl
 		// << "  y: " <<this->pre_dropping_pose.pose.position.y << std::endl
@@ -802,7 +812,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		// << "  quat y: " <<this->pre_dropping_pose.pose.orientation.y << std::endl
 		// << "  quat z: " <<this->pre_dropping_pose.pose.orientation.z << std::endl;
 		grasping.request.pre_dropping_pose = this->pre_dropping_pose;
-		grasping.request.dropping_pose = this->dropping_pose;
+		//grasping.request.dropping_pose = this->dropping_pose;
 		return 1;
 	}
 	else

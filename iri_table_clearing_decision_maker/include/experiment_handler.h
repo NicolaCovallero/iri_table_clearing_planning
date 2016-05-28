@@ -13,6 +13,7 @@
 #include <ctime>
 #include "iri_fast_downward_wrapper/Plan.h"
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/io/pcd_io.h>
 #include "sensor_msgs/PointCloud2.h"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -83,7 +84,7 @@ class ExperimentDataHandler{
 		 */
 		void updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool ik_feasible);
+		                bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg);
 
 
 		void writeUnfeasiblePlan();

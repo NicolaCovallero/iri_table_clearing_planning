@@ -414,7 +414,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
               data.push_back(pre_srv.response.average_ee_collision_time);
 
               std::cout << "updating experiment\n";
-              eh.updateExperiment(data,alg_.plan,ik_feasible);
+              eh.updateExperiment(data,alg_.plan,ik_feasible,msg);
               if(!fd_srv.response.success)
                 eh.writeUnfeasiblePlan();
             }
