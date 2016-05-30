@@ -7,6 +7,7 @@
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="True"/>
   <arg name="FILTERING" default="False"/>
+  <arg name="AUTOMATIC_SAVE" default="False"/>
 
   <!-- services -->
   <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
@@ -62,6 +63,7 @@
         <!-- experiment -->
         <param name="save_experiment" value="$(arg SAVE_EXPERIMENT)"/>
         <param name="working_folder" value="/home/ncovallero/iri-lab/iri_ws/src/iri_table_clearing_planning/iri_table_clearing_decision_maker/experiments_data"/>
+        <param name="automatic_save" value="$(arg AUTOMATIC_SAVE)"/>
                                  
     </node>
   </group>

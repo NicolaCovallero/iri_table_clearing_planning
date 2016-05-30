@@ -40,6 +40,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // experiment stuff
   this->public_node_handle_.param("save_experiment", this->save_experiment, false);
   this->public_node_handle_.param("working_folder", this->working_folder, WORKING_FOLDER);
+  this->public_node_handle_.param("automatic_save", this->automatic_save, false);
 
   // [init publishers]
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
@@ -386,9 +387,16 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         // update experiment data
         if(save_experiment) 
         {
-          std::cout << "\n\n Update experiment?(y - yes / whatever key to don't save)\n";
           char response;
-          std::cin >> response;
+          if(automatic_save)
+          {
+            response = 'y';
+          }
+          else
+          {
+            std::cout << "\n\n Update experiment?(y - yes / whatever key to don't save)\n";
+            std::cin >> response;
+          }
           if(response == 'y' || response == 'Y')
           {
             if(!fd_srv.response.success)
@@ -450,7 +458,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // ask the user to repeat the main thread
   if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
   {
-    std::cout << "\n\n The goal has been reached. Do you want to Repeat?(y,n)\n";
+    std::cout << "\n\n Do you want to Repeat?(y,n)\n";
     if(save_experiment)
       std::cout << "[to save the experiment you have to close in this way the node - Press E/e to repeat as a new experiment]\n";
     char response;

@@ -141,7 +141,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     visualization_msgs::MarkerArray objects_labels_markers;
 
     // experiment stuff
-    bool save_experiment;
+    bool save_experiment, automatic_save;
     std::string working_folder;
     ExperimentDataHandler eh;
     double planning_time,segmentation_time,ik_time,predicates_time;
