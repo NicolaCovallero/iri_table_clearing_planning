@@ -81,7 +81,9 @@ const double PRE_DROPPING_POSE_Z = 0.5;
 std::string segmentation_service, predicates_service, planner_service, execute_pushing_service, execute_grasping_service;
 
 bool execution; //true if it is the execution wanted
-
+bool repeat; // true if repeats without waiting for the user input
+long time_from_start, time_start;
+long filtering_time;
 
 /**
  * \brief IRI ROS Specific Algorithm Class

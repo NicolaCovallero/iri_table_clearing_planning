@@ -2,8 +2,9 @@
 
   <arg name="RQT" default="false"/>
   <arg name="EXECUTION" default="True"/>
+  <arg name="REPEAT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="True"/>
   <arg name="FILTERING" default="False"/>
@@ -44,6 +45,7 @@
 
 
         <param name="execution" value="$(arg EXECUTION)"/>
+        <param name="repeat" value="$(arg REPEAT)"/>
         <param name="pushing_discretization" value="3"/> <!-- Minimum 2 -->
         <param name="pushing_step" value="1"/> <!-- length to push accordingly to the length of the object -->
         

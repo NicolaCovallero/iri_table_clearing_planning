@@ -5,3 +5,4 @@ geometry_msgs/PoseStamped post_grasping_pose
 ---
 bool success
 float32 ik_time
+float32 execution_time

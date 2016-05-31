@@ -42,6 +42,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	}
 
 	labels.push_back("n_objects");
+	labels.push_back("filtering_time[ms]");
 	labels.push_back("seg_time[ms]");
 	labels.push_back("predicates_time[ms]");
 	labels.push_back("planning_time[ms]");
@@ -53,14 +54,18 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	labels.push_back("ee_collisions[ms]");
 	labels.push_back("average_objects_collision[ms]");
 	labels.push_back("average_ee_collision[ms]");
+	labels.push_back("action_execution_time[ms]");
+	labels.push_back("time_from_start[ms]");
 	labels.push_back("action");
 	labels.push_back("ik_feasible");
+	labels.push_back("time_to_save_pcl");
+
 
 }
 
 void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		               bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg)
+		               bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg,bool save_pcl)
 {
 	if(this->file.is_open())
 	{
@@ -72,12 +77,12 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			file << "--exp" + exp_num_str.str() + "\n";
 
 			// ask for user for comments about the experiment
-			std::cout << "\nNew experiment, please write some comments about this experiment:";
-			std::string comments;
+			//std::cout << "\nNew experiment, please write some comments about this experiment:";
+			//std::string comments;
 			// little hack - putting twice it works as expected
-			getline(std::cin, comments); 
-			getline(std::cin, comments); 
-    		file << "comments: " + comments + "\n";
+			//getline(std::cin, comments); 
+			//getline(std::cin, comments); 
+    		//file << "comments: " + comments + "\n";
 
 			//write plan
 			file << "plan: ";
@@ -106,11 +111,36 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			num_str << data[i];
 			file << num_str.str() + " ";
 		}
-		file << plan.actions[0].action_name + "-" + plan.actions[0].objects[0] + " ";
+
+		// write plan action
+		if(plan.actions.size() > 0)
+			file << plan.actions[0].action_name + "-" + plan.actions[0].objects[0] + " ";
+		else 
+			file << "no_plan ";
 
 		std::ostringstream ik_feasible_str;
 		ik_feasible_str << ik_feasible;
 		file << ik_feasible_str.str() + " ";
+
+		//save point cloud
+		if(save_pcl)
+		{
+			int time_init = util::GetTimeMs64();
+			pcl::PointCloud<pcl::PointXYZRGBA>cloud;
+			pcl::fromROSMsg(*cloud_msg,cloud);
+			std::ostringstream pcd_name;
+			pcd_name << exp_num;
+			std::string pcd_name_str = working_folder + "/" + experiment_name + "/cloud_";
+			pcd_name_str += pcd_name.str();
+			pcd_name << exp_iteration;
+		    pcd_name_str += "_" + pcd_name.str() + ".pcd";
+			pcl::io::savePCDFileASCII (pcd_name_str.c_str(), cloud);
+			int time_to_save_pcl = util::GetTimeMs64() - time_init;
+			std::ostringstream save_pcl_time_str;
+			save_pcl_time_str << time_to_save_pcl;
+			file << save_pcl_time_str.str() + " ";
+		}
+
 
 		file << "\n";
 		
@@ -136,17 +166,6 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
  //        fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
  //        return;
  //    }
-
-	//save point cloud
-	pcl::PointCloud<pcl::PointXYZRGBA>cloud;
-	pcl::fromROSMsg(*cloud_msg,cloud);
-	std::ostringstream pcd_name;
-	pcd_name << exp_num;
-	std::string pcd_name_str = working_folder + "/" + experiment_name + "/cloud_";
-	pcd_name_str += pcd_name.str();
-	pcd_name << exp_iteration;
-    pcd_name_str += "_" + pcd_name.str() + ".pcd";
-	pcl::io::savePCDFileASCII (pcd_name_str.c_str(), cloud);
 
 
 	exp_iteration++;

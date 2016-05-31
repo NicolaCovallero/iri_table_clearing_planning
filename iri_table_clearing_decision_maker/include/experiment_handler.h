@@ -19,7 +19,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
 #include <cv_bridge/cv_bridge.h>
-
+#include "table_clearing_decision_maker_alg.h"
 
 
 /**
@@ -84,7 +84,7 @@ class ExperimentDataHandler{
 		 */
 		void updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg);
+		                bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg,bool save_pcl);
 
 
 		void writeUnfeasiblePlan();

@@ -390,6 +390,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     }
   } 
 
+  util::uint64 t_init_grasp = util::GetTimeMs64();
 
   
   // Go to pregrasping pose - Approaching pose
@@ -647,6 +648,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   //this->execute_grasping_mutex_exit();
   //this->alg_.unlock();
 
+  res.execution_time = (float)(util::GetTimeMs64() - t_init_grasp);
   return true;
 }
 
@@ -789,13 +791,13 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
   //move2JointsPose(joints_trajectory[0],0.5,0.5);
-  
+  util::uint64 t_init_push = util::GetTimeMs64();
   for (int i = 0; i < joints_trajectory.size(); ++i)
   {
    move2JointsPose(joints_trajectory[i],0.5,0.5);
    ros::Duration(0.2).sleep();
   }
-
+  res.execution_time = (float)(util::GetTimeMs64() - t_init_push);  
   // reset the time stamp for all the trajectory points
   // for (int i = 0; i < joints_trajectory.size(); ++i)
   //   joints_trajectory[i].header.stamp = ros::Time::now();
@@ -1134,7 +1136,7 @@ bool TableClearingExecuteAlgNode::askForUserInput(std::string text)
       }
     }
   } 
-  else
+  else  
     return true;
 }
 

@@ -7,6 +7,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   //init class attributes if necessary
   this->loop_rate_ = 2;//in [Hz]
   this->alg_.setOn(false);
+  time_start = util::GetTimeMs64();
 
   std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
@@ -35,6 +36,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("execute_grasping_service", execute_grasping_service, EXECUTE_GRASPING_SERVICE);
 
   this->public_node_handle_.param("execution", execution, EXECUTION);
+  this->public_node_handle_.param("repeat", repeat, false);
   this->public_node_handle_.param("filtering", this->alg_.filtering, FILTERING);
 
   // experiment stuff
@@ -301,7 +303,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
           this->alg_.setOn(false);
           feasible = true; // there is not IK influence here
-          plan_feasible = false;
+          plan_feasible = false; //there is no plan
 
         }
         planning_time = (double)(util::GetTimeMs64() - t_init_planning);
@@ -321,6 +323,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           this->alg_.showActionTrajectory(action_trajectory_publisher_);
         
         double ik_time = 0;
+        double execution_time = 0;
         ik_feasible = true;
         if(execution)
         { 
@@ -337,11 +340,13 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                   feasible = false;
                   ik_feasible = false;
                   ik_time = pushing_srv.response.ik_time;
+                  execution_time = pushing_srv.response.execution_time;
                 }
                 else
                 {
                   feasible = true; 
                   ik_time = pushing_srv.response.ik_time;
+                  execution_time = pushing_srv.response.execution_time;
                 }
               }
               else
@@ -360,11 +365,14 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                   feasible = false;
                   ik_feasible = false;
                   ik_time = grasping_srv.response.ik_time;
+                  execution_time = grasping_srv.response.execution_time;
+
                 }
                 else
                 {
                   feasible = true; 
                   ik_time = grasping_srv.response.ik_time;
+                  execution_time = grasping_srv.response.execution_time;
                 }
               }
               else
@@ -391,7 +399,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           if(automatic_save)
           {
             response = 'y';
-          }
+          } 
           else
           {
             std::cout << "\n\n Update experiment?(y - yes / whatever key to don't save)\n";
@@ -399,35 +407,33 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           }
           if(response == 'y' || response == 'Y')
           {
-            if(!fd_srv.response.success)
-            {
-              std::cout << "new experiment\n";
-              eh.newExperiment();
-            }
-            else
-            {
-              // set data vector
-              std::vector<double> data; // just to test - This should contains the values of the timers
-              data.push_back(n_objs); 
-              data.push_back(segmentation_time);
-              data.push_back(predicates_time);
-              data.push_back(planning_time);
-              data.push_back(ik_time);
-              data.push_back(pre_srv.response.on_predicates_time);
-              data.push_back(pre_srv.response.block_predicates_time);
-              data.push_back(pre_srv.response.block_grasp_predicates_time);
-              data.push_back(pre_srv.response.objects_collisions_time);
-              data.push_back(pre_srv.response.ee_collisions_time);
-              data.push_back(pre_srv.response.average_objects_collision_time);
-              data.push_back(pre_srv.response.average_ee_collision_time);
+          
+            // set data vector
+            std::vector<double> data; // just to test - This should contains the values of the timers
+            data.push_back(n_objs); 
+            data.push_back(filtering_time);
+            data.push_back(segmentation_time);
+            data.push_back(predicates_time);
+            data.push_back(planning_time);
+            data.push_back(ik_time);
+            data.push_back(pre_srv.response.on_predicates_time);
+            data.push_back(pre_srv.response.block_predicates_time);
+            data.push_back(pre_srv.response.block_grasp_predicates_time);
+            data.push_back(pre_srv.response.objects_collisions_time);
+            data.push_back(pre_srv.response.ee_collisions_time);
+            data.push_back(pre_srv.response.average_objects_collision_time);
+            data.push_back(pre_srv.response.average_ee_collision_time);
+            data.push_back(execution_time);
+            time_from_start = util::GetTimeMs64() - time_start;
+            data.push_back(time_from_start);
 
-              std::cout << "updating experiment\n";
-              eh.updateExperiment(data,alg_.plan,ik_feasible,msg);
-              if(!fd_srv.response.success)
-                eh.writeUnfeasiblePlan();
-            }
-          }
-        }
+            std::cout << "updating experiment\n";
+            eh.updateExperiment(data,alg_.plan,ik_feasible,msg,true);
+            // if(!fd_srv.response.success)
+            //   eh.writeUnfeasiblePlan();
+            
+          }// endif save_experiment
+        }//execution
 
       }//exit while
 
@@ -456,7 +462,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   }
 
   // ask the user to repeat the main thread
-  if((this->alg_.getPlanLength() == 0) || (n_objs == 0) ) 
+  if(((this->alg_.getPlanLength() == 0) || (n_objs == 0)) && (!repeat)) 
   {
     std::cout << "\n\n Do you want to Repeat?(y,n)\n";
     if(save_experiment)
@@ -505,6 +511,13 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       }
     }
   }
+  else // waits enough time to be sure to have a point cloud where there is no the robot's arm
+  {
+    if(this->alg_.filtering) // if filtering is on waits more
+      ros::Duration(3).sleep();
+    else
+      ros::Duration(1).sleep();
+  }
 
 }
 
@@ -522,6 +535,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   
   if(this->alg_.filtering)
   {
+    long time_filt_init = util::GetTimeMs64();
     if(!this->alg_.getOn())
       ROS_INFO("New Point cloud received - Let's filter it! :)");
     // http://pointclouds.org/documentation/tutorials/statistical_outlier.php
@@ -539,9 +553,11 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     pcl::toROSMsg(cloud,cloud_msg);
 
     this->alg_.setPointCloud(cloud_msg);
+    filtering_time = util::GetTimeMs64() - time_filt_init;
   }
   else
   {
+    filtering_time = 0;
     if(!this->alg_.getOn())
       ROS_INFO("New Point cloud received :)");
     this->alg_.setPointCloud(*msg);
