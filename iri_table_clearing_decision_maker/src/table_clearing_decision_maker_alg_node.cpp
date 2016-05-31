@@ -429,6 +429,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
             std::cout << "updating experiment\n";
             eh.updateExperiment(data,alg_.plan,ik_feasible,msg,true);
+
+            eh.savePredicates(this->alg_.blocks_predicates,this->alg_.on_top_predicates,this->alg_.block_grasp_predicates);
             // if(!fd_srv.response.success)
             //   eh.writeUnfeasiblePlan();
             

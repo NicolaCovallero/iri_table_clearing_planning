@@ -132,6 +132,7 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
     Config config_;
   public:
 
+    bool volatile gripper_open;
     bool real_robot;
     bool use_moveit;
 

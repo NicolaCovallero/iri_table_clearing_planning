@@ -141,8 +141,14 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			file << save_pcl_time_str.str() + " ";
 		}
 
-
 		file << "\n";
+
+		//write all the plan
+		for (uint i = 0; i < plan.actions.size(); ++i)
+		{
+			file << "(" + plan.actions[i].action_name + " " + plan.actions[i].objects[0] + ") ";
+		}
+		file << "\n";		
 		
 	}
 	else
@@ -193,4 +199,80 @@ void ExperimentDataHandler::writeExperimentInterrupeted()
 {
 	if(exp_iteration != 0)
 		file << "EXP_INTERRUPTED\n";
+}
+void ExperimentDataHandler::savePredicates(std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates,
+			std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates,
+			std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates)
+{
+	std::ofstream predicates_file;
+	std::string predicates_file_name =  working_folder + "/" + experiment_name + "/predicates_frame";
+	std::ostringstream predicates_file_str;
+	predicates_file_str << exp_iteration;
+	predicates_file_name += predicates_file_str.str();
+	predicates_file.open(predicates_file_name.c_str());
+	//write block predicates
+	for(uint i = 0; i < blocks_predicates.size(); i++)
+	{
+		std::ostringstream object_;
+		object_ << i;
+		std::string object_name = "o" + object_.str();
+		//for each direction
+		for (uint o = 0; o < blocks_predicates[i].dir1.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 << blocks_predicates[i].dir1[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "block_dir1 " + object_name2 + " " + object_name + "\n";
+		}
+		for (uint o = 0; o < blocks_predicates[i].dir2.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 << blocks_predicates[i].dir2[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "block_dir2 " + object_name2 + " " + object_name + "\n";
+		}
+		for (uint o = 0; o < blocks_predicates[i].dir3.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 << blocks_predicates[i].dir3[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "block_dir3 " + object_name2 + " " + object_name + "\n";
+		}
+		for (uint o = 0; o < blocks_predicates[i].dir4.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 << blocks_predicates[i].dir4[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "block_dir4 " + object_name2 + " " + object_name + "\n";
+		}
+	}
+	//write block grasp predicates
+	for(uint i = 0; i < block_grasp_predicates.size(); i++)
+	{
+		std::ostringstream object_;
+		object_ << i;
+		std::string object_name = "o" + object_.str();
+		for (uint o = 0; o < block_grasp_predicates[i].object.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 <<  block_grasp_predicates[i].object[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "block_grasp " + object_name2 + " " + object_name + "\n";
+		}
+	}
+	//write on predicates
+	for(uint i = 0; i < on_top_predicates.size(); i++)
+	{
+		std::ostringstream object_;
+		object_ << i;
+		std::string object_name = "o" + object_.str();
+		for (uint o = 0; o < on_top_predicates[i].object.size(); ++o)
+		{
+			std::ostringstream object_2;
+			object_2 << on_top_predicates[i].object[o];
+			std::string object_name2 = "o" + object_2.str();
+			predicates_file << "on " + object_name2 + " " + object_name + "\n";
+		}
+	}
+	predicates_file.close();
 }

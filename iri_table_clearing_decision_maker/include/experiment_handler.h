@@ -19,7 +19,11 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
 #include <cv_bridge/cv_bridge.h>
+
 #include "table_clearing_decision_maker_alg.h"
+#include "iri_table_clearing_predicates/BlockPredicate.h"
+#include "iri_table_clearing_predicates/BlockGraspPredicate.h"
+#include "iri_table_clearing_predicates/OnTopPredicate.h"
 
 
 /**
@@ -90,6 +94,10 @@ class ExperimentDataHandler{
 		void writeUnfeasiblePlan();
 
 		void writeExperimentInterrupeted();
+
+		void savePredicates(std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates,
+			std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates,
+			std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates);
 
 
 };

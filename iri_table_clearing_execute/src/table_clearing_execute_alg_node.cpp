@@ -128,7 +128,7 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
   joints_dropping_pose.name[5] = "estirabot_joint_6";
   joints_dropping_pose.name[6] = "estirabot_joint_7";  
 
-
+  gripper_open = false;
 }
 
 TableClearingExecuteAlgNode::~TableClearingExecuteAlgNode(void)
@@ -410,7 +410,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     { 
       ROS_INFO("Opening gripper");
       this->open_gripperMakeActionRequest();
-      ros::Duration(1).sleep(); // sleep for a second
+      //while (not gripper_open){ros::Duration(0.1).sleep();}
+      ros::Duration(1).sleep();
     }
   }
   else // go home
@@ -441,7 +442,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     else
       return false;
   }
-
+ 
+  
   // CLOSE THE GRIPPER
   if(askForUserInput("Closing gripper"))
   {
@@ -453,7 +455,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       }
       else
       {
-        ros::Duration(1).sleep(); // sleep for a second
+        //while (gripper_open){ros::Duration(0.1).sleep();}
+        ros::Duration(1).sleep();
+
+        //ros::Duration(1).sleep(); // sleep for a second
       }
     }
     // if(this->real_robot)
@@ -504,7 +509,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   // Go to Pregrasping pose again
   if(askForUserInput("Going to post_grasping_pose"))
   {
-    ROS_INFO("Going to pre grasping pose again");
+    ROS_INFO("Going to post grasping pose again");
     if(!move2JointsPose(joints_trajectory[2],config_.velocity_max,config_.acceleration_max))
     {
       return false;
@@ -565,7 +570,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     { 
       ROS_INFO("Opening gripper");
       this->open_gripperMakeActionRequest();
-      ros::Duration(1).sleep(); // sleep for a second
+      //while (not gripper_open){ros::Duration(0.1).sleep();}
+      ros::Duration(1).sleep();
     }
   }
   else // go home
@@ -591,7 +597,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       }
       else
       {
-        ros::Duration(1).sleep(); // sleep for a second
+        //while (gripper_open){ros::Duration(0.1).sleep();}
+        ros::Duration(1).sleep();
       }
     }
     // if(this->real_robot)
@@ -873,7 +880,10 @@ void TableClearingExecuteAlgNode::close_gripperDone(const actionlib::SimpleClien
 {
   alg_.lock();
   if( state == actionlib::SimpleClientGoalState::SUCCEEDED )
+  {
     ROS_INFO("TableClearingExecuteAlgNode::close_gripperDone: Goal Achieved!");
+    gripper_open = false;
+  }
   else
     ROS_INFO("TableClearingExecuteAlgNode::close_gripperDone: %s", state.toString().c_str());
 
@@ -911,7 +921,10 @@ void TableClearingExecuteAlgNode::open_gripperDone(const actionlib::SimpleClient
 {
   alg_.lock();
   if( state == actionlib::SimpleClientGoalState::SUCCEEDED )
+  {
     ROS_INFO("TableClearingExecuteAlgNode::open_gripperDone: Goal Achieved!");
+    gripper_open = true;
+  }
   else
     ROS_INFO("TableClearingExecuteAlgNode::open_gripperDone: %s", state.toString().c_str());
 

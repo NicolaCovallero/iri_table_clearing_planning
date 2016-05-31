@@ -99,9 +99,7 @@ class TableClearingDecisionMakerAlgorithm
     // std::vector<BlocksPredicate> blocks_predicates;
     // std::vector<std::vector<uint> > on_top_predicates;
     // std::vector<std::vector<uint> > block_grasp_predicates;
-    std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates;
-    std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates;
-    std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
+ 
     std::vector<iri_table_clearing_predicates::PushingDirections> pushing_directions;
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
     std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses;
@@ -119,7 +117,7 @@ class TableClearingDecisionMakerAlgorithm
 
     bool set;
 
-    static const double dist_last_pose = 0.1; //20 cm above ther last and first pushign psoe
+    static const double dist_last_pose = 0.2; //20 cm above ther last and first pushign psoe
 
     int pushing_discretization;
     double pushing_step;
@@ -130,6 +128,10 @@ class TableClearingDecisionMakerAlgorithm
     geometry_msgs::PoseStamped dropping_pose,pre_dropping_pose;
 
   public:
+
+    std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates;
+    std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates;
+    std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
 
     iri_fast_downward_wrapper::Plan plan;
     sensor_msgs::Image  image;
