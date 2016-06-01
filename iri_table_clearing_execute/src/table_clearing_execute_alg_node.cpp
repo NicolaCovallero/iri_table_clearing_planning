@@ -410,8 +410,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     { 
       ROS_INFO("Opening gripper");
       this->open_gripperMakeActionRequest();
-      //while (not gripper_open){ros::Duration(0.1).sleep();}
-      ros::Duration(1).sleep();
+      while (not gripper_open){ros::Duration(0.1).sleep();}
+      //ros::Duration(1).sleep();
     }
   }
   else // go home
@@ -455,8 +455,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       }
       else
       {
-        //while (gripper_open){ros::Duration(0.1).sleep();}
-        ros::Duration(1).sleep();
+        while (gripper_open){ros::Duration(0.1).sleep();}
+        //ros::Duration(1).sleep();
 
         //ros::Duration(1).sleep(); // sleep for a second
       }
@@ -570,8 +570,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     { 
       ROS_INFO("Opening gripper");
       this->open_gripperMakeActionRequest();
-      //while (not gripper_open){ros::Duration(0.1).sleep();}
-      ros::Duration(1).sleep();
+      while (not gripper_open){ros::Duration(0.1).sleep();}
+      //ros::Duration(1).sleep();
     }
   }
   else // go home
@@ -597,8 +597,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       }
       else
       {
-        //while (gripper_open){ros::Duration(0.1).sleep();}
-        ros::Duration(1).sleep();
+        while (gripper_open){ros::Duration(0.1).sleep();}
+        //ros::Duration(1).sleep();
       }
     }
     // if(this->real_robot)
@@ -894,14 +894,14 @@ void TableClearingExecuteAlgNode::close_gripperDone(const actionlib::SimpleClien
 void TableClearingExecuteAlgNode::close_gripperActive()
 {
   alg_.lock();
-  //ROS_INFO("TableClearingExecuteAlgNode::close_gripperActive: Goal just went active!");
+  ROS_INFO("TableClearingExecuteAlgNode::close_gripperActive: Goal just went active!");
   alg_.unlock();
 }
 
 void TableClearingExecuteAlgNode::close_gripperFeedback(const iri_common_drivers_msgs::tool_closeFeedbackConstPtr& feedback)
 {
   alg_.lock();
-  //ROS_INFO("TableClearingExecuteAlgNode::close_gripperFeedback: Got Feedback!");
+  ROS_INFO("TableClearingExecuteAlgNode::close_gripperFeedback: Got Feedback!");
 
   bool feedback_is_ok = true;
 
@@ -935,14 +935,14 @@ void TableClearingExecuteAlgNode::open_gripperDone(const actionlib::SimpleClient
 void TableClearingExecuteAlgNode::open_gripperActive()
 {
   alg_.lock();
-  //ROS_INFO("TableClearingExecuteAlgNode::open_gripperActive: Goal just went active!");
+  ROS_INFO("TableClearingExecuteAlgNode::open_gripperActive: Goal just went active!");
   alg_.unlock();
 }
 
 void TableClearingExecuteAlgNode::open_gripperFeedback(const iri_common_drivers_msgs::tool_openFeedbackConstPtr& feedback)
 {
   alg_.lock();
-  //ROS_INFO("TableClearingExecuteAlgNode::open_gripperFeedback: Got Feedback!");
+  ROS_INFO("TableClearingExecuteAlgNode::open_gripperFeedback: Got Feedback!");
 
   bool feedback_is_ok = true;
 
@@ -965,7 +965,7 @@ bool TableClearingExecuteAlgNode::close_gripperMakeActionRequest()
   // IMPORTANT: Please note that all mutex used in the client callback functions
   // must be unlocked before calling any of the client class functions from an
   // other thread (MainNodeThread).
-  // this->alg_.unlock();
+  this->alg_.unlock();
   if(close_gripper_client_.isServerConnected())
   {
     //ROS_DEBUG("TableClearingExecuteAlgNode::close_gripperMakeActionRequest: Server is Available!");
@@ -1002,13 +1002,13 @@ bool TableClearingExecuteAlgNode::open_gripperMakeActionRequest()
                 boost::bind(&TableClearingExecuteAlgNode::open_gripperDone,     this, _1, _2),
                 boost::bind(&TableClearingExecuteAlgNode::open_gripperActive,   this),
                 boost::bind(&TableClearingExecuteAlgNode::open_gripperFeedback, this, _1));
-    this->alg_.lock();
+    //this->alg_.lock();
     ROS_DEBUG("TableClearingExecuteAlgNode::MakeActionRequest: Goal Sent.");
     return true;
   }
   else
   {
-    this->alg_.lock();
+    //this->alg_.lock();
     ROS_DEBUG("TableClearingExecuteAlgNode::open_gripperMakeActionRequest: HRI server is not connected");
     return false;
   }

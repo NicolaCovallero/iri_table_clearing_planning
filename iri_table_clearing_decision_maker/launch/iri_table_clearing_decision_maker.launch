@@ -36,7 +36,7 @@
                                    "/>
         -->
         
-         <param name="goal" value="(not (exists(?x - obj)(not (grasped ?x))))"/>
+         <param name="goal" value="(not (exists(?x - obj)(not (removed ?x))))"/>
         
         <!-- Passing as input the name of the services (It was better doing with a remap) -->
         <param name="execute_pushing_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_pushing"/>

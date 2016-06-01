@@ -684,7 +684,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
 	{
-		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
+		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/ 
 					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
 		if(this->pushing_poses.size() == 0 )
 		{

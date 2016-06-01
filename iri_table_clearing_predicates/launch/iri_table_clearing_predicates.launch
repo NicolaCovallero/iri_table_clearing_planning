@@ -6,7 +6,7 @@
     <!-- Launch service for the predicates -->
       <node pkg="iri_table_clearing_predicates" type="iri_table_clearing_predicates"
          name="table_clearing_predicates_alg_node" output="screen">
-         <param name="opening_width" value="0.08"/>
+         <param name="opening_width" value="0.07"/>
          <param name="closing_width" value="0.03"/>
          <param name="finger_width" value="0.03"/>
          <param name="gripper_height" value="0.10"/>
