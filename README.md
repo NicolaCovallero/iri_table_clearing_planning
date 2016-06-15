@@ -1,11 +1,11 @@
 # iri_table_clearing_planning #
 
 This package is the ROS implementation of [table_clearing_planning](https://bitbucket.org/NicolaCov/table_clearing_planning) algorithm. 
-Until know:
+All the process is controlled by the decision_maker node which does the following operations:
 
 1. it subscribes to a *sensor_msgs::PointCloud2* topic,
 2. segmenting it by calling the segmentation service provided by the the [iri_tos_supervoxels](https://github.com/NicolaCovallero/iri_tos_supervoxels) package
-3. Getting the predicates 
+3. Getting the predicates (iri_table_clearing_predicates)
 4. Getting the plan by using the service of [iri_fast_downward_wrapper](https://bitbucket.org/NicolaCov/iri_fast_downward_wrapper) package.
 5. Evaluate the IK and execute the action if there is a solution for the IK.
 
@@ -65,3 +65,4 @@ $ rosrun pcl_ros pcd_to_pointcloud name_file.pcd
 
 ## TODO: ## 
 1. collision checking along the path for the EE
+2. add costs
