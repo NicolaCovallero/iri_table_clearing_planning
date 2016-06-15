@@ -2,6 +2,7 @@
 
 This package is the ROS implementation of [table_clearing_planning](https://bitbucket.org/NicolaCov/table_clearing_planning) algorithm. 
 Until know:
+
 1. it subscribes to a *sensor_msgs::PointCloud2* topic,
 2. segmenting it by calling the segmentation service provided by the the [iri_tos_supervoxels](https://github.com/NicolaCovallero/iri_tos_supervoxels) package
 3. Getting the predicates 
