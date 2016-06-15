@@ -127,6 +127,11 @@ class TableClearingDecisionMakerAlgorithm
 
     geometry_msgs::PoseStamped dropping_pose,pre_dropping_pose;
 
+    /**
+     * Vector of boolean to specify if the i-th object has to be removed from the goal (true = removed)
+     */
+    std::vector<bool> removed_object_from_goal;
+
   public:
 
     std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates;
@@ -304,6 +309,17 @@ class TableClearingDecisionMakerAlgorithm
      */
     int setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing);
+
+    /**
+     * @brief Update the goal
+     * @details Remove from the goal all the objects that have all the ik_unfeasible predicates set to true
+     */
+    void updateGoal();
+
+    /**
+     * @brief Reset goal
+     */
+    void resetGoal();
 
     /**
      * @brief Return the number of actions of the plan

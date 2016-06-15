@@ -11,7 +11,6 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 
   std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
-  this->public_node_handle_.param("goal", this->alg_.goal, GOAL);
   int pushing_discretization;
   double  pushing_step,dropping_pose_x,dropping_pose_y,dropping_pose_z,
           pre_dropping_pose_x,pre_dropping_pose_y,pre_dropping_pose_z;
@@ -218,6 +217,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   if(this->alg_.getOn())
   {
     std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
+    this->alg_.resetGoal();
 
     sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
     iri_tos_supervoxels::object_segmentation tos_srv;
@@ -337,6 +337,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                 {
                   ROS_WARN("Pushing action unfeasible");
                   this->alg_.setIKUnfeasiblePredicate();
+                  this->alg_.updateGoal();
                   feasible = false;
                   ik_feasible = false;
                   ik_time = pushing_srv.response.ik_time;
@@ -362,6 +363,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                 {
                   ROS_WARN("Grasping action unfeasible");
                   this->alg_.setIKUnfeasiblePredicate();
+                  this->alg_.updateGoal();
                   feasible = false;
                   ik_feasible = false;
                   ik_time = grasping_srv.response.ik_time;

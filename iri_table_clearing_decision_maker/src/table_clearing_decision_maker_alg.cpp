@@ -3,7 +3,7 @@
 TableClearingDecisionMakerAlgorithm::TableClearingDecisionMakerAlgorithm(void)
 {
   pthread_mutex_init(&this->access_,NULL);
-
+  this->resetGoal();
 }
 
 TableClearingDecisionMakerAlgorithm::~TableClearingDecisionMakerAlgorithm(void)
@@ -179,6 +179,12 @@ std::string TableClearingDecisionMakerAlgorithm::prepareGoalMsg()
 void TableClearingDecisionMakerAlgorithm::setNumberObjects(uint n_objects)
 {
 	this->n_objects = n_objects;
+
+	// initialize vector 
+	removed_object_from_goal.resize(n_objects);
+	for (uint i = 0; i < n_objects; ++i)
+		removed_object_from_goal[i] = false;
+
 }
 void TableClearingDecisionMakerAlgorithm::setBlockPredicates(std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates)
 {
@@ -821,13 +827,67 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		return -1;
 	}
 }
+void TableClearingDecisionMakerAlgorithm::updateGoal()
+{
+	std::vector<uint> indices;
+	// check what object have all the ik_unfeasible predicates set to true
+	for (uint o = 0; o < n_objects; ++o)
+	{
+		uint counter = 0;
+		std::ostringstream obj_str;
+		obj_str << o;
+		std::string obj_sting = "o" + obj_str.str();
+		for (uint i = 0; i < ik_unfeasible_predicates.size(); ++i)
+		{
+			if(ik_unfeasible_predicates[i].object == obj_sting)
+			  counter++;
+		}
+		if(counter > 4) // this means that all the 5 ik_unfeasible rpedicates have been set to true
+		{	
+			indices.push_back(o);
+			//std::cout << "One object have all the ik_ufneasible prediates set to true\n";
+		}
+	}
+
+	// update the boolean vector
+	for (int i = 0; i < indices.size(); ++i)
+	{
+		if(indices[i] > n_objects)
+		{
+			ROS_WARN("Wrong index of the object to remove: you wanted to remove object %d when there are %d objects.",indices[i],n_objects);
+			return;
+		}
+		this->removed_object_from_goal[indices[i]] = true;
+		//std::cout << "Set to true index " << indices[i] << std::endl;
+	}
+
+
+	//update goal string
+	goal = "(and ";
+	for (uint i = 0; i < this->n_objects; ++i)
+	{
+		std::ostringstream obj_str;
+		obj_str << i;
+		if(not removed_object_from_goal[i])
+			goal+= "(removed o" + obj_str.str() +") ";
+		else
+			ROS_WARN("Object o%s has been removed from the goal.",obj_str.str().c_str());
+	}
+	goal += " )";
+	std::cout << "The updated goal is: " << goal << std::endl;
+
+}
+void TableClearingDecisionMakerAlgorithm::resetGoal()
+{
+	goal = "(not (exists(?x - obj)(not (removed ?x))))";
+}
 int TableClearingDecisionMakerAlgorithm::getPlanLength()
 {
 	return this->plan.actions.size();
 }
 void TableClearingDecisionMakerAlgorithm::resetPredicates()
 {
-	this->ik_unfeasible_predicates.resize(0);
+	this->ik_unfeasible_predicates.resize(0);	
 	this->blocks_predicates.resize(0);
 	this->on_top_predicates.resize(0);
 	this->block_grasp_predicates.resize(0);

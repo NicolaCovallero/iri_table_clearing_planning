@@ -4,9 +4,9 @@
   <arg name="EXECUTION" default="True"/>
   <arg name="REPEAT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>-->
-  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
-  <arg name="SAVE_EXPERIMENT" default="True"/>
+  <arg name="SAVE_EXPERIMENT" default="False"/>
   <arg name="FILTERING" default="False"/>
   <arg name="AUTOMATIC_SAVE" default="False"/>
 
@@ -21,22 +21,6 @@
          name="iri_table_clearing_decision_maker" output="screen">
          <param name="input_topic" value="$(arg INPUT_TOPIC)"/>
 
-         <!-- This goal is just to separate the objects, without grasping them-->
-        
-        <!--
-         <param name="goal" value="(and (not (exists (?x - obj)(or
-                                    (exists(?y - obj)(block_dir1 ?y ?x))
-                                    (exists(?y - obj)(block_dir2 ?y ?x))
-                                    (exists(?y - obj)(block_dir3 ?y ?x))
-                                    (exists(?y - obj)(block_dir4 ?y ?x))
-                                    ))
-                                    )
-                                    (not (exists(?x - obj)(grasped ?x)))
-                                    )
-                                   "/>
-        -->
-        
-         <param name="goal" value="(not (exists(?x - obj)(not (removed ?x))))"/>
         
         <!-- Passing as input the name of the services (It was better doing with a remap) -->
         <param name="execute_pushing_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_pushing"/>
