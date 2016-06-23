@@ -35,6 +35,8 @@
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 #include "iri_table_clearing_predicates/PushingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
+#include "iri_table_clearing_predicates/PushingLength.h"
+#include "iri_table_clearing_predicates/PushingGraspingPose.h"
 #include "iri_tos_supervoxels/plane_coefficients.h"
 #include "iri_table_clearing_predicates/PrincipalDirections.h"
 #include "iri_table_clearing_execute/ExecutePushing.h"
@@ -110,6 +112,8 @@ class TableClearingDecisionMakerAlgorithm
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
     geometry_msgs::Vector3 plane_normal;
     std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions;
+    std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths;
+    std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses;
 
     std::string frame_id;   
 
@@ -260,6 +264,8 @@ class TableClearingDecisionMakerAlgorithm
     void setApproachingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses);
     void setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses); 
     void setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs);
+    void setPushingLengths(std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths);
+    void setPushingGraspingPoses(std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses);
 
     void setPlan(iri_fast_downward_wrapper::Plan plan);
     void setFrameId(std::string frame_id);

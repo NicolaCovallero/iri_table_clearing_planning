@@ -251,6 +251,14 @@ void TableClearingDecisionMakerAlgorithm::setAABBs(std::vector<iri_table_clearin
 {
 	this->aabbs = aabbs;
 }
+void TableClearingDecisionMakerAlgorithm::setPushingLengths(std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths)
+{
+	this->pushing_lengths = pushing_lengths;
+}
+void TableClearingDecisionMakerAlgorithm::setPushingGraspingPoses(std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses)
+{
+	this->pushing_grasping_poses = pushing_grasping_poses;
+}
 void TableClearingDecisionMakerAlgorithm::setDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z)
 {
 	this->dropping_pose.pose.position.x = dropping_pose_x;
@@ -591,8 +599,12 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
 	{
-		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
-					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		std::cout << "Action to execute: push_dir1 " << "o" << idx_obj << std::endl;
+
+		// step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
+		// 			(this->pushing_discretization -1)); 
+		step = (double)((this->pushing_lengths[idx_obj].dir1 + this->pushing_object_distance)/
+		 			(this->pushing_discretization -1));
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -637,12 +649,29 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 						
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
+
+		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
+		pushing.request.future_grasp_pose = pgp.grasp_dir1;
+		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_pre_grasp_pose = pgp.app_dir1;
+		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
+		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
+		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
+
+
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
 	{
-		step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
-					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		std::cout << "Action to execute: push_dir2 " << "o" << idx_obj << std::endl;
+
+		// step = (double)((pushing_step * this->aabbs[idx_obj].deep + this->pushing_object_distance)/
+		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		step = (double)((this->pushing_lengths[idx_obj].dir2 + this->pushing_object_distance)/
+		 			(this->pushing_discretization -1));
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -686,12 +715,29 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
+
+		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];		
+		pushing.request.future_grasp_pose = pgp.grasp_dir2;
+		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_pre_grasp_pose = pgp.app_dir2;
+		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose = pgp.grasp_dir2;
+		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
+		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
+		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
+
+
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
 	{
-		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/ 
-					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		std::cout << "Action to execute: push_dir3 " << "o" << idx_obj << std::endl;
+
+		// step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/ 
+		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		step = (double)((this->pushing_lengths[idx_obj].dir3 + this->pushing_object_distance)/
+		 			(this->pushing_discretization -1));
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -736,12 +782,29 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
+
+		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
+		pushing.request.future_grasp_pose = pgp.grasp_dir3;
+		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_pre_grasp_pose = pgp.app_dir3;
+		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose = pgp.grasp_dir3;
+		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
+		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
+		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
+
+
 		return 0;
 	}
 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
 	{
-		step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
-					(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		std::cout << "Action to execute: push_dir4 " << "o" << idx_obj << std::endl; 
+
+		// step = (double)((pushing_step * this->aabbs[idx_obj].width + this->pushing_object_distance)/
+		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
+		step = (double)((this->pushing_lengths[idx_obj].dir4 + this->pushing_object_distance)/
+		 			(this->pushing_discretization -1));
 		if(this->pushing_poses.size() == 0 )
 		{
 			ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -785,10 +848,25 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
+
+		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
+		pushing.request.future_grasp_pose = pgp.grasp_dir4;
+		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_pre_grasp_pose = pgp.app_dir4;
+		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose = pgp.grasp_dir4;
+		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
+		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
+		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
+		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
+
+
 		return 0;
 	}
 	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
 	{
+		std::cout << "Action to execute: grasp " << "o" << idx_obj << std::endl;
+
 		geometry_msgs::PoseStamped grasping_pose, approaching_pose, post_grasping_pose;
 
 		grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
@@ -798,12 +876,12 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		approaching_pose.header.frame_id = this->frame_id;
 
 		// post grasping pose is translated by other 10 cm
-		post_grasping_pose = approaching_pose;
+		post_grasping_pose = grasping_pose;
 		post_grasping_pose.header.frame_id = this->frame_id;
 
-		post_grasping_pose.pose.position.x = post_grasping_pose.pose.position.x - 0.1 * this->plane_normal.x;
-		post_grasping_pose.pose.position.y = post_grasping_pose.pose.position.y - 0.1 * this->plane_normal.y;
-		post_grasping_pose.pose.position.z = post_grasping_pose.pose.position.z - 0.1 * this->plane_normal.z;
+		post_grasping_pose.pose.position.x = post_grasping_pose.pose.position.x - 0.3 * this->plane_normal.x;
+		post_grasping_pose.pose.position.y = post_grasping_pose.pose.position.y - 0.3 * this->plane_normal.y;
+		post_grasping_pose.pose.position.z = post_grasping_pose.pose.position.z - 0.3 * this->plane_normal.z;
 
 		grasping.request.grasping_pose = grasping_pose;
 		grasping.request.approaching_pose = approaching_pose;

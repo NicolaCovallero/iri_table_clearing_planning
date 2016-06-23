@@ -41,6 +41,9 @@
 #include "iri_table_clearing_predicates/PushingPoses.h"
 #include "iri_table_clearing_predicates/AABB.h"
 #include "iri_table_clearing_predicates/PrincipalDirections.h"
+#include "iri_table_clearing_predicates/PushingLength.h"
+#include "iri_table_clearing_predicates/PushingGraspingPose.h"
+
 
 
 /** default values */
@@ -55,6 +58,9 @@ const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 const double  PUSHING_OBJECT_DISTANCE = 0.05;
 const double  APPROACHING_DISTANCE = 0.1;
+const double  PUSHING_LENGTH_LIMIT = 0.2; // 20 cm
+const double  RESOLUTION = 0.2; // 5 cm
+
 
 const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
 
@@ -92,7 +98,11 @@ class TableClearingPredicatesAlgorithm
 
     int pushing_method;
 
+
   public:
+
+    double  pushing_length_limit, resolution;
+
    /**
     * \brief define config type
     *
@@ -361,6 +371,14 @@ class TableClearingPredicatesAlgorithm
     std::vector<geometry_msgs::Point> getCentroids();
 
     std::vector<iri_table_clearing_predicates::PrincipalDirections> getPrincipalDirections();
+
+    std::vector<iri_table_clearing_predicates::PushingLength> getPushingLengths();
+
+    /**
+     * @brief It returns the graspins poses of the object after it has been pushed
+     * @details It returns the graspins poses of the object after it has been pushed
+     */
+    std::vector<iri_table_clearing_predicates::PushingGraspingPose> getPushingGraspingPoses();
 
     double getPushingObjectDistance();
 

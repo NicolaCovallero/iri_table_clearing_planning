@@ -34,6 +34,8 @@ add_message_files(
   AABB.msg
   PrincipalDirections.msg
   PushingPoses.msg
+  PushingLength.msg
+  PushingGraspingPose.msg
 )
 
 ## Generate services in the 'srv' folder

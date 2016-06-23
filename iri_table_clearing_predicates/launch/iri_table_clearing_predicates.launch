@@ -20,6 +20,8 @@
 
          # this is only for the orthogonal pushing method
          <param name="pushing_object_distance" value="0.03"/>
+         <param name="pushing_length_limit" value="0.2"/> <!-- 20 cm -->
+         <param name="resolution" value="0.05"/> <!-- 5 cm -->
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>

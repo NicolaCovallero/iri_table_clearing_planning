@@ -24,7 +24,8 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("pushing_step",pushing_step,PUSHING_STEP);
   this->public_node_handle_.param("pushing_object_distance",pushing_object_distance,PUSHING_OBJECT_DISTANCE);
   this->public_node_handle_.param("approaching_distance",approaching_distance,APPROACHING_DISTANCE);
-  
+  this->public_node_handle_.param("pushing_length_limit",alg_.pushing_length_limit,PUSHING_LENGTH_LIMIT);
+  this->public_node_handle_.param("resolution",alg_.resolution,RESOLUTION);  
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
@@ -39,7 +40,9 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "pushing_step: " << pushing_step << std::endl
             << "pushing_object_distance: " << pushing_object_distance << std::endl
             << "pushing_method: " << pushing_method << std::endl
-            << "approaching_distance: " << approaching_distance << std::endl; 
+            << "approaching_distance: " << approaching_distance << std::endl 
+            << "pushing_length_limit: " << alg_.pushing_length_limit << std::endl 
+            << "resolution: " << alg_.resolution << std::endl;
 
   this->alg_.setPushingStep(pushing_step);
   this->alg_.setApproachingDistance(approaching_distance);
@@ -145,6 +148,8 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.centroids = this->alg_.getCentroids();
   res.principal_directions = this->alg_.getPrincipalDirections();
   res.pushing_object_distance = this->alg_.getPushingObjectDistance();
+  res.pushing_lengths = this->alg_.getPushingLengths();
+  res.pushing_grasping_poses = this->alg_.getPushingGraspingPoses();
 
   // set times
   res.on_predicates_time = exe_times.on_predicates;
@@ -162,7 +167,6 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
     {
       res.grasping_poses[i].grasping_poses[g].header = req.original_cloud.header;  
     }
-    
   }
   this->alg_.reset();// free the memory of the class
 

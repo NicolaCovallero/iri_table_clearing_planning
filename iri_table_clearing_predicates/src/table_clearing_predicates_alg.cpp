@@ -98,7 +98,7 @@ void TableClearingPredicatesAlgorithm::computeOnTopPredicates(double th1, double
 
 void TableClearingPredicatesAlgorithm::computeBlockPredicates(bool print)
 {
-	this->tcp.computeBlockPredicates(print,this->pushing_method);
+	this->tcp.computeBlockPredicates(print,this->pushing_method, resolution, pushing_length_limit);
 }
 
 void TableClearingPredicatesAlgorithm::computeBlockGraspPredicates(bool print)
@@ -401,4 +401,113 @@ void TableClearingPredicatesAlgorithm::setOnTopParameters(double on_th1, double 
 ExecutionTimes TableClearingPredicatesAlgorithm::getExecutionTimes()
 {
 	return this->tcp.getExecutionTimes();
+}
+std::vector<iri_table_clearing_predicates::PushingGraspingPose> 
+TableClearingPredicatesAlgorithm::getPushingGraspingPoses()
+{
+	std::vector<PushingGraspingPose> pushing_grasping_poses = tcp.getPushingGraspingPoses();
+	std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses_msg;
+
+	for (int i = 0; i < this->tcp.getNumObjects(); ++i)
+	{
+		// -------------------------------------------------------------
+		// IMPORTANT! : The header have to be set in the ...alg_node.cpp
+		// -------------------------------------------------------------	
+		iri_table_clearing_predicates::PushingGraspingPose poses_stamped;
+
+		poses_stamped.grasp_dir1.pose.position.x = pushing_grasping_poses[i].gp_dir1.translation[0];
+		poses_stamped.grasp_dir1.pose.position.y = pushing_grasping_poses[i].gp_dir1.translation[1];
+		poses_stamped.grasp_dir1.pose.position.z = pushing_grasping_poses[i].gp_dir1.translation[2];
+
+		poses_stamped.grasp_dir1.pose.orientation.x =  pushing_grasping_poses[i].gp_dir1.quaternion.x();
+		poses_stamped.grasp_dir1.pose.orientation.y =  pushing_grasping_poses[i].gp_dir1.quaternion.y();
+		poses_stamped.grasp_dir1.pose.orientation.z =  pushing_grasping_poses[i].gp_dir1.quaternion.z();
+		poses_stamped.grasp_dir1.pose.orientation.w =  pushing_grasping_poses[i].gp_dir1.quaternion.w();
+
+		poses_stamped.grasp_dir2.pose.position.x = pushing_grasping_poses[i].gp_dir2.translation[0];
+		poses_stamped.grasp_dir2.pose.position.y = pushing_grasping_poses[i].gp_dir2.translation[1];
+		poses_stamped.grasp_dir2.pose.position.z = pushing_grasping_poses[i].gp_dir2.translation[2];
+
+		poses_stamped.grasp_dir2.pose.orientation.x =  pushing_grasping_poses[i].gp_dir2.quaternion.x();
+		poses_stamped.grasp_dir2.pose.orientation.y =  pushing_grasping_poses[i].gp_dir2.quaternion.y();
+		poses_stamped.grasp_dir2.pose.orientation.z =  pushing_grasping_poses[i].gp_dir2.quaternion.z();
+		poses_stamped.grasp_dir2.pose.orientation.w =  pushing_grasping_poses[i].gp_dir2.quaternion.w();
+
+		poses_stamped.grasp_dir3.pose.position.x = pushing_grasping_poses[i].gp_dir3.translation[0];
+		poses_stamped.grasp_dir3.pose.position.y = pushing_grasping_poses[i].gp_dir3.translation[1];
+		poses_stamped.grasp_dir3.pose.position.z = pushing_grasping_poses[i].gp_dir3.translation[2];
+
+		poses_stamped.grasp_dir3.pose.orientation.x =  pushing_grasping_poses[i].gp_dir3.quaternion.x();
+		poses_stamped.grasp_dir3.pose.orientation.y =  pushing_grasping_poses[i].gp_dir3.quaternion.y();
+		poses_stamped.grasp_dir3.pose.orientation.z =  pushing_grasping_poses[i].gp_dir3.quaternion.z();
+		poses_stamped.grasp_dir3.pose.orientation.w =  pushing_grasping_poses[i].gp_dir3.quaternion.w();
+
+		poses_stamped.grasp_dir4.pose.position.x = pushing_grasping_poses[i].gp_dir4.translation[0];
+		poses_stamped.grasp_dir4.pose.position.y = pushing_grasping_poses[i].gp_dir4.translation[1];
+		poses_stamped.grasp_dir4.pose.position.z = pushing_grasping_poses[i].gp_dir4.translation[2];
+
+		poses_stamped.grasp_dir4.pose.orientation.x =  pushing_grasping_poses[i].gp_dir4.quaternion.x();
+		poses_stamped.grasp_dir4.pose.orientation.y =  pushing_grasping_poses[i].gp_dir4.quaternion.y();
+		poses_stamped.grasp_dir4.pose.orientation.z =  pushing_grasping_poses[i].gp_dir4.quaternion.z();
+		poses_stamped.grasp_dir4.pose.orientation.w =  pushing_grasping_poses[i].gp_dir4.quaternion.w();
+
+	
+		poses_stamped.app_dir1.pose.position.x = pushing_grasping_poses[i].app_dir1.translation[0];
+		poses_stamped.app_dir1.pose.position.y = pushing_grasping_poses[i].app_dir1.translation[1];
+		poses_stamped.app_dir1.pose.position.z = pushing_grasping_poses[i].app_dir1.translation[2];
+
+		poses_stamped.app_dir1.pose.orientation.x =  pushing_grasping_poses[i].app_dir1.quaternion.x();
+		poses_stamped.app_dir1.pose.orientation.y =  pushing_grasping_poses[i].app_dir1.quaternion.y();
+		poses_stamped.app_dir1.pose.orientation.z =  pushing_grasping_poses[i].app_dir1.quaternion.z();
+		poses_stamped.app_dir1.pose.orientation.w =  pushing_grasping_poses[i].app_dir1.quaternion.w();
+
+		poses_stamped.app_dir2.pose.position.x = pushing_grasping_poses[i].app_dir2.translation[0];
+		poses_stamped.app_dir2.pose.position.y = pushing_grasping_poses[i].app_dir2.translation[1];
+		poses_stamped.app_dir2.pose.position.z = pushing_grasping_poses[i].app_dir2.translation[2];
+
+		poses_stamped.app_dir2.pose.orientation.x =  pushing_grasping_poses[i].app_dir2.quaternion.x();
+		poses_stamped.app_dir2.pose.orientation.y =  pushing_grasping_poses[i].app_dir2.quaternion.y();
+		poses_stamped.app_dir2.pose.orientation.z =  pushing_grasping_poses[i].app_dir2.quaternion.z();
+		poses_stamped.app_dir2.pose.orientation.w =  pushing_grasping_poses[i].app_dir2.quaternion.w();
+
+		poses_stamped.app_dir3.pose.position.x = pushing_grasping_poses[i].app_dir3.translation[0];
+		poses_stamped.app_dir3.pose.position.y = pushing_grasping_poses[i].app_dir3.translation[1];
+		poses_stamped.app_dir3.pose.position.z = pushing_grasping_poses[i].app_dir3.translation[2];
+
+		poses_stamped.app_dir3.pose.orientation.x =  pushing_grasping_poses[i].app_dir3.quaternion.x();
+		poses_stamped.app_dir3.pose.orientation.y =  pushing_grasping_poses[i].app_dir3.quaternion.y();
+		poses_stamped.app_dir3.pose.orientation.z =  pushing_grasping_poses[i].app_dir3.quaternion.z();
+		poses_stamped.app_dir3.pose.orientation.w =  pushing_grasping_poses[i].app_dir3.quaternion.w();
+
+		poses_stamped.app_dir4.pose.position.x = pushing_grasping_poses[i].app_dir4.translation[0];
+		poses_stamped.app_dir4.pose.position.y = pushing_grasping_poses[i].app_dir4.translation[1];
+		poses_stamped.app_dir4.pose.position.z = pushing_grasping_poses[i].app_dir4.translation[2];
+
+		poses_stamped.app_dir4.pose.orientation.x =  pushing_grasping_poses[i].app_dir4.quaternion.x();
+		poses_stamped.app_dir4.pose.orientation.y =  pushing_grasping_poses[i].app_dir4.quaternion.y();
+		poses_stamped.app_dir4.pose.orientation.z =  pushing_grasping_poses[i].app_dir4.quaternion.z();
+		poses_stamped.app_dir4.pose.orientation.w =  pushing_grasping_poses[i].app_dir4.quaternion.w();		
+
+		pushing_grasping_poses_msg.push_back(poses_stamped);
+	}
+
+	return pushing_grasping_poses_msg;
+}
+std::vector<iri_table_clearing_predicates::PushingLength> TableClearingPredicatesAlgorithm::getPushingLengths()
+{
+	
+	std::vector<PushingLength> pushing_lengths = this->tcp.getPushingLengths();
+	std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths_msg;
+	iri_table_clearing_predicates::PushingLength tmp_msg;
+
+	for (uint i = 0; i < pushing_lengths.size() ; ++i)
+	{
+		tmp_msg.dir1 = pushing_lengths[i].dir1;
+		tmp_msg.dir2 = pushing_lengths[i].dir2;
+		tmp_msg.dir3 = pushing_lengths[i].dir3;
+		tmp_msg.dir4 = pushing_lengths[i].dir4;
+		pushing_lengths_msg.push_back(tmp_msg);
+	}
+
+	return pushing_lengths_msg;
 }

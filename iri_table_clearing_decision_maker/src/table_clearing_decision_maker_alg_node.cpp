@@ -283,6 +283,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
       this->alg_.setAABBs(pre_srv.response.aabbs);
       this->alg_.setPushingObjectDistance(pre_srv.response.pushing_object_distance);
+      this->alg_.setPushingLengths(pre_srv.response.pushing_lengths);
+      this->alg_.setPushingGraspingPoses(pre_srv.response.pushing_grasping_poses);
 
       bool feasible = false;
       while(!feasible) // call the planner until he finds a new solution

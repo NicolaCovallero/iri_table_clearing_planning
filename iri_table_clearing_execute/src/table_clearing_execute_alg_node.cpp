@@ -760,6 +760,31 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       return true;
     }
   }
+
+  // evaluate if the future grasping, pre grasping and post grasping poses are feasible
+  srv.request.desired_pose = req.future_pre_grasp_pose;
+  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    res.success = false; 
+    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    return true;
+  }
+  srv.request.desired_pose = req.future_grasp_pose;
+  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    res.success = false; 
+    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    return true;
+  }
+  srv.request.desired_pose = req.future_post_grasp_pose;
+  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    res.success = false; 
+    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    return true;
+  }
+  
+
   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
 
   // ROS_INFO("Waiting for the joint_trajectory_action server");
