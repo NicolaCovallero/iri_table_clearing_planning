@@ -36,6 +36,17 @@ std::vector<iri_fast_downward_wrapper::Object> TableClearingDecisionMakerAlgorit
 		object.type = "obj";
 		objects_msg.push_back(object);
 	}
+	iri_fast_downward_wrapper::Object object;
+	object.object_name = "dir1";
+	object.type = "direction";
+	objects_msg.push_back(object);
+	object.object_name = "dir2";
+	objects_msg.push_back(object);
+	object.object_name = "dir3";
+	objects_msg.push_back(object);
+	object.object_name = "dir4";
+	objects_msg.push_back(object);
+
 	return objects_msg;
 }
 std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionMakerAlgorithm::prepareSymbolicPredicatesMsg()
@@ -43,13 +54,87 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 	std::vector<iri_fast_downward_wrapper::SymbolicPredicate> blocks_predicates_msg;
 	iri_fast_downward_wrapper::SymbolicPredicate tmp;
 
+	// // ---------------- Add Blocks Predicates ---------------------------------
+	// tmp.objects.resize(2); // the block predicates only involves 2 objects
+	// for (int i = 0; i < this->blocks_predicates.size(); ++i)
+	// {
+	// 	for (int p = 0; p < this->blocks_predicates[i].dir1.size(); ++p)
+	// 	{
+	// 		tmp.predicate_name = "block_dir1";
+	// 		std::string object_name = "o";
+	// 		std::ostringstream convert;   // stream used for the conversion
+	// 		convert << i;
+	// 		object_name += convert.str();
+	// 		tmp.objects[1] = object_name;
+
+	// 		std::string object_name2 = "o";
+	// 		std::ostringstream convert2;   // stream used for the conversion
+	// 		convert2 << this->blocks_predicates[i].dir1[p];
+	// 		object_name2 += convert2.str();
+	// 		tmp.objects[0] = object_name2;
+
+	// 		blocks_predicates_msg.push_back(tmp);
+	// 	}
+	// 	for (int p = 0; p < this->blocks_predicates[i].dir2.size(); ++p)
+	// 	{
+	// 		tmp.predicate_name = "block_dir2";
+	// 		std::string object_name = "o";
+	// 		std::ostringstream convert;   // stream used for the conversion
+	// 		convert << i;
+	// 		object_name += convert.str();
+	// 		tmp.objects[1] = object_name;
+
+	// 		std::string object_name2 = "o";
+	// 		std::ostringstream convert2;   // stream used for the conversion
+	// 		convert2 << this->blocks_predicates[i].dir2[p];
+	// 		object_name2 += convert2.str();
+	// 		tmp.objects[0] = object_name2;	
+
+	// 		blocks_predicates_msg.push_back(tmp);
+	// 	}
+	// 	for (int p = 0; p < this->blocks_predicates[i].dir3.size(); ++p)
+	// 	{
+	// 		tmp.predicate_name = "block_dir3";
+	// 		std::string object_name = "o";
+	// 		std::ostringstream convert;   // stream used for the conversion
+	// 		convert << i;
+	// 		object_name += convert.str();
+	// 		tmp.objects[1] = object_name;
+
+	// 		std::string object_name2 = "o";
+	// 		std::ostringstream convert2;   // stream used for the conversion
+	// 		convert2 << this->blocks_predicates[i].dir3[p];
+	// 		object_name2 += convert2.str();
+	// 		tmp.objects[0] = object_name2;
+
+	// 		blocks_predicates_msg.push_back(tmp);
+	// 	}
+	// 	for (int p = 0; p < this->blocks_predicates[i].dir4.size(); ++p)
+	// 	{
+	// 		tmp.predicate_name = "block_dir4";
+	// 		std::string object_name = "o";
+	// 		std::ostringstream convert;   // stream used for the conversion
+	// 		convert << i;
+	// 		object_name += convert.str();
+	// 		tmp.objects[1] = object_name;
+
+	// 		std::string object_name2 = "o";
+	// 		std::ostringstream convert2;   // stream used for the conversion
+	// 		convert2 << this->blocks_predicates[i].dir4[p];
+	// 		object_name2 += convert2.str();
+	// 		tmp.objects[0] = object_name2;
+
+	// 		blocks_predicates_msg.push_back(tmp);
+	// 	}
+	// }
+
 	// ---------------- Add Blocks Predicates ---------------------------------
-	tmp.objects.resize(2); // the block predicates only involves 2 objects
+	tmp.objects.resize(3); // the block predicates only involves 2 objects
 	for (int i = 0; i < this->blocks_predicates.size(); ++i)
 	{
 		for (int p = 0; p < this->blocks_predicates[i].dir1.size(); ++p)
 		{
-			tmp.predicate_name = "block_dir1";
+			tmp.predicate_name = "block_dir";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
 			convert << i;
@@ -62,11 +147,13 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 			object_name2 += convert2.str();
 			tmp.objects[0] = object_name2;
 
+			tmp.objects[2] = "dir1";
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir2.size(); ++p)
 		{
-			tmp.predicate_name = "block_dir2";
+			tmp.predicate_name = "block_dir";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
 			convert << i;
@@ -77,13 +164,15 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 			std::ostringstream convert2;   // stream used for the conversion
 			convert2 << this->blocks_predicates[i].dir2[p];
 			object_name2 += convert2.str();
-			tmp.objects[0] = object_name2;	
+			tmp.objects[0] = object_name2;
+
+			tmp.objects[2] = "dir2";	
 
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir3.size(); ++p)
 		{
-			tmp.predicate_name = "block_dir3";
+			tmp.predicate_name = "block_dir";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
 			convert << i;
@@ -96,11 +185,13 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 			object_name2 += convert2.str();
 			tmp.objects[0] = object_name2;
 
+			tmp.objects[2] = "dir3";
+
 			blocks_predicates_msg.push_back(tmp);
 		}
 		for (int p = 0; p < this->blocks_predicates[i].dir4.size(); ++p)
 		{
-			tmp.predicate_name = "block_dir4";
+			tmp.predicate_name = "block_dir";
 			std::string object_name = "o";
 			std::ostringstream convert;   // stream used for the conversion
 			convert << i;
@@ -112,6 +203,8 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 			convert2 << this->blocks_predicates[i].dir4[p];
 			object_name2 += convert2.str();
 			tmp.objects[0] = object_name2;
+
+			tmp.objects[2] = "dir4";
 
 			blocks_predicates_msg.push_back(tmp);
 		}
@@ -163,8 +256,9 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 	for (int i = 0; i < this->ik_unfeasible_predicates.size(); ++i)
 	{
 		tmp.predicate_name = this->ik_unfeasible_predicates[i].action;
-		tmp.objects.resize(1);
+		tmp.objects.resize(2);
 		tmp.objects[0] = this->ik_unfeasible_predicates[i].object; 
+		tmp.objects[1] = this->ik_unfeasible_predicates[i].direction; 
 		blocks_predicates_msg.push_back(tmp);
 	}
 
@@ -553,20 +647,35 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 		return;
 	}
 	IKUnfeasiblePredicate pred;
+	pred.object = plan.actions[0].objects[0];
 	if(strcmp(plan.actions[0].action_name.c_str(),"push_dir1") == 0)
-		pred.action = "ik_unfeasible_dir1";
+	{
+		pred.action = "ik_unfeasible_dir";
+		pred.direction = "dir1";
+	}
 	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir2") == 0)
-		pred.action = "ik_unfeasible_dir2";
+	{
+		pred.action = "ik_unfeasible_dir";
+		pred.direction = "dir2";
+	}
 	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir3") == 0)
-		pred.action = "ik_unfeasible_dir3";
+	{
+		pred.action = "ik_unfeasible_dir";
+		pred.direction = "dir3";
+	}
 	else if(strcmp(plan.actions[0].action_name.c_str(),"push_dir4") == 0)
-		pred.action = "ik_unfeasible_dir4";
+	{
+		pred.action = "ik_unfeasible_dir";
+		pred.direction = "dir4";
+	}
 	else if(strcmp(plan.actions[0].action_name.c_str(),"grasp") == 0)
+	{
 		pred.action = "ik_unfeasible_grasp";
+		pred.direction = "";
+	}
 	else
 		ROS_ERROR("Error trying to set the IK unfeasible predicate.");
 
-	pred.object = plan.actions[0].objects[0];
 	ik_unfeasible_predicates.push_back(pred);
 
 }

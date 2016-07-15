@@ -95,6 +95,7 @@ class TableClearingDecisionMakerAlgorithm
 
         std::string action;
         std::string object;
+        std::string direction;
     };
 
 
