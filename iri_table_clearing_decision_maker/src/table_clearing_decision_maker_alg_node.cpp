@@ -31,6 +31,8 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("segmentation_service", segmentation_service, SEGMENTATION_SERVICE);
   this->public_node_handle_.param("predicates_service", predicates_service, PREDICATES_SERVICE);
   this->public_node_handle_.param("planner_service", planner_service, PLANNER_SERVICE);
+  this->public_node_handle_.param("complete_planner_service", complete_planner_service, COMPLETE_PLANNER_SERVICE);
+
   this->public_node_handle_.param("execute_pushing_service", execute_pushing_service, EXECUTE_PUSHING_SERVICE);
   this->public_node_handle_.param("execute_grasping_service", execute_grasping_service, EXECUTE_GRASPING_SERVICE);
 
@@ -42,6 +44,10 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("save_experiment", this->save_experiment, false);
   this->public_node_handle_.param("working_folder", this->working_folder, WORKING_FOLDER);
   this->public_node_handle_.param("automatic_save", this->automatic_save, false);
+
+  // action costs: if we use action costs we need to write the domain pddl file
+  this->public_node_handle_.param("use_action_cost", use_action_cost, false);
+  
 
   // [init publishers]
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
@@ -58,6 +64,8 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init services]
   
   // [init clients]
+  get_full_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardFullPlan>(complete_planner_service);
+
   execute_grasping_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_execute::ExecuteGrasping>(execute_grasping_service);
 
   execute_pushing_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_execute::ExecutePushing>(execute_pushing_service);
@@ -136,6 +144,18 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
   
   // [fill srv structure and make request to the server]
+  //get_full_fast_downward_plan_srv_.request.data = my_var;
+  //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
+  //if (get_full_fast_downward_plan_client_.call(get_full_fast_downward_plan_srv_))
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Response: %s", get_full_fast_downward_plan_srv_.response.result);
+  //}
+  //else
+  //{
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Failed to Call Server on topic get_full_fast_downward_plan ");
+  //}
+
+
   //execute_grasping_srv_.request.data = my_var;
   //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
   //if (execute_grasping_client_.call(execute_grasping_srv_))
