@@ -64,7 +64,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   // [init services]
   
   // [init clients]
-  get_full_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardFullPlan>(complete_planner_service);
+  get_complete_fast_downward_plan_client_ = this->public_node_handle_.serviceClient<iri_fast_downward_wrapper::FastDownwardCompletePlan>(complete_planner_service);
 
   execute_grasping_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_execute::ExecuteGrasping>(execute_grasping_service);
 
@@ -100,7 +100,8 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "dropping_pose_z: " << dropping_pose_z << std::endl
   << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
   << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
-  << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl;
+  << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl
+  << "use_action_cost: " << use_action_cost << std::endl;
 
   if(save_experiment)
   {
@@ -144,15 +145,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
   
   // [fill srv structure and make request to the server]
-  //get_full_fast_downward_plan_srv_.request.data = my_var;
+  //get_complete_fast_downward_plan_srv_.request.data = my_var;
   //ROS_INFO("TableClearingDecisionMakerAlgNode:: Sending New Request!");
-  //if (get_full_fast_downward_plan_client_.call(get_full_fast_downward_plan_srv_))
+  //if (get_complete_fast_downward_plan_client_.call(get_complete_fast_downward_plan_srv_))
   //{
-    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Response: %s", get_full_fast_downward_plan_srv_.response.result);
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Response: %s", get_complete_fast_downward_plan_srv_.response.result);
   //}
   //else
   //{
-    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Failed to Call Server on topic get_full_fast_downward_plan ");
+    //ROS_INFO("TableClearingDecisionMakerAlgNode:: Failed to Call Server on topic get_complete_fast_downward_plan ");
   //}
 
 
@@ -288,7 +289,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       objects_labels_markers.markers.resize(0);
       this->alg_.showObjectsLabelRViz(pre_srv.response.centroids,
                                       objects_labels_markers,
-                                      pre_srv.response.aabbs);
+                                      pre_srv.response.obbs);
       objects_label_publisher_.publish(objects_labels_markers);
 
 
@@ -301,7 +302,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setApproachingPoses(pre_srv.response.approaching_poses);
       this->alg_.setPushingPoses(pre_srv.response.pushing_poses);
       this->alg_.setPrincipalDirections(pre_srv.response.principal_directions);
-      this->alg_.setAABBs(pre_srv.response.aabbs);
+      this->alg_.setOBBs(pre_srv.response.obbs);
       this->alg_.setPushingObjectDistance(pre_srv.response.pushing_object_distance);
       this->alg_.setPushingLengths(pre_srv.response.pushing_lengths);
       this->alg_.setPushingGraspingPoses(pre_srv.response.pushing_grasping_poses);
@@ -309,31 +310,71 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       bool feasible = false;
       while(!feasible) // call the planner until he finds a new solution
       {
-        iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
-        fd_srv.request.objects = this->alg_.prepareObjectsMsg();
-        std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
-        fd_srv.request.symbolic_predicates = predicates;
-        fd_srv.request.goal = this->alg_.prepareGoalMsg();
-
-        util::uint64 t_init_planning = util::GetTimeMs64(); 
-        plan_feasible = true;
-        // reset plan
-        alg_.plan.actions.resize(0);
-        alg_.plan.cost = 0;
-        if(!get_fast_downward_plan_client_.call(fd_srv))
+        if(not use_action_cost)
         {
-          ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
-          this->alg_.setOn(false);
-          feasible = true; // there is not IK influence here
-          plan_feasible = false; //there is no plan
+          iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
+          fd_srv.request.objects = this->alg_.prepareObjectsMsg();
+          std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
+          fd_srv.request.symbolic_predicates = predicates;
+          fd_srv.request.goal = this->alg_.prepareGoalMsg();
+
+          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          plan_feasible = true;
+          // reset plan
+          alg_.plan.actions.resize(0);
+          alg_.plan.cost = 0;
+          if(!get_fast_downward_plan_client_.call(fd_srv))
+          {
+            ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
+            this->alg_.setOn(false);
+            feasible = true; // there is not IK influence here
+            plan_feasible = false; //there is no plan
+
+          }
+          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+
+          this->alg_.setPlan(fd_srv.response.plan);
+        }
+        else
+        {
+          iri_fast_downward_wrapper::FastDownwardCompletePlan fd_srv; 
+
+          // problem pddl file
+          fd_srv.request.objects = this->alg_.prepareObjectsMsg();
+          std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
+          fd_srv.request.symbolic_predicates = predicates;
+          fd_srv.request.goal = this->alg_.prepareGoalMsg();
+
+          // domain pddl file
+          fd_srv.request.add_total_cost = true;
+          fd_srv.request.types.push_back("obj");
+          fd_srv.request.types.push_back("direction");
+          fd_srv.request.domain_symbolic_predicates = this->alg_.prepareDomainPredicateMsg();
+          fd_srv.request.actions = this->alg_.prepareDomainActionsMsg();
+
+          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          plan_feasible = true;
+          // reset plan
+          alg_.plan.actions.resize(0);
+          alg_.plan.cost = 0;
+          if(!get_complete_fast_downward_plan_client_.call(fd_srv))
+          {
+            ROS_ERROR("Impossible getting the Fast Downward plan - Or the problem is bad defined or there exist no solution");
+            this->alg_.setOn(false);
+            feasible = true; // there is not IK influence here
+            plan_feasible = false; //there is no plan
+
+          }
+          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+
+          // TODO: fix the parser opf the plan
+          this->alg_.setPlan(fd_srv.response.plan);
 
         }
-        planning_time = (double)(util::GetTimeMs64() - t_init_planning);
 
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
 
-        this->alg_.setPlan(fd_srv.response.plan);
           
         this->alg_.showFirstActionRViz(this->action_marker_publisher_);
 

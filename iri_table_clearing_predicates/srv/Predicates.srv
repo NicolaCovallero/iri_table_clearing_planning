@@ -9,7 +9,7 @@ iri_table_clearing_predicates/PushingDirections[] objects_pushing_directions
 iri_table_clearing_predicates/GraspingPoses[] grasping_poses
 iri_table_clearing_predicates/GraspingPoses[] approaching_poses
 iri_table_clearing_predicates/PushingPoses[] pushing_poses
-iri_table_clearing_predicates/AABB[] aabbs
+iri_table_clearing_predicates/OBB[] obbs
 geometry_msgs/Point[] centroids
 iri_table_clearing_predicates/PrincipalDirections[] principal_directions
 float32 pushing_object_distance

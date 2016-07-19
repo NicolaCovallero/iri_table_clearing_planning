@@ -31,7 +31,7 @@ add_message_files(
   OnTopPredicate.msg
   PushingDirections.msg
   GraspingPoses.msg
-  AABB.msg
+  OBB.msg
   PrincipalDirections.msg
   PushingPoses.msg
   PushingLength.msg

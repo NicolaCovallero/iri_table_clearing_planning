@@ -2,3 +2,8 @@ geometry_msgs/PoseStamped pose_dir1
 geometry_msgs/PoseStamped pose_dir2
 geometry_msgs/PoseStamped pose_dir3
 geometry_msgs/PoseStamped pose_dir4
+
+float32 collision_distance_dir1 # distance between the EE and the closest object along pushing direction 1
+float32 collision_distance_dir2
+float32 collision_distance_dir3
+float32 collision_distance_dir4

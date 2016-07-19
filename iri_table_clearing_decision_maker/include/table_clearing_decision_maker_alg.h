@@ -34,7 +34,7 @@
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 #include "iri_table_clearing_predicates/PushingPoses.h"
-#include "iri_table_clearing_predicates/AABB.h"
+#include "iri_table_clearing_predicates/OBB.h"
 #include "iri_table_clearing_predicates/PushingLength.h"
 #include "iri_table_clearing_predicates/PushingGraspingPose.h"
 #include "iri_tos_supervoxels/plane_coefficients.h"
@@ -46,6 +46,8 @@
 
 #include "iri_fast_downward_wrapper/Object.h"
 #include "iri_fast_downward_wrapper/SymbolicPredicate.h"
+#include "iri_fast_downward_wrapper/DomainSymbolicPredicate.h"
+#include "iri_fast_downward_wrapper/DomainAction.h"
 
 #include "iri_fast_downward_wrapper/Plan.h"
 
@@ -67,6 +69,8 @@
 #include "experiment_handler.h"
 
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
+
+static bool use_action_cost; // if we use the costs for the action we need to write the domain
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -107,7 +111,7 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses;
     std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
-    std::vector<iri_table_clearing_predicates::AABB> aabbs;
+    std::vector<iri_table_clearing_predicates::OBB> obbs;
     std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
     std::vector<geometry_msgs::Point> centroids;
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
@@ -135,7 +139,25 @@ class TableClearingDecisionMakerAlgorithm
     /**
      * Vector of boolean to specify if the i-th object has to be removed from the goal (true = removed)
      */
-    std::vector<bool> removed_object_from_goal;
+    std::vector<bool> removed_object_from_goal; 
+
+    std::string getActionGraspPrecondition(uint idx);
+    std::string getActionGraspEffect(uint idx, uint cost);
+    std::string getGraspActionName(std::string obj);
+    std::string getGraspActionName(uint obj);
+
+    std::string getActionPushPrecondition(uint idx, uint dir_idx);
+    std::string getActionPushEffect(uint idx, uint dir_idx, uint cost);
+    std::string getPushActionName(std::string obj, std::string dir);
+    std::string getPushActionName(uint obj, uint dir);
+
+    /**
+     * @brief Return the cost associated to the distance
+     * 
+     * @param distance [description]
+     * @return cost
+     */
+    uint getCost(double distance);
 
   public:
 
@@ -255,6 +277,10 @@ class TableClearingDecisionMakerAlgorithm
      */
     std::string prepareGoalMsg();
 
+    std::vector<iri_fast_downward_wrapper::DomainSymbolicPredicate> prepareDomainPredicateMsg();
+
+    std::vector<iri_fast_downward_wrapper::DomainAction> prepareDomainActionsMsg();
+
     void setNumberObjects(uint n_objects);
 
     void setBlockPredicates(std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates);
@@ -264,7 +290,7 @@ class TableClearingDecisionMakerAlgorithm
     void setGraspingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> grasping_poses);
     void setApproachingPoses(std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses);
     void setPushingPoses(std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses); 
-    void setAABBs(std::vector<iri_table_clearing_predicates::AABB> aabbs);
+    void setOBBs(std::vector<iri_table_clearing_predicates::OBB> obbs);
     void setPushingLengths(std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths);
     void setPushingGraspingPoses(std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses);
 
@@ -282,7 +308,7 @@ class TableClearingDecisionMakerAlgorithm
 
     void showObjectsLabelRViz(std::vector<geometry_msgs::Point> centroids,
                             visualization_msgs::MarkerArray& objects_labels_markers,
-                              std::vector<iri_table_clearing_predicates::AABB> aabbs);
+                              std::vector<iri_table_clearing_predicates::OBB> obbs);
 
     void showFirstActionRViz(ros::Publisher& action_pub);
 

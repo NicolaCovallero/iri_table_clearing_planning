@@ -40,7 +40,7 @@
 #include <sensor_msgs/PointCloud2.h>
 
 // [service client headers]
-#include <iri_fast_downward_wrapper/FastDownwardFullPlan.h>
+#include <iri_fast_downward_wrapper/FastDownwardCompletePlan.h>
 #include <iri_table_clearing_execute/ExecuteGrasping.h>
 #include <iri_table_clearing_execute/ExecutePushing.h>
 #include <iri_fast_downward_wrapper/FastDownwardPlan.h>
@@ -84,7 +84,6 @@ std::string segmentation_service, predicates_service, planner_service, execute_p
 
 bool execution; //true if it is the execution wanted
 bool repeat; // true if repeats without waiting for the user input
-bool use_action_cost; // if we use the costs for the action we need to write the domain
 long time_from_start, time_start;
 long filtering_time;
 
@@ -121,8 +120,8 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     // [service attributes]
 
     // [client attributes]
-    ros::ServiceClient get_full_fast_downward_plan_client_;
-    iri_fast_downward_wrapper::FastDownwardFullPlan get_full_fast_downward_plan_srv_;
+    ros::ServiceClient get_complete_fast_downward_plan_client_;
+    iri_fast_downward_wrapper::FastDownwardCompletePlan get_complete_fast_downward_plan_srv_;
 
     ros::ServiceClient execute_grasping_client_;
     iri_table_clearing_execute::ExecuteGrasping execute_grasping_srv_;

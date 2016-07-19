@@ -31,10 +31,10 @@ void TableClearingPredicatesAlgorithm::setApproachingDistance(double approaching
 {
 	this->tcp.setApproachingDistance(approaching_distance);
 }
-void TableClearingPredicatesAlgorithm::setFingersModel(double opening_width,double closing_width, double finger_width,
+void TableClearingPredicatesAlgorithm::setGripperModel(double opening_width,double closing_width, double finger_width,
                double deep, double height, double closing_height)
 {
-	this->tcp.setFingersModel(opening_width, closing_width, finger_width, deep, height, closing_height);
+	this->tcp.setGripperModel(opening_width, closing_width, finger_width, deep, height, closing_height);
 }
 void TableClearingPredicatesAlgorithm::setPushingMethod(double pushing_method)
 {
@@ -62,9 +62,9 @@ void TableClearingPredicatesAlgorithm::setPushingObjectDistance(double pushing_o
 {
 	this->tcp.setPushingObjectDistance(pushing_object_distance);
 }
-void TableClearingPredicatesAlgorithm::computeAABBObjects(bool refine_centroids)
+void TableClearingPredicatesAlgorithm::computeOBBObjects(bool refine_centroids)
 {
-	this->tcp.computeAABBObjects(refine_centroids);
+	this->tcp.computeOBBObjects(refine_centroids);
 }
 
 void TableClearingPredicatesAlgorithm::computeSimpleHeuristicGraspingPoses(bool vertical_poses)
@@ -115,9 +115,9 @@ std::vector<ObjectFull> TableClearingPredicatesAlgorithm::getFullObjects()
 	return this->tcp.getFullObjects();
 }
 
-std::vector<AABB> TableClearingPredicatesAlgorithm::getAABBObjects()
+std::vector<OBB> TableClearingPredicatesAlgorithm::getOBBObjects()
 {
-	return this->tcp.getAABBObjects();
+	return this->tcp.getOBBObjects();
 }
 double TableClearingPredicatesAlgorithm::getPushingObjectDistance()
 {
@@ -298,6 +298,7 @@ std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicates
 		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir1.quaternion.w();
 
 		pushing_poses_msg[i].pose_dir1 = pose_stamped;
+		pushing_poses_msg[i].collision_distance_dir1 = pushing_poses[i].dist_dir1;
 
 		pose_stamped.pose.position.x = pushing_poses[i].pose_dir2.translation[0];
 		pose_stamped.pose.position.y = pushing_poses[i].pose_dir2.translation[1];
@@ -309,6 +310,7 @@ std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicates
 		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir2.quaternion.w();
 
 		pushing_poses_msg[i].pose_dir2 = pose_stamped;
+		pushing_poses_msg[i].collision_distance_dir2 = pushing_poses[i].dist_dir2;
 
 		pose_stamped.pose.position.x = pushing_poses[i].pose_dir3.translation[0];
 		pose_stamped.pose.position.y = pushing_poses[i].pose_dir3.translation[1];
@@ -320,6 +322,7 @@ std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicates
 		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir3.quaternion.w();
 
 		pushing_poses_msg[i].pose_dir3 = pose_stamped;
+		pushing_poses_msg[i].collision_distance_dir3 = pushing_poses[i].dist_dir3;
 
 		pose_stamped.pose.position.x = pushing_poses[i].pose_dir4.translation[0];
 		pose_stamped.pose.position.y = pushing_poses[i].pose_dir4.translation[1];
@@ -331,6 +334,7 @@ std::vector<iri_table_clearing_predicates::PushingPoses> TableClearingPredicates
 		pose_stamped.pose.orientation.w =  pushing_poses[i].pose_dir4.quaternion.w();
 
 		pushing_poses_msg[i].pose_dir4 = pose_stamped;
+		pushing_poses_msg[i].collision_distance_dir4 = pushing_poses[i].dist_dir4;
 	}
 
 	return pushing_poses_msg;
@@ -339,19 +343,19 @@ void TableClearingPredicatesAlgorithm::reset()
 {
 	this->tcp.reset();
 }
-std::vector<iri_table_clearing_predicates::AABB> TableClearingPredicatesAlgorithm::getAABBMsg()
+std::vector<iri_table_clearing_predicates::OBB> TableClearingPredicatesAlgorithm::getOBBMsg()
 {
-	std::vector<iri_table_clearing_predicates::AABB> aabb_msgs;
-	std::vector<AABB> aabb = this->tcp.getAABBObjects();
-	for (int i = 0; i < aabb.size() ; ++i)
+	std::vector<iri_table_clearing_predicates::OBB> obb_msgs;
+	std::vector<OBB> obb = this->tcp.getOBBObjects();
+	for (int i = 0; i < obb.size() ; ++i)
 	{
-		iri_table_clearing_predicates::AABB aabb_msg;	
-		aabb_msg.width = aabb[i].width; 
-		aabb_msg.height = aabb[i].height; 
-		aabb_msg.deep = aabb[i].deep; 
-		aabb_msgs.push_back(aabb_msg);
+		iri_table_clearing_predicates::OBB obb_msg;	
+		obb_msg.width = obb[i].width; 
+		obb_msg.height = obb[i].height; 
+		obb_msg.deep = obb[i].deep; 
+		obb_msgs.push_back(obb_msg);
 	}
-	return aabb_msgs;
+	return obb_msgs;
 }
 std::vector<geometry_msgs::Point> TableClearingPredicatesAlgorithm::getCentroids()
 {

@@ -49,7 +49,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->alg_.setPushingMethod(pushing_method);
   this->alg_.setPushingObjectDistance(pushing_object_distance);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         
-  this->alg_.setFingersModel(opening_width, closing_width, finger_width, finger_deep, gripper_height, closing_region_height);
+  this->alg_.setGripperModel(opening_width, closing_width, finger_width, finger_deep, gripper_height, closing_region_height);
 
 
   // [init publishers]
@@ -126,7 +126,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   this->alg_.computeProjectionsOnTable();
   this->alg_.computeRichConvexHulls();
   this->alg_.computePrincipalDirections();
-  this->alg_.computeAABBObjects(true);
+  this->alg_.computeOBBObjects(true);
   this->alg_.computeSimpleHeuristicGraspingPoses();
 
   this->alg_.computeBlockPredicates(true);
@@ -144,7 +144,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.grasping_poses = this->alg_.getGraspingPoses();
   res.approaching_poses = this->alg_.getApproachingPoses();
   res.pushing_poses = this->alg_.getPushingPoses();
-  res.aabbs = this->alg_.getAABBMsg();
+  res.obbs = this->alg_.getOBBMsg();
   res.centroids = this->alg_.getCentroids();
   res.principal_directions = this->alg_.getPrincipalDirections();
   res.pushing_object_distance = this->alg_.getPushingObjectDistance();

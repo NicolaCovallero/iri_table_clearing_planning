@@ -39,7 +39,7 @@
 #include "iri_table_clearing_predicates/PushingDirections.h"
 #include "iri_table_clearing_predicates/GraspingPoses.h"
 #include "iri_table_clearing_predicates/PushingPoses.h"
-#include "iri_table_clearing_predicates/AABB.h"
+#include "iri_table_clearing_predicates/OBB.h"
 #include "iri_table_clearing_predicates/PrincipalDirections.h"
 #include "iri_table_clearing_predicates/PushingLength.h"
 #include "iri_table_clearing_predicates/PushingGraspingPose.h"
@@ -64,7 +64,7 @@ const double  RESOLUTION = 0.2; // 5 cm
 
 const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
 
-const double PUSHING_STEP = 1.5; // push 1.5 times along the relative AABB dimension
+const double PUSHING_STEP = 1.5; // push 1.5 times along the relative OBB dimension
 
 // default values variables 
 const double ON_TH1 = 100;
@@ -207,7 +207,7 @@ class TableClearingPredicatesAlgorithm
      * @param height [description]
      * @param closing_height [description]
      */
-    void setFingersModel(double opening_width,double closing_width, double finger_width,
+    void setGripperModel(double opening_width,double closing_width, double finger_width,
                double deep, double height, double closing_height);
 
     void setPushingMethod(double pushing_method);
@@ -277,7 +277,7 @@ class TableClearingPredicatesAlgorithm
      * 
      * @param refine_centroids True if you want to refine the centroid by computing the mean of the bounding box
      */
-    void computeAABBObjects(bool refine_centroids = true);  
+    void computeOBBObjects(bool refine_centroids = true);  
 
     /**
      * @brief Compute the grasping pose with a simple heuristic.
@@ -346,7 +346,7 @@ class TableClearingPredicatesAlgorithm
     uint getNumObjects();
     std::vector<ObjectFull> getFullObjects();
 
-    std::vector<AABB> getAABBObjects();
+    std::vector<OBB> getOBBObjects();
 
     std::vector<iri_table_clearing_predicates::BlockPredicate> getBlockPredicates();
 
@@ -366,7 +366,7 @@ class TableClearingPredicatesAlgorithm
 
     std::vector<iri_table_clearing_predicates::PushingPoses> getPushingPoses();
 
-    std::vector<iri_table_clearing_predicates::AABB> getAABBMsg();
+    std::vector<iri_table_clearing_predicates::OBB> getOBBMsg();
 
     std::vector<geometry_msgs::Point> getCentroids();
 

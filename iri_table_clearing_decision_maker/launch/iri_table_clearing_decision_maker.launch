@@ -10,6 +10,7 @@
   <arg name="SAVE_EXPERIMENT" default="False"/>
   <arg name="FILTERING" default="False"/>
   <arg name="AUTOMATIC_SAVE" default="False"/>
+  <arg name="USE_ACTION_COST" default="False"/>
 
   <!-- services -->
   <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
@@ -43,6 +44,8 @@
         <param name="pre_dropping_pose_x" value="0.2"/>
         <param name="pre_dropping_pose_y" value="0.9"/>
         <param name="pre_dropping_pose_z" value="0.3"/>
+
+        <param name="use_action_cost" value="$(arg USE_ACTION_COST)"/>
 
         <!-- Filter the input point cloud -->
         <param name="filtering" value="$(arg FILTERING)"/>
