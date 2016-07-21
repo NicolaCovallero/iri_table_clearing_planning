@@ -366,6 +366,7 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 		tmp.objects.resize(2);
 		tmp.objects[0] = this->ik_unfeasible_predicates[i].object; 
 		tmp.objects[1] = this->ik_unfeasible_predicates[i].direction; 
+		
 		blocks_predicates_msg.push_back(tmp);
 	}
 
@@ -841,22 +842,15 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 	if(strcmp(plan.actions[0].action_name.c_str(),"push") == 0)
 	{
 		pred.action = "ik_unfeasible_dir";
-		switch(plan.actions[0].objects[1])
-		{
-			case 1:
-				pred.direction = "dir1";
-				break;
-			case 2:
-				pred.direction = "dir2";
-				break;
-			case 3:			
-				pred.direction = "dir3";
-				break;
-			case 4:
-				pred.direction = "dir4";
-				break;
-			default:break;
-		}	
+		if(strcmp(plan.actions[0].objects[1].c_str(),"dir1") == 0)
+			pred.direction = "dir1";
+		else if(strcmp(plan.actions[0].objects[1].c_str(),"dir2") == 0)
+			pred.direction = "dir2";
+		else if(strcmp(plan.actions[0].objects[1].c_str(),"dir3") == 0)
+			pred.direction = "dir3";
+		else if(strcmp(plan.actions[0].objects[1].c_str(),"dir4") == 0)
+			pred.direction = "dir4";
+			
 	}
 	else if(strcmp(plan.actions[0].action_name.c_str(),"grasp") == 0)
 	{
@@ -864,7 +858,9 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 		pred.direction = "";
 	}
 	else
+	{
 		ROS_ERROR("Error trying to set the IK unfeasible predicate.");
+	}
 
 	ik_unfeasible_predicates.push_back(pred);
 
