@@ -335,8 +335,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           this->alg_.setPlan(fd_srv.response.plan);
         }
-        else
+        else // if we use the cost fot the actions
         {
+          std::cout << "Complete plan. The use_action_cost variable is set to: " << use_action_cost << std::endl;
           iri_fast_downward_wrapper::FastDownwardCompletePlan fd_srv; 
 
           // problem pddl file
@@ -380,7 +381,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
         iri_table_clearing_execute::ExecuteGrasping grasping_srv;
         iri_table_clearing_execute::ExecutePushing pushing_srv;
-        int action_type = this->alg_.setAction(grasping_srv,pushing_srv);
+        int action_type = this->alg_.setAction(grasping_srv,pushing_srv,use_action_cost);
         
         if(action_type == 0)
           this->alg_.showActionTrajectory(action_trajectory_publisher_);
@@ -451,7 +452,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                      feasible = true;
                      break;
           }
-        }
+        } // if execution
         else
         {
           feasible = true;

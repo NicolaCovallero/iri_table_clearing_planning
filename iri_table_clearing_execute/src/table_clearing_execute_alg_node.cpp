@@ -707,7 +707,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   util::uint64 t_init_ik = util::GetTimeMs64();
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
-    joints_trajectory[0] = srv.response.desired_joints;
+    // joints_trajectory[0] = srv.response.desired_joints;
     // std::cout << "Point " << 0 << 
     //     " joint 1: " << joints_trajectory[0].position[0] <<
     //     " joint 2: " << joints_trajectory[0].position[1] <<
@@ -719,6 +719,15 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
   else
   {
+    joints_trajectory[0] = srv.response.desired_joints;
+    // std::cout << "Point " << 0 << 
+    //     " joint 1: " << joints_trajectory[0].position[0] <<
+    //     " joint 2: " << joints_trajectory[0].position[1] <<
+    //     " joint 3: " << joints_trajectory[0].position[2] <<
+    //     " joint 4: " << joints_trajectory[0].position[3] <<
+    //     " joint 5: " << joints_trajectory[0].position[4] <<
+    //     " joint 6: " << joints_trajectory[0].position[5] <<
+    //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
     ROS_ERROR("Impossible calling %s service or solution not found for the first pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
     res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);

@@ -341,7 +341,8 @@ class TableClearingDecisionMakerAlgorithm
      * @return [description]
      */
     int setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
-                    iri_table_clearing_execute::ExecutePushing& pushing);
+                    iri_table_clearing_execute::ExecutePushing& pushing,
+                    bool use_action_cost);
 
     /**
      * @brief Update the goal
