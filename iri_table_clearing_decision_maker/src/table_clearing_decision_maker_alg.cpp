@@ -1384,6 +1384,12 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
 
 
+			// TODO: compute the pose for the future pre grasping pose -> todo in the C++ library
+			// pushing.request.future_pre_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->.x;
+			// pushing.request.future_pre_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->.y;
+			// pushing.request.future_pre_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->.z;
+
+
 			return 0;
 		}
 		else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)

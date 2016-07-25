@@ -694,7 +694,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
 
   ROS_DEBUG("Publishing pose");
-  action_pose_publisher_.publish(req.pushing_cartesian_trajectory[1]);
+  action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
   first_pose = req.pushing_cartesian_trajectory[0];
   
   //srv.request.current_joints = this->alg_.home_joint_state;
@@ -715,18 +715,6 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   util::uint64 t_init_ik = util::GetTimeMs64();
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
-    // joints_trajectory[0] = srv.response.desired_joints;
-    // std::cout << "Point " << 0 << 
-    //     " joint 1: " << joints_trajectory[0].position[0] <<
-    //     " joint 2: " << joints_trajectory[0].position[1] <<
-    //     " joint 3: " << joints_trajectory[0].position[2] <<
-    //     " joint 4: " << joints_trajectory[0].position[3] <<
-    //     " joint 5: " << joints_trajectory[0].position[4] <<
-    //     " joint 6: " << joints_trajectory[0].position[5] <<
-    //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
-  }
-  else
-  {
     joints_trajectory[0] = srv.response.desired_joints;
     // std::cout << "Point " << 0 << 
     //     " joint 1: " << joints_trajectory[0].position[0] <<
@@ -736,7 +724,26 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     //     " joint 5: " << joints_trajectory[0].position[4] <<
     //     " joint 6: " << joints_trajectory[0].position[5] <<
     //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
-    ROS_ERROR("Impossible calling %s service or solution not found for the first pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+    std::cout << "Requesting IK of x: " <<  req.pushing_cartesian_trajectory[0].pose.position.x << " y: " <<
+                                            req.pushing_cartesian_trajectory[0].pose.position.y << " z: " <<
+                                             req.pushing_cartesian_trajectory[0].pose.position.z << std::endl 
+              << "[quat] x:" << req.pushing_cartesian_trajectory[0].pose.orientation.x 
+              << " y: " << req.pushing_cartesian_trajectory[0].pose.orientation.y
+              << " z: " << req.pushing_cartesian_trajectory[0].pose.orientation.z
+              << " w: " << req.pushing_cartesian_trajectory[0].pose.orientation.w << std::endl;
+  }
+  else
+  {
+    // joints_trajectory[0] = srv.response.desired_joints;
+    // std::cout << "Point " << 0 << 
+    //     " joint 1: " << joints_trajectory[0].position[0] <<
+    //     " joint 2: " << joints_trajectory[0].position[1] <<
+    //     " joint 3: " << joints_trajectory[0].position[2] <<
+    //     " joint 4: " << joints_trajectory[0].position[3] <<
+    //     " joint 5: " << joints_trajectory[0].position[4] <<
+    //     " joint 6: " << joints_trajectory[0].position[5] <<
+    //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
+    ROS_ERROR("Impossible calling %s service or solution not found for the pre pushing pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
     res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     return true;
@@ -779,23 +786,32 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
 
   // evaluate if the future grasping, pre grasping and post grasping poses are feasible
+  srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.desired_pose.header.stamp = ros::Time::now();
   srv.request.desired_pose = req.future_pre_grasp_pose;
-  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
-  {
-    res.success = false; 
-    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-    return true;
-  }
+  // if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  // {
+  //   ROS_ERROR("Impossible calling %s service or solution not found, for future_pre_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+  //   res.success = false; 
+  //   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+  //   return true;
+  // }
+  srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.desired_pose.header.stamp = ros::Time::now();
   srv.request.desired_pose = req.future_grasp_pose;
   if (not estirabot_gripper_ik_from_pose_client_.call(srv))
   {
+    ROS_ERROR("Impossible calling %s service or solution not found, for future_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
     res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     return true;
   }
+  srv.request.current_joints = this->alg_.home_joint_state;
+  srv.request.desired_pose.header.stamp = ros::Time::now();
   srv.request.desired_pose = req.future_post_grasp_pose;
   if (not estirabot_gripper_ik_from_pose_client_.call(srv))
   {
+    ROS_ERROR("Impossible calling %s service or solution not found, for future_post_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
     res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     return true;
