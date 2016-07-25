@@ -694,11 +694,19 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   joints_trajectory.resize(req.pushing_cartesian_trajectory.size());
 
   ROS_DEBUG("Publishing pose");
-  //action_pose_publisher_.publish(req.pushing_cartesian_trajectory[0]);
+  action_pose_publisher_.publish(req.pushing_cartesian_trajectory[1]);
   first_pose = req.pushing_cartesian_trajectory[0];
   
   //srv.request.current_joints = this->alg_.home_joint_state;
   srv.request.current_joints = this->alg_.current_joint_state_;
+  // std::cout << "Point " << 0 << 
+  //       " current_joint_state_ 1: " << this->alg_.current_joint_state_.position[0] <<
+  //       " current_joint_state_ 2: " << this->alg_.current_joint_state_.position[1] <<
+  //       " current_joint_state_ 3: " << this->alg_.current_joint_state_.position[2] <<
+  //       " current_joint_state_ 4: " << this->alg_.current_joint_state_.position[3] <<
+  //       " current_joint_state_ 5: " << this->alg_.current_joint_state_.position[4] <<
+  //       " current_joint_state_ 6: " << this->alg_.current_joint_state_.position[5] <<
+  //       " current_joint_state_ 7: " << this->alg_.current_joint_state_.position[6] << std::endl;
 
   srv.request.desired_pose = req.pushing_cartesian_trajectory[0];
   srv.request.desired_pose.header.stamp = ros::Time::now(); // IMPORTANT
@@ -739,15 +747,15 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   {
     srv.request.current_joints = joints_trajectory[i-1];
     srv.request.desired_pose = req.pushing_cartesian_trajectory[i];
-    // std::cout << "frame_id: " << req.pushing_cartesian_trajectory[i].header.frame_id << std::endl;
+    std::cout << "frame_id: " << req.pushing_cartesian_trajectory[i].header.frame_id << std::endl;
     srv.request.desired_pose.header.stamp = ros::Time::now(); // IMPORTANT
-    // std::cout << "Requesting IK of x: " << req.pushing_cartesian_trajectory[i].pose.position.x << " y: " <<
-    //                                         req.pushing_cartesian_trajectory[i].pose.position.y << " z: " <<
-    //                                          req.pushing_cartesian_trajectory[i].pose.position.z << std::endl 
-    //           << "[quat] x:" << req.pushing_cartesian_trajectory[i].pose.orientation.x 
-    //           << " y: " << req.pushing_cartesian_trajectory[i].pose.orientation.y
-    //           << " z: " << req.pushing_cartesian_trajectory[i].pose.orientation.z
-    //           << " w: " << req.pushing_cartesian_trajectory[i].pose.orientation.w << std::endl;
+    std::cout << "Requesting IK of x: " <<  req.pushing_cartesian_trajectory[i].pose.position.x << " y: " <<
+                                            req.pushing_cartesian_trajectory[i].pose.position.y << " z: " <<
+                                             req.pushing_cartesian_trajectory[i].pose.position.z << std::endl 
+              << "[quat] x:" << req.pushing_cartesian_trajectory[i].pose.orientation.x 
+              << " y: " << req.pushing_cartesian_trajectory[i].pose.orientation.y
+              << " z: " << req.pushing_cartesian_trajectory[i].pose.orientation.z
+              << " w: " << req.pushing_cartesian_trajectory[i].pose.orientation.w << std::endl;
     if (estirabot_gripper_ik_from_pose_client_.call(srv))
     {
       ROS_INFO("Inverse Kinematics done");

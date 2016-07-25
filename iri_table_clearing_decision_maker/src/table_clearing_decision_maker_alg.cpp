@@ -1256,9 +1256,9 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 				return -2;
 			}
 
-			pose.header.frame_id = this->frame_id;
+			;
 
-			geometry_msgs::PoseStamped pose, tmp_pose;
+			geometry_msgs::PoseStamped tmp_pose;
 			switch(idx_dir)
 			{
 				case 1:
@@ -1275,11 +1275,19 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 					break;
 				default: break;
 			}
+			pose.header.frame_id = this->frame_id;
+			pose.header.seq += 1;
 			tmp_pose = pose;
+
 			
 			std::cout << "x: " << 	pose.pose.position.x << std::endl
-					<< "y: " << 	pose.pose.position.x << std::endl
-				<< "z: " << 	pose.pose.position.x << std::endl;
+					<< "y: " << 	pose.pose.position.y << std::endl
+				<< "z: " << 	pose.pose.position.z << std::endl
+				<< "quat x: " << 	pose.pose.orientation.x << std::endl
+				<< "quat y: " << 	pose.pose.orientation.y << std::endl
+				<< "quat z: " << 	pose.pose.orientation.z << std::endl
+				<< "quat w: " << 	pose.pose.orientation.w << std::endl;
+				
 
 			// add a pre pushing pose in roder to avoid collisions
 			pose.pose.position.x = 	pose.pose.position.x
@@ -1289,11 +1297,12 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pose.pose.position.z = 	pose.pose.position.z
 									 - dist_last_pose * this->plane_normal.z;
 			pose.header.frame_id = this->frame_id;
+			pose.header.seq += 1;
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
 			std::cout << "x: " << 	pose.pose.position.x << std::endl
-					<< "y: " << 	pose.pose.position.x << std::endl
-				<< "z: " << 	pose.pose.position.x << std::endl
+					<< "y: " << 	pose.pose.position.y << std::endl
+				<< "z: " << 	pose.pose.position.z << std::endl
 				<< "quat x: " << 	pose.pose.orientation.x << std::endl
 				<< "quat y: " << 	pose.pose.orientation.y << std::endl
 				<< "quat z: " << 	pose.pose.orientation.z << std::endl
@@ -1330,6 +1339,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 					break;
 				default: break;
 				}
+				pose.header.seq += 1;
 				pushing.request.pushing_cartesian_trajectory.push_back(pose);
 			}
 			// put the last pose to be above the last one, the robot will not come back to its first pose
@@ -1339,6 +1349,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 									 - dist_last_pose * this->plane_normal.y;
 			pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
 									 - dist_last_pose * this->plane_normal.z;
+			pose.header.seq += 1;
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 							
 			this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
@@ -1383,6 +1394,14 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
 			grasping_pose.header.frame_id = this->frame_id;
+
+			std::cout << "x: " << 	grasping_pose.pose.position.x << std::endl
+					<< "y: " << 	grasping_pose.pose.position.y << std::endl
+					<< "z: " << 	grasping_pose.pose.position.z << std::endl
+				<< "quat x: " << 	grasping_pose.pose.orientation.x << std::endl
+				<< "quat y: " << 	grasping_pose.pose.orientation.y << std::endl
+				<< "quat z: " << 	grasping_pose.pose.orientation.z << std::endl
+				<< "quat w: " << 	grasping_pose.pose.orientation.w << std::endl;
 
 			approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
 			approaching_pose.header.frame_id = this->frame_id;
