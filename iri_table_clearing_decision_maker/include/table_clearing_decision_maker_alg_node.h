@@ -64,6 +64,7 @@ const std::string COMPLETE_PLANNER_SERVICE = "/get_complete_fast_downward_plan";
 const std::string EXECUTE_PUSHING_SERVICE = "/table_clearing_execute_alg_node/execute_pushing";
 const std::string EXECUTE_GRASPING_SERVICE = "/table_clearing_execute_alg_node/execute_grasping";
 
+
 const std::string WORKING_FOLDER = "~/tests";
 
 const bool EXECUTION = false;
@@ -95,6 +96,9 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 {
   private:
     // [publisher attributes]
+    ros::Publisher pushing_directions_publisher_;
+    visualization_msgs::MarkerArray pushing_directions_MarkerArray_msg_;
+
     ros::Publisher action_trajectory_publisher_;
     visualization_msgs::MarkerArray action_trajectory_MarkerArray_msg_;
 

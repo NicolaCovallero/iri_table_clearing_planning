@@ -806,7 +806,136 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 	}
 	trajectory_pub.publish(markers);
 }
+void TableClearingDecisionMakerAlgorithm::showPushingDirectionsRviz(ros::Publisher& pub)
+{
+	if(this->pushing_directions.size() == 0)
+	{
+		ROS_ERROR("In showPushingDirectionsRviz - pushing_directions not set");
+		return;
+	}	
+	visualization_msgs::MarkerArray pushing_direction_markers;
+	double arrow_length = 0.4; // 40 cm
+	std::ostringstream convert;
+	for (uint idx_obj = 0; idx_obj < this->n_objects; ++idx_obj)
+	{
+		for (uint i = 1; i <= 4; ++i)
+		{
+			visualization_msgs::Marker marker;
+			marker.header.frame_id = this->frame_id;
+			marker.header.stamp = ros::Time();
+			marker.header.seq = i;
+			marker.id = i;
+			marker.color.a = 1.0;
+			marker.scale.x = 0.01; // shaft diameter
+		  	marker.scale.y = 0.02; // head diameter
+		  	marker.scale.z = 0.07; // head length
+			marker.type = visualization_msgs::Marker::ARROW;
+			marker.action = visualization_msgs::Marker::ADD;
 
+			geometry_msgs::Point p1,p2;
+			switch(i)
+			{
+				case 1:
+					convert.str("");
+					convert << idx_obj;
+					marker.ns = "o" + convert.str();
+					convert.str("");
+					convert << i;
+					marker.ns += "_dir" + convert.str();
+					// the colors are the same of the table_clearing library				
+					marker.color.r = 1.0;
+					marker.color.g = 0.;
+					marker.color.b = 0.;
+
+					p1.x = centroids[idx_obj].x;
+					p1.y = centroids[idx_obj].y;
+					p1.z = centroids[idx_obj].z;
+					marker.points.push_back(p1);
+
+					p2.x = p1.x + this->pushing_directions[idx_obj].dir1.x * arrow_length;
+					p2.y = p1.y + this->pushing_directions[idx_obj].dir1.y * arrow_length;
+					p2.z = p1.z + this->pushing_directions[idx_obj].dir1.z * arrow_length;
+					marker.points.push_back(p2);
+
+					pushing_direction_markers.markers.push_back(marker);
+					break;
+				case 2:
+					convert.str("");
+					convert << idx_obj;
+					marker.ns = "o" + convert.str();
+					convert.str("");
+					convert << i;
+					marker.ns += "_dir" + convert.str();				
+					marker.color.r = 0.0;
+					marker.color.g = 1.0;
+					marker.color.b = 0.0;
+
+					p1.x = centroids[idx_obj].x;
+					p1.y = centroids[idx_obj].y;
+					p1.z = centroids[idx_obj].z;
+					marker.points.push_back(p1);
+
+					p2.x = p1.x + this->pushing_directions[idx_obj].dir2.x * arrow_length;
+					p2.y = p1.y + this->pushing_directions[idx_obj].dir2.y * arrow_length;
+					p2.z = p1.z + this->pushing_directions[idx_obj].dir2.z * arrow_length;
+					marker.points.push_back(p2);
+
+					pushing_direction_markers.markers.push_back(marker);
+					break;
+				case 3:
+					convert.str("");
+					convert << idx_obj;
+					marker.ns = "o" + convert.str();
+					convert.str("");
+					convert << i;
+					marker.ns += "_dir" + convert.str();				
+					marker.color.r = 0.0;
+					marker.color.g = 0.0;
+					marker.color.b = 1.0;
+
+					p1.x = centroids[idx_obj].x;
+					p1.y = centroids[idx_obj].y;
+					p1.z = centroids[idx_obj].z;
+					marker.points.push_back(p1);
+
+					p2.x = p1.x + this->pushing_directions[idx_obj].dir3.x * arrow_length;
+					p2.y = p1.y + this->pushing_directions[idx_obj].dir3.y * arrow_length;
+					p2.z = p1.z + this->pushing_directions[idx_obj].dir3.z * arrow_length;
+					marker.points.push_back(p2);
+
+					pushing_direction_markers.markers.push_back(marker);
+					break;
+				case 4:
+					convert.str("");
+					convert << idx_obj;
+					marker.ns = "o" + convert.str();
+					convert.str("");
+					convert << i;
+					marker.ns += "_dir" + convert.str();				
+					marker.color.r = 0.0;
+					marker.color.g = 1.0;
+					marker.color.b = 1.0;
+
+		  			
+					p1.x = centroids[idx_obj].x;
+					p1.y = centroids[idx_obj].y;
+					p1.z = centroids[idx_obj].z;
+					marker.points.push_back(p1);
+
+					p2.x = p1.x + this->pushing_directions[idx_obj].dir4.x * arrow_length;
+					p2.y = p1.y + this->pushing_directions[idx_obj].dir4.y * arrow_length;
+					p2.z = p1.z + this->pushing_directions[idx_obj].dir4.z * arrow_length;
+					marker.points.push_back(p2);
+
+					pushing_direction_markers.markers.push_back(marker);
+					break;
+
+				default:break;
+			}
+		}
+	}
+	pub.publish(pushing_direction_markers);
+}
 void TableClearingDecisionMakerAlgorithm::setOn(bool on)
 {
 	this->set = on;
@@ -1240,11 +1369,9 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			int Succeeded = std::sscanf ( direction.c_str(), "%d", &idx_dir );
 
 			std::cout << "Action to execute: push dir" << idx_dir << " o" << idx_obj << std::endl;
-
 			// step = (double)((pushing_step * this->obbs[idx_obj].deep + this->pushing_object_distance)/
 			// 			(this->pushing_discretization -1)); 
-			step = (double)((this->pushing_lengths[idx_obj].dir1 + this->pushing_object_distance)/
-			 			(this->pushing_discretization -1));
+			
 			if(this->pushing_poses.size() == 0 )
 			{
 				ROS_ERROR("Pushing Poses not set in - setAction()");
@@ -1256,21 +1383,42 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 				return -2;
 			}
 
-			;
+			std::cout 	<< "Pushing length object o0 dir1 length " << this->pushing_lengths[0].dir1 << std::endl
+			 			<< "Pushing length object o0 dir2 length " << this->pushing_lengths[0].dir2 << std::endl
+			 			<< "Pushing length object o0 dir3 length " << this->pushing_lengths[0].dir3 << std::endl
+			 			<< "Pushing length object o0 dir4 length " << this->pushing_lengths[0].dir4 << std::endl;
+
+ 			std::cout 	<< "Pushing length object o1 dir1 length " << this->pushing_lengths[1].dir1 << std::endl
+			 			<< "Pushing length object o1 dir2 length " << this->pushing_lengths[1].dir2 << std::endl
+			 			<< "Pushing length object o1 dir3 length " << this->pushing_lengths[1].dir3 << std::endl
+			 			<< "Pushing length object o1 dir4 length " << this->pushing_lengths[1].dir4 << std::endl;
+
 
 			geometry_msgs::PoseStamped tmp_pose;
 			switch(idx_dir)
 			{
 				case 1:
+					step = (double)((this->pushing_lengths[idx_obj].dir1 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 1 the object for a distance of: " << this->pushing_lengths[idx_obj].dir1 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir1;
 					break;
 				case 2:
+					step = (double)((this->pushing_lengths[idx_obj].dir2 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 2 the object for a distance of: " << this->pushing_lengths[idx_obj].dir2 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir2;
 					break;
 				case 3:
+					step = (double)((this->pushing_lengths[idx_obj].dir3 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 3 the object for a distance of: " << this->pushing_lengths[idx_obj].dir3 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir3;
 					break;
 				case 4:
+					step = (double)((this->pushing_lengths[idx_obj].dir4 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 4 the object for a distance of: " << this->pushing_lengths[idx_obj].dir4 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir4;
 					break;
 				default: break;
@@ -1280,13 +1428,13 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			tmp_pose = pose;
 
 			
-			std::cout << "x: " << 	pose.pose.position.x << std::endl
-					<< "y: " << 	pose.pose.position.y << std::endl
-				<< "z: " << 	pose.pose.position.z << std::endl
-				<< "quat x: " << 	pose.pose.orientation.x << std::endl
-				<< "quat y: " << 	pose.pose.orientation.y << std::endl
-				<< "quat z: " << 	pose.pose.orientation.z << std::endl
-				<< "quat w: " << 	pose.pose.orientation.w << std::endl;
+			// std::cout << "x: " << 	pose.pose.position.x << std::endl
+			// 		<< "y: " << 	pose.pose.position.y << std::endl
+			// 	<< "z: " << 	pose.pose.position.z << std::endl
+			// 	<< "quat x: " << 	pose.pose.orientation.x << std::endl
+			// 	<< "quat y: " << 	pose.pose.orientation.y << std::endl
+			// 	<< "quat z: " << 	pose.pose.orientation.z << std::endl
+			// 	<< "quat w: " << 	pose.pose.orientation.w << std::endl;
 				
 
 			// add a pre pushing pose in roder to avoid collisions
@@ -1300,13 +1448,13 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pose.header.seq += 1;
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 
-			std::cout << "x: " << 	pose.pose.position.x << std::endl
-					<< "y: " << 	pose.pose.position.y << std::endl
-				<< "z: " << 	pose.pose.position.z << std::endl
-				<< "quat x: " << 	pose.pose.orientation.x << std::endl
-				<< "quat y: " << 	pose.pose.orientation.y << std::endl
-				<< "quat z: " << 	pose.pose.orientation.z << std::endl
-				<< "quat w: " << 	pose.pose.orientation.w << std::endl;
+			// std::cout << "x: " << 	pose.pose.position.x << std::endl
+			// 		<< "y: " << 	pose.pose.position.y << std::endl
+			// 	<< "z: " << 	pose.pose.position.z << std::endl
+			// 	<< "quat x: " << 	pose.pose.orientation.x << std::endl
+			// 	<< "quat y: " << 	pose.pose.orientation.y << std::endl
+			// 	<< "quat z: " << 	pose.pose.orientation.z << std::endl
+			// 	<< "quat w: " << 	pose.pose.orientation.w << std::endl;
 				
 
 			pose = tmp_pose;
@@ -1360,19 +1508,23 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			{
 				case 1:
 					pushing.request.future_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir1;
 					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
 					break;
 				case 2:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir2;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir2;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir2;
 					break;
 				case 3:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir3;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir3;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir3;
 					break;
 				case 4:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir4;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir4;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir4;
 					break;
 				default: break;
 			}
@@ -1382,12 +1534,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
 			pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
 			pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-
-			// TODO: compute the pose for the future pre grasping pose -> todo in the C++ library
-			// pushing.request.future_pre_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->.x;
-			// pushing.request.future_pre_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->.y;
-			// pushing.request.future_pre_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->.z;
 
 
 			return 0;

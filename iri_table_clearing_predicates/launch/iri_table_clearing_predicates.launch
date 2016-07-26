@@ -1,6 +1,8 @@
   <launch>
 
   <arg name="ROBOT" default="estirabot"/>
+  <arg name="PUSHING_LIMIT" default="0.2"/>
+  <arg name="PUSHING_RESOLUTION" default="0.05"/>
 
   <group ns="$(arg ROBOT)">
     <!-- Launch service for the predicates -->
@@ -19,9 +21,9 @@
          <param name="pushing_distance_plane" value="0.01"/><!-- 1cm from the plane -->
 
          # this is only for the orthogonal pushing method
-         <param name="pushing_object_distance" value="0.03"/>
-         <param name="pushing_length_limit" value="0.2"/> <!-- 20 cm -->
-         <param name="resolution" value="0.05"/> <!-- 5 cm -->
+         <param name="pushing_object_distance" value="0.05"/>
+         <param name="pushing_length_limit" value="$(arg PUSHING_LIMIT)"/> <!-- 20 cm -->
+         <param name="resolution" value="$(arg PUSHING_RESOLUTION)"/> <!-- 5 cm -->
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>

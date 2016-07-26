@@ -103,6 +103,7 @@ class TableClearingDecisionMakerAlgorithm
     };
 
 
+
     // std::vector<BlocksPredicate> blocks_predicates;
     // std::vector<std::vector<uint> > on_top_predicates;
     // std::vector<std::vector<uint> > block_grasp_predicates;
@@ -128,9 +129,11 @@ class TableClearingDecisionMakerAlgorithm
 
     static const double dist_last_pose = 0.2; //20 cm above ther last and first pushign psoe
 
+
     int pushing_discretization;
     double pushing_step;
     double pushing_object_distance;
+
 
     std::vector<geometry_msgs::PoseStamped> pushing_cartesian_trajectory; 
 
@@ -314,6 +317,8 @@ class TableClearingDecisionMakerAlgorithm
 
     void showActionTrajectory(ros::Publisher& trajectory_pub);
 
+    void showPushingDirectionsRviz(ros::Publisher& trajectory_pub);
+
     void setOn(bool on);
     bool getOn();
     void setPointCloud(sensor_msgs::PointCloud2 point_cloud);
@@ -323,6 +328,8 @@ class TableClearingDecisionMakerAlgorithm
 
     void setDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z);
     void setPreDroppingPose(double dropping_pose_x,double dropping_pose_y,double dropping_pose_z);
+    
+
     /**
      * @brief set the ik_unfeasible predicate for the current first action
      * @details 
@@ -366,6 +373,8 @@ class TableClearingDecisionMakerAlgorithm
      * @details Clear predicates
      */
     void resetPredicates();
+
+
 
 };
 

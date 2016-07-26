@@ -789,13 +789,13 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   srv.request.current_joints = this->alg_.home_joint_state;
   srv.request.desired_pose.header.stamp = ros::Time::now();
   srv.request.desired_pose = req.future_pre_grasp_pose;
-  // if (not estirabot_gripper_ik_from_pose_client_.call(srv))
-  // {
-  //   ROS_ERROR("Impossible calling %s service or solution not found, for future_pre_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-  //   res.success = false; 
-  //   res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-  //   return true;
-  // }
+  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  {
+    ROS_ERROR("Impossible calling %s service or solution not found, for future_pre_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+    res.success = false; 
+    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    return true;
+  }
   srv.request.current_joints = this->alg_.home_joint_state;
   srv.request.desired_pose.header.stamp = ros::Time::now();
   srv.request.desired_pose = req.future_grasp_pose;

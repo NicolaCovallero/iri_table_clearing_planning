@@ -13,7 +13,8 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
   int pushing_discretization;
   double  pushing_step,dropping_pose_x,dropping_pose_y,dropping_pose_z,
-          pre_dropping_pose_x,pre_dropping_pose_y,pre_dropping_pose_z;
+          pre_dropping_pose_x,pre_dropping_pose_y,pre_dropping_pose_z,
+          pushing_limit, pushing_resolution;
   this->public_node_handle_.param("pushing_discretization", pushing_discretization, PUSHING_DISCRETIZATION);
   this->public_node_handle_.param("pushing_step", pushing_step, PUSHING_STEP);
   this->alg_.setPushingDiscretizationAndStep(pushing_discretization, pushing_step);
@@ -47,9 +48,10 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 
   // action costs: if we use action costs we need to write the domain pddl file
   this->public_node_handle_.param("use_action_cost", use_action_cost, false);
-  
+    
 
   // [init publishers]
+  this->pushing_directions_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("pushing_directions", 1);
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
   this->objects_label_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_label", 1);
@@ -131,6 +133,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
 
   // [fill msg structures]
+  // Initialize the topic message structure
+  //this->pushing_directions_MarkerArray_msg_.data = my_var;
+
   // Initialize the topic message structure
   //this->action_trajectory_MarkerArray_msg_.data = my_var;
 
@@ -221,6 +226,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // [fill action structure and make request to the action server]
 
   // [publish messages]
+  // Uncomment the following line to publish the topic message
+  //this->pushing_directions_publisher_.publish(this->pushing_directions_MarkerArray_msg_);
+
   // Uncomment the following line to publish the topic message
   //this->action_trajectory_publisher_.publish(this->action_trajectory_MarkerArray_msg_);
 
@@ -378,6 +386,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           
         this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+        this->alg_.showPushingDirectionsRviz(this->pushing_directions_publisher_);
 
         iri_table_clearing_execute::ExecuteGrasping grasping_srv;
         iri_table_clearing_execute::ExecutePushing pushing_srv;
@@ -613,7 +622,7 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     // Filtering
     pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
     sor.setInputCloud (cloud.makeShared());
-    sor.setMeanK (50);
+    sor.setMeanK (10);
     sor.setStddevMulThresh (1.0);
     sor.filter (cloud);
   
