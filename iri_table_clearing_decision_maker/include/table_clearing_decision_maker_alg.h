@@ -173,6 +173,8 @@ class TableClearingDecisionMakerAlgorithm
 
     std::string goal;
     bool filtering;
+    uint previous_number_objects;
+
 
    /**
     * \brief define config type
@@ -315,7 +317,7 @@ class TableClearingDecisionMakerAlgorithm
 
     void showFirstActionRViz(ros::Publisher& action_pub, bool use_action_cost);
 
-    void showActionTrajectory(ros::Publisher& trajectory_pub);
+    void showActionTrajectory(ros::Publisher& trajectory_pub, uint action_type);
 
     void showPushingDirectionsRviz(ros::Publisher& trajectory_pub);
 
@@ -374,7 +376,7 @@ class TableClearingDecisionMakerAlgorithm
      */
     void resetPredicates();
 
-
+    //void clearMarker();
 
 };
 

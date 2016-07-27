@@ -392,8 +392,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         iri_table_clearing_execute::ExecutePushing pushing_srv;
         int action_type = this->alg_.setAction(grasping_srv,pushing_srv,use_action_cost);
         
-        if(action_type == 0)
-          this->alg_.showActionTrajectory(action_trajectory_publisher_);
+        
+        this->alg_.showActionTrajectory(action_trajectory_publisher_, action_type);
         
         double ik_time = 0;
         double execution_time = 0;

@@ -3,6 +3,7 @@
   <arg name="ROBOT" default="estirabot"/>
   <arg name="PUSHING_LIMIT" default="0.2"/>
   <arg name="PUSHING_RESOLUTION" default="0.05"/>
+  <arg name="MINIMUM_GRASPING_DISTANCE" default="0.02"/>
 
   <group ns="$(arg ROBOT)">
     <!-- Launch service for the predicates -->
@@ -14,7 +15,7 @@
          <param name="gripper_height" value="0.10"/>
          <param name="closing_region_height" value="0.045"/>
          <param name="finger_deep" value="0.06"/><!--  it hsould be 0.03 but in order to consider the width of the gripper's base -->
-         <param name="pushing_method" value="0"/><!-- vertical pushing method-->
+         <param name="pushing_method" value="0"/><!-- vertical/orthogonal pushing method-->
          <!--
          <param name="pushing_distance_plane" value="0.025"/>
           -->
@@ -22,8 +23,9 @@
 
          # this is only for the orthogonal pushing method
          <param name="pushing_object_distance" value="0.05"/>
-         <param name="pushing_length_limit" value="$(arg PUSHING_LIMIT)"/> <!-- 20 cm -->
-         <param name="resolution" value="$(arg PUSHING_RESOLUTION)"/> <!-- 5 cm -->
+         <param name="pushing_length_limit" value="$(arg PUSHING_LIMIT)"/> 
+         <param name="resolution" value="$(arg PUSHING_RESOLUTION)"/> 
+         <param name="minimum_distance" value="$(arg MINIMUM_GRASPING_DISTANCE)"/> 
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>

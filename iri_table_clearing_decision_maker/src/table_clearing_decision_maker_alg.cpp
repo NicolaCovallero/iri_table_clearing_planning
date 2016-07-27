@@ -109,6 +109,8 @@ uint TableClearingDecisionMakerAlgorithm::getCost(double distance)
 
 TableClearingDecisionMakerAlgorithm::TableClearingDecisionMakerAlgorithm(void)
 {
+  previous_number_objects = 0;
+  n_objects = 0;
   pthread_mutex_init(&this->access_,NULL);
   this->resetGoal();
 }
@@ -460,6 +462,7 @@ std::vector<iri_fast_downward_wrapper::DomainAction> TableClearingDecisionMakerA
 }
 void TableClearingDecisionMakerAlgorithm::setNumberObjects(uint n_objects)
 {
+	this->previous_number_objects = this->n_objects;
 	this->n_objects = n_objects;
 
 	// initialize vector 
@@ -648,6 +651,20 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 		marker.text =  object_label;
 		markers.markers.push_back(marker);
 	}
+	std::cout << "n object: " << this->n_objects << " previous: " << previous_number_objects << std::endl;
+	for(int i = markers.markers.size() + 1; i <= previous_number_objects; i++)
+	{
+		visualization_msgs::Marker marker;
+		marker.header.frame_id = this->frame_id;
+		marker.header.stamp = ros::Time();
+		marker.action = visualization_msgs::Marker::DELETE;
+		// marker.header.seq = i;
+		marker.ns = "label";
+		marker.id = i - 1;
+		marker.text = "";
+		markers.markers.push_back(marker);
+	}
+
 	objects_labels_markers = markers;
 	
 }
@@ -833,14 +850,15 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 
 	action_pub.publish(marker);
 }
-void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& trajectory_pub)
+void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& trajectory_pub, uint action_type)
 {
-	if(this->pushing_cartesian_trajectory.size() == 0)
-	{
-		ROS_ERROR("In showActioNTrajectoy - Pushing trajectory not saved");
-		return;
-	}
+	// if(this->pushing_cartesian_trajectory.size() == 0)
+	// {
+	// 	ROS_ERROR("In showActioNTrajectoy - Pushing trajectory not saved");
+	// 	return;
+	// }
 	visualization_msgs::MarkerArray markers;
+	//for (int i = 0; i < this->pushing_discretization + 2; ++i)
 	for (int i = 0; i < this->pushing_cartesian_trajectory.size(); ++i)
 	{
 		visualization_msgs::Marker marker;
@@ -850,18 +868,22 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 		marker.header.seq = i;
 		marker.ns = "pushing_trajectory";
 		marker.id = i;
-		marker.type = visualization_msgs::Marker::POINTS;
-		marker.action = visualization_msgs::Marker::ADD;
-		marker.color.a = 1.0;
-		marker.color.r = 1.0;
-		marker.scale.x = 0.02; // point width
-	  	marker.scale.y = 0.02; // popint height
-	  	geometry_msgs::Point p;
-	  	p.x =  this->pushing_cartesian_trajectory[i].pose.position.x;
-	  	p.y =  this->pushing_cartesian_trajectory[i].pose.position.y;
-	  	p.z =  this->pushing_cartesian_trajectory[i].pose.position.z;
-	  	marker.points.push_back(p);
-	  	marker.pose.orientation.w = 1;
+		
+		if(action_type == 0 || this->pushing_cartesian_trajectory.size() > 0)
+		{
+			marker.type = visualization_msgs::Marker::POINTS;
+			marker.action = visualization_msgs::Marker::ADD;
+			marker.color.a = 1.0;
+			marker.color.r = 1.0;
+			marker.scale.x = 0.02; // point width
+		  	marker.scale.y = 0.02; // popint height
+		  	geometry_msgs::Point p;
+		  	p.x =  this->pushing_cartesian_trajectory[i].pose.position.x;
+		  	p.y =  this->pushing_cartesian_trajectory[i].pose.position.y;
+		  	p.z =  this->pushing_cartesian_trajectory[i].pose.position.z;
+		  	marker.points.push_back(p);
+		  	marker.pose.orientation.w = 1;
+		}
 	  	markers.markers.push_back(marker);
 
 	}
