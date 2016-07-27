@@ -313,7 +313,7 @@ class TableClearingDecisionMakerAlgorithm
                             visualization_msgs::MarkerArray& objects_labels_markers,
                               std::vector<iri_table_clearing_predicates::OBB> obbs);
 
-    void showFirstActionRViz(ros::Publisher& action_pub);
+    void showFirstActionRViz(ros::Publisher& action_pub, bool use_action_cost);
 
     void showActionTrajectory(ros::Publisher& trajectory_pub);
 

@@ -385,7 +385,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
 
           
-        this->alg_.showFirstActionRViz(this->action_marker_publisher_);
+        this->alg_.showFirstActionRViz(this->action_marker_publisher_, use_action_cost);
         this->alg_.showPushingDirectionsRviz(this->pushing_directions_publisher_);
 
         iri_table_clearing_execute::ExecuteGrasping grasping_srv;

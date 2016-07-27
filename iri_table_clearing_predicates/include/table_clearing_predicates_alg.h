@@ -58,8 +58,9 @@ const double  EE_HEIGHT = 0.08;
 const double  EE_DEEP = 0.15;
 const double  PUSHING_OBJECT_DISTANCE = 0.05;
 const double  APPROACHING_DISTANCE = 0.1;
-const double  PUSHING_LENGTH_LIMIT = 0.2; // 20 cm
-const double  RESOLUTION = 0.2; // 5 cm
+const double  PUSHING_LENGTH_LIMIT = 0.4; // 40 cm
+const double  RESOLUTION = 0.05; // 5 cm
+const double  MINIMUM_DISTANCE = 0.02; // 2 cm
 
 
 const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
@@ -101,7 +102,7 @@ class TableClearingPredicatesAlgorithm
 
   public:
 
-    double  pushing_length_limit, resolution;
+    double  pushing_length_limit, resolution, minimum_distance, minimum_grasping_distance;
 
    /**
     * \brief define config type

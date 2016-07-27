@@ -651,7 +651,7 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 	objects_labels_markers = markers;
 	
 }
-void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& action_pub)
+void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& action_pub, bool use_action_cost)
 {
 	// read the first action of the plan
 	if(plan.actions.size() == 0)
@@ -676,79 +676,136 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
   	marker.scale.z = 0.07; // head length
 
 	// get the id of the object
-	std::string object = plan.actions[0].objects[0];
-	object.erase(0,1); //erase the first character which is "o"
-	int idx_obj;
-	int Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
-	if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
-	{
-		ROS_WARN("Problem retrieving the number of the object from the plan - Impossible showing the first aciton of the plan in the RViz");
-		return;
+	std::istringstream ss_(plan.actions[0].action_name);
+	std::vector<std::string> tokens_;
+	std::string token_;
+	
+	while(std::getline(ss_, token_, '-')) {
+		tokens_.push_back(token_);
 	}
 
-	// check if it is a pushing in direction 1
-	if(strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
+	int idx_dir, idx_obj;
+	int Succeeded;
+	if(strcmp(tokens_[0].c_str(),"push")==0)
 	{
 		marker.color.g = 1.0;
-		geometry_msgs::Point p1;
+
+		geometry_msgs::Point p1, p2;
+
+		if(not use_action_cost)
+		{
+			// get the id of the object
+			std::string object = plan.actions[0].objects[0];
+			object.erase(0,1); //erase the first character which is "o"
+			Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
+			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+			{
+				ROS_WARN("Problem retrieving the number of the object from the plan - Impossible showing the first aciton of the plan in the RViz");
+				return;
+			}
+
+			// get index of the pushing direction
+			std::string direction = plan.actions[0].objects[1];
+			direction.erase(0,3); //erase the first 3 characters which are "dir"
+			Succeeded = std::sscanf ( direction.c_str(), "%d", &idx_dir );
+
+		}
+		else
+		{
+			// get the id of the object
+			std::string action_name = plan.actions[0].action_name;
+			std::istringstream ss(action_name);
+			std::vector<std::string> tokens;
+			std::string token;
+			
+			while(std::getline(ss, token, '-')) {
+	    		tokens.push_back(token);
+			}
+			
+			std::cout << "The tokens are: " << tokens[0] << " " << tokens[1] << " " << tokens[2] << std::endl;
+			tokens[2].erase(0,3); //erase the first  3 characters which are "dir"
+			Succeeded = std::sscanf ( tokens[2].c_str(), "%d", &idx_dir );
+			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+			{
+				ROS_WARN("Problem retrieving the pushing direction from the plan - Impossible showing the first aciton of the plan in the RViz");
+				return;
+			}
+			tokens[1].erase(0,1); //erase the first character which is "o"
+			Succeeded = std::sscanf ( tokens[1].c_str(), "%d", &idx_obj );
+			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+			{
+				ROS_WARN("Problem retrieving the numer of the object from the plan - Impossible showing the first aciton of the plan in the RViz");
+				return;
+			}
+			
+		}
+
 		p1.x = centroids[idx_obj].x;
 		p1.y = centroids[idx_obj].y;
 		p1.z = centroids[idx_obj].z;
 		marker.points.push_back(p1);
 
-		geometry_msgs::Point p2;
-		p2.x = p1.x + this->pushing_directions[idx_obj].dir1.x * arrow_length;
-		p2.y = p1.y + this->pushing_directions[idx_obj].dir1.y * arrow_length;
-		p2.z = p1.z + this->pushing_directions[idx_obj].dir1.z * arrow_length;
+		switch(idx_dir)
+		{
+			case 1:
+				p2.x = p1.x + this->pushing_directions[idx_obj].dir1.x * arrow_length;
+				p2.y = p1.y + this->pushing_directions[idx_obj].dir1.y * arrow_length;
+				p2.z = p1.z + this->pushing_directions[idx_obj].dir1.z * arrow_length;
+				break;
+			case 2:
+				p2.x = p1.x + this->pushing_directions[idx_obj].dir2.x * arrow_length;
+				p2.y = p1.y + this->pushing_directions[idx_obj].dir2.y * arrow_length;
+				p2.z = p1.z + this->pushing_directions[idx_obj].dir2.z * arrow_length;
+				break;
+			case 3:
+				p2.x = p1.x + this->pushing_directions[idx_obj].dir3.x * arrow_length;
+				p2.y = p1.y + this->pushing_directions[idx_obj].dir3.y * arrow_length;
+				p2.z = p1.z + this->pushing_directions[idx_obj].dir3.z * arrow_length;
+				break;
+			case 4:
+				p2.x = p1.x + this->pushing_directions[idx_obj].dir4.x * arrow_length;
+				p2.y = p1.y + this->pushing_directions[idx_obj].dir4.y * arrow_length;
+				p2.z = p1.z + this->pushing_directions[idx_obj].dir4.z * arrow_length;
+				break;
+		}
 		marker.points.push_back(p2);
-	}
-	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
+	}// end if push action
+	else if (strcmp(tokens_[0].c_str(),"grasp")==0)
 	{
-		marker.color.g = 1.0;
-		geometry_msgs::Point p1;
-		p1.x = centroids[idx_obj].x;
-		p1.y = centroids[idx_obj].y;
-		p1.z = centroids[idx_obj].z;
-		marker.points.push_back(p1);
+		if(not use_action_cost)
+		{
+			// get the id of the object
+			std::string object = plan.actions[0].objects[0];
+			object.erase(0,1); //erase the first character which is "o"
+			Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
+			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+			{
+				ROS_WARN("Problem retrieving the number of the object from the plan - Impossible showing the first aciton of the plan in the RViz");
+				return;
+			}
 
-		geometry_msgs::Point p2;
-		p2.x = p1.x + this->pushing_directions[idx_obj].dir2.x * arrow_length;
-		p2.y = p1.y + this->pushing_directions[idx_obj].dir2.y * arrow_length;
-		p2.z = p1.z + this->pushing_directions[idx_obj].dir2.z * arrow_length;
-		marker.points.push_back(p2);
-	}
-	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
-	{
-		marker.color.g = 1.0;
-		geometry_msgs::Point p1;
-		p1.x = centroids[idx_obj].x;
-		p1.y = centroids[idx_obj].y;
-		p1.z = centroids[idx_obj].z;
-		marker.points.push_back(p1);
+		}
+		else
+		{
+			// get the id of the object
+			std::string action_name = plan.actions[0].action_name;
+			std::istringstream ss(action_name);
+			std::vector<std::string> tokens;
+			std::string token;
+			
+			while(std::getline(ss, token, '-')) {
+	    		tokens.push_back(token);
+			}
 
-		geometry_msgs::Point p2;
-		p2.x = p1.x + this->pushing_directions[idx_obj].dir3.x * arrow_length;
-		p2.y = p1.y + this->pushing_directions[idx_obj].dir3.y * arrow_length;
-		p2.z = p1.z + this->pushing_directions[idx_obj].dir3.z * arrow_length;
-		marker.points.push_back(p2);
-	}
-	else if (strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
-	{
-		marker.color.g = 1.0;
-		geometry_msgs::Point p1;
-		p1.x = centroids[idx_obj].x;
-		p1.y = centroids[idx_obj].y;
-		p1.z = centroids[idx_obj].z;
-		marker.points.push_back(p1);
+			tokens[1].erase(0,1); //erase the first character which is "o"
+			Succeeded = std::sscanf ( tokens[1].c_str(), "%d", &idx_obj );
+			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
+			{
+				ROS_WARN("Problem retrieving the numer of the object from the plan - Impossible showing the first aciton of the plan in the RViz");
+				return;
+			}
+		}
 
-		geometry_msgs::Point p2;
-		p2.x = p1.x + this->pushing_directions[idx_obj].dir4.x * arrow_length;
-		p2.y = p1.y + this->pushing_directions[idx_obj].dir4.y * arrow_length;
-		p2.z = p1.z + this->pushing_directions[idx_obj].dir4.z * arrow_length;
-		marker.points.push_back(p2);
-	}
-	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
-	{
 		marker.color.r = 1.0;
 		geometry_msgs::Point p1;
 		p1.x = centroids[idx_obj].x;
@@ -758,16 +815,20 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 
 		if(this->principal_directions.size() == 0 )
 		{
-			ROS_ERROR("Principal directions not set - Impossible creating the action marker for the grasp action");
+			ROS_WARN("Principal directions not set - Impossible creating the action marker for the grasp action");
 			return;
 		}
-
 		// this is not the grasping approaching direction
 		geometry_msgs::Point p2;
 		p2.x = p1.x + this->principal_directions[idx_obj].p3.x * arrow_length;
 		p2.y = p1.y + this->principal_directions[idx_obj].p3.y * arrow_length;
 		p2.z = p1.z + this->principal_directions[idx_obj].p3.z * arrow_length;
 		marker.points.push_back(p2);
+	}
+	else
+	{
+		ROS_WARN("The first action of the plan is neither \"push\" nor \"grasp\".");
+		return;
 	}
 
 	action_pub.publish(marker);
@@ -995,341 +1056,6 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 
 }
 
-// int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
-//                     iri_table_clearing_execute::ExecutePushing& pushing)
-// {
-
-// 	if(plan.actions.size() == 0)
-// 	{
-// 		ROS_WARN("setAction -> No plan is set.");
-// 		return -3;
-// 	}
-
-// 	pushing.request.pushing_cartesian_trajectory.resize(0);
-
-// 	double step;
-
-// 	// get the id of the object
-// 	std::string object = plan.actions[0].objects[0];
-// 	object.erase(0,1); //erase the first character which is "o"
-// 	int idx_obj;
-// 	int Succeeded = std::sscanf ( object.c_str(), "%d", &idx_obj );
-// 	if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
-// 	{
-// 		ROS_ERROR("Problem retrieving the number of the object from the plan");
-// 		return -2;
-// 	}
-// 	geometry_msgs::PoseStamped pose;
-
-// 	if( strcmp(plan.actions[0].action_name.c_str(),"push_dir1")==0)
-// 	{
-// 		std::cout << "Action to execute: push_dir1 " << "o" << idx_obj << std::endl;
-
-// 		// step = (double)((pushing_step * this->obbs[idx_obj].deep + this->pushing_object_distance)/
-// 		// 			(this->pushing_discretization -1)); 
-// 		step = (double)((this->pushing_lengths[idx_obj].dir1 + this->pushing_object_distance)/
-// 		 			(this->pushing_discretization -1));
-// 		if(this->pushing_poses.size() == 0 )
-// 		{
-// 			ROS_ERROR("Pushing Poses not set in - setAction()");
-// 			return -2;
-// 		}
-// 		if(this->pushing_directions.size() == 0)
-// 		{
-// 			ROS_ERROR("Pushing directions not set in - setAction()");
-// 			return -2;
-// 		}
-// 		pose = pushing_poses[idx_obj].pose_dir1;
-// 		pose.header.frame_id = this->frame_id;
-
-// 		// add a re pushing pose in roder to avoid collisions
-// 		pose.pose.position.x = 	pose.pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pose.pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pose.pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		pose = pushing_poses[idx_obj].pose_dir1;
-// 		pose.header.frame_id = this->frame_id;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		for (int i = 1; i < this->pushing_discretization; ++i)
-// 		{
-// 			pose.pose.position.x += this->pushing_directions[idx_obj].dir1.x * step;  
-// 			pose.pose.position.y += this->pushing_directions[idx_obj].dir1.y * step;  
-// 			pose.pose.position.z += this->pushing_directions[idx_obj].dir1.z * step;  
-
-// 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
-// 		}
-// 		// put the last pose to be above the last one, the robot will not come back to its first pose
-// 		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-						
-// 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
-
-// 		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
-// 		pushing.request.future_grasp_pose = pgp.grasp_dir1;
-// 		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_pre_grasp_pose = pgp.app_dir1;
-// 		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
-// 		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
-// 		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
-// 		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-
-// 		return 0;
-// 	}
-// 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir2")==0)
-// 	{
-// 		std::cout << "Action to execute: push_dir2 " << "o" << idx_obj << std::endl;
-
-// 		// step = (double)((pushing_step * this->obbs[idx_obj].deep + this->pushing_object_distance)/
-// 		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
-// 		step = (double)((this->pushing_lengths[idx_obj].dir2 + this->pushing_object_distance)/
-// 		 			(this->pushing_discretization -1));
-// 		if(this->pushing_poses.size() == 0 )
-// 		{
-// 			ROS_ERROR("Pushing Poses not set in - setAction()");
-// 			return -2;
-// 		}
-// 		if(this->pushing_directions.size() == 0)
-// 		{
-// 			ROS_ERROR("Pushing directions not set in - setAction()");
-// 			return -2;
-// 		}
-// 		pose = pushing_poses[idx_obj].pose_dir2;
-// 		pose.header.frame_id = this->frame_id;
-
-// 		pose.pose.position.x = 	pose.pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pose.pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pose.pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		pose = pushing_poses[idx_obj].pose_dir2;
-// 		pose.header.frame_id = this->frame_id;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		for (int i = 1; i < this->pushing_discretization; ++i)
-// 		{
-// 			pose.pose.position.x += this->pushing_directions[idx_obj].dir2.x * step;  
-// 			pose.pose.position.y += this->pushing_directions[idx_obj].dir2.y * step;  
-// 			pose.pose.position.z += this->pushing_directions[idx_obj].dir2.z * step;  
-
-// 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
-// 		}
-// 		// put the last pose to be above the last one, the robot will not come back to its first pose
-// 		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
-
-// 		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];		
-// 		pushing.request.future_grasp_pose = pgp.grasp_dir2;
-// 		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_pre_grasp_pose = pgp.app_dir2;
-// 		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose = pgp.grasp_dir2;
-// 		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
-// 		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
-// 		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-
-// 		return 0;
-// 	}
-// 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir3")==0)
-// 	{
-// 		std::cout << "Action to execute: push_dir3 " << "o" << idx_obj << std::endl;
-
-// 		// step = (double)((pushing_step * this->obbs[idx_obj].width + this->pushing_object_distance)/ 
-// 		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
-// 		step = (double)((this->pushing_lengths[idx_obj].dir3 + this->pushing_object_distance)/
-// 		 			(this->pushing_discretization -1));
-// 		if(this->pushing_poses.size() == 0 )
-// 		{
-// 			ROS_ERROR("Pushing Poses not set in - setAction()");
-// 			return -2;
-// 		}
-// 		if(this->pushing_directions.size() == 0)
-// 		{
-// 			ROS_ERROR("Pushing directions not set in - setAction()");
-// 			return -2;
-// 		}
-		
-// 		pose = pushing_poses[idx_obj].pose_dir3;
-// 		pose.header.frame_id = this->frame_id;
-
-// 		pose.pose.position.x = 	pose.pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pose.pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pose.pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		pose = pushing_poses[idx_obj].pose_dir3;
-// 		pose.header.frame_id = this->frame_id;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		for (int i = 1; i < this->pushing_discretization; ++i)
-// 		{
-// 			pose.pose.position.x += this->pushing_directions[idx_obj].dir3.x * step;  
-// 			pose.pose.position.y += this->pushing_directions[idx_obj].dir3.y * step;  
-// 			pose.pose.position.z += this->pushing_directions[idx_obj].dir3.z * step;  
-
-// 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
-// 		}
-// 		// put the last pose to be above the last one, the robot will not come back to its first pose
-// 		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
-
-// 		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
-// 		pushing.request.future_grasp_pose = pgp.grasp_dir3;
-// 		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_pre_grasp_pose = pgp.app_dir3;
-// 		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose = pgp.grasp_dir3;
-// 		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
-// 		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
-// 		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-
-// 		return 0;
-// 	}
-// 	else if( strcmp(plan.actions[0].action_name.c_str(),"push_dir4")==0)
-// 	{
-// 		std::cout << "Action to execute: push_dir4 " << "o" << idx_obj << std::endl; 
-
-// 		// step = (double)((pushing_step * this->obbs[idx_obj].width + this->pushing_object_distance)/
-// 		// 			(this->pushing_discretization -1)); // it is not considering the dimension of the gripper
-// 		step = (double)((this->pushing_lengths[idx_obj].dir4 + this->pushing_object_distance)/
-// 		 			(this->pushing_discretization -1));
-// 		if(this->pushing_poses.size() == 0 )
-// 		{
-// 			ROS_ERROR("Pushing Poses not set in - setAction()");
-// 			return -255;
-// 		}
-// 		if(this->pushing_directions.size() == 0)
-// 		{
-// 			ROS_ERROR("Pushing directions not set in - setAction()");
-// 			return -2;
-// 		}
-// 		pose = pushing_poses[idx_obj].pose_dir4;
-// 		pose.header.frame_id = this->frame_id;
-
-// 		pose.pose.position.x = 	pose.pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pose.pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pose.pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		pose = pushing_poses[idx_obj].pose_dir4;
-// 		pose.header.frame_id = this->frame_id;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		for (int i = 1; i < this->pushing_discretization; ++i)
-// 		{
-// 			pose.pose.position.x += this->pushing_directions[idx_obj].dir4.x * step;  
-// 			pose.pose.position.y += this->pushing_directions[idx_obj].dir4.y * step;  
-// 			pose.pose.position.z += this->pushing_directions[idx_obj].dir4.z * step;  
-
-// 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
-// 		}
-// 		// put the last pose to be above the last one, the robot will not come back to its first pose
-// 		pose.pose.position.x = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.x
-// 								 - dist_last_pose * this->plane_normal.x;
-// 		pose.pose.position.y = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.y
-// 								 - dist_last_pose * this->plane_normal.y;
-// 		pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
-// 								 - dist_last_pose * this->plane_normal.z;
-// 		pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-// 		this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
-
-// 		iri_table_clearing_predicates::PushingGraspingPose pgp = this->pushing_grasping_poses[idx_obj];
-// 		pushing.request.future_grasp_pose = pgp.grasp_dir4;
-// 		pushing.request.future_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_pre_grasp_pose = pgp.app_dir4;
-// 		pushing.request.future_pre_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose = pgp.grasp_dir4;
-// 		pushing.request.future_post_grasp_pose.header.frame_id = this->frame_id;
-// 		pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
-// 		pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
-// 		pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-
-// 		return 0;
-// 	}
-// 	else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
-// 	{
-// 		std::cout << "Action to execute: grasp " << "o" << idx_obj << std::endl;
-
-// 		geometry_msgs::PoseStamped grasping_pose, approaching_pose, post_grasping_pose;
-
-// 		grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
-// 		grasping_pose.header.frame_id = this->frame_id;
-
-// 		approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
-// 		approaching_pose.header.frame_id = this->frame_id;
-
-// 		// post grasping pose is translated by other 10 cm
-// 		post_grasping_pose = grasping_pose;
-// 		post_grasping_pose.header.frame_id = this->frame_id;
-
-// 		post_grasping_pose.pose.position.x = post_grasping_pose.pose.position.x - 0.3 * this->plane_normal.x;
-// 		post_grasping_pose.pose.position.y = post_grasping_pose.pose.position.y - 0.3 * this->plane_normal.y;
-// 		post_grasping_pose.pose.position.z = post_grasping_pose.pose.position.z - 0.3 * this->plane_normal.z;
-
-// 		grasping.request.grasping_pose = grasping_pose;
-// 		grasping.request.approaching_pose = approaching_pose;
-// 		grasping.request.post_grasping_pose = post_grasping_pose;
-
-
-// 		// std::cout << "pre dropping_pose \n x: " <<this->pre_dropping_pose.pose.position.x << std::endl
-// 		// << "  y: " <<this->pre_dropping_pose.pose.position.y << std::endl
-// 		// << "  z: " <<this->pre_dropping_pose.pose.position.z << std::endl
-// 		// << "  w: " <<this->pre_dropping_pose.pose.orientation.w << std::endl
-// 		// << "  quat x: " <<this->pre_dropping_pose.pose.orientation.x << std::endl
-// 		// << "  quat y: " <<this->pre_dropping_pose.pose.orientation.y << std::endl
-// 		// << "  quat z: " <<this->pre_dropping_pose.pose.orientation.z << std::endl;
-// 		grasping.request.pre_dropping_pose = this->pre_dropping_pose;
-// 		//grasping.request.dropping_pose = this->dropping_pose;
-// 		return 1;
-// 	}
-// 	else
-// 	{
-// 		ROS_ERROR("The first action is not one of ther permitted. The current action is %s",plan.actions[0].action_name.c_str());
-// 		return -1;
-// 	}
-// }
-
 int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::ExecuteGrasping& grasping,
                     iri_table_clearing_execute::ExecutePushing& pushing, bool use_action_cost)
 {
@@ -1383,15 +1109,15 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 				return -2;
 			}
 
-			std::cout 	<< "Pushing length object o0 dir1 length " << this->pushing_lengths[0].dir1 << std::endl
-			 			<< "Pushing length object o0 dir2 length " << this->pushing_lengths[0].dir2 << std::endl
-			 			<< "Pushing length object o0 dir3 length " << this->pushing_lengths[0].dir3 << std::endl
-			 			<< "Pushing length object o0 dir4 length " << this->pushing_lengths[0].dir4 << std::endl;
+			// std::cout 	<< "Pushing length object o0 dir1 length " << this->pushing_lengths[0].dir1 << std::endl
+			//  			<< "Pushing length object o0 dir2 length " << this->pushing_lengths[0].dir2 << std::endl
+			//  			<< "Pushing length object o0 dir3 length " << this->pushing_lengths[0].dir3 << std::endl
+			//  			<< "Pushing length object o0 dir4 length " << this->pushing_lengths[0].dir4 << std::endl;
 
- 			std::cout 	<< "Pushing length object o1 dir1 length " << this->pushing_lengths[1].dir1 << std::endl
-			 			<< "Pushing length object o1 dir2 length " << this->pushing_lengths[1].dir2 << std::endl
-			 			<< "Pushing length object o1 dir3 length " << this->pushing_lengths[1].dir3 << std::endl
-			 			<< "Pushing length object o1 dir4 length " << this->pushing_lengths[1].dir4 << std::endl;
+ 		// 	std::cout 	<< "Pushing length object o1 dir1 length " << this->pushing_lengths[1].dir1 << std::endl
+			//  			<< "Pushing length object o1 dir2 length " << this->pushing_lengths[1].dir2 << std::endl
+			//  			<< "Pushing length object o1 dir3 length " << this->pushing_lengths[1].dir3 << std::endl
+			//  			<< "Pushing length object o1 dir4 length " << this->pushing_lengths[1].dir4 << std::endl;
 
 
 			geometry_msgs::PoseStamped tmp_pose;
@@ -1583,11 +1309,10 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 	else
 	{
-		std::cout << "Parsing action with costs\n";
 		// we have three tokens as most:
 		// 1- the action type
 		// 2- the object type
-		// 3- the direction (for the pushing action)
+		// 3- the pushing direction (for the pushing action)
 
 		// get the id of the object
 		std::string action_name = plan.actions[0].action_name;
@@ -1601,11 +1326,11 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		
 		tokens[1].erase(0,1); //erase the first character which is "o"
 		int idx_obj;
-		std::cout << "Number of tokens: " << tokens.size() << " object: " << tokens[1] << std::endl;
+		//std::cout << "Number of tokens: " << tokens.size() << " object: " << tokens[1] << std::endl;
 		int Succeeded = std::sscanf ( tokens[1].c_str(), "%d", &idx_obj );
 		if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
 		{
-			ROS_ERROR("Problem retrieving the number of the object from the plan - The action have no objects");
+			ROS_ERROR("Problem retrieving the number of the object from the plan - The action have no objects included in the name");
 			return -2;
 		}
 		geometry_msgs::PoseStamped pose;
@@ -1668,37 +1393,50 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 				return -2;
 			}
 
-			pose.header.frame_id = this->frame_id;
-
-			geometry_msgs::PoseStamped pose, tmp_pose;
+			geometry_msgs::PoseStamped tmp_pose;
 			switch(idx_dir)
 			{
 				case 1:
+					step = (double)((this->pushing_lengths[idx_obj].dir1 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 1 the object for a distance of: " << this->pushing_lengths[idx_obj].dir1 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir1;
 					break;
-
 				case 2:
+					step = (double)((this->pushing_lengths[idx_obj].dir2 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 2 the object for a distance of: " << this->pushing_lengths[idx_obj].dir2 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir2;
 					break;
 				case 3:
+					step = (double)((this->pushing_lengths[idx_obj].dir3 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 3 the object for a distance of: " << this->pushing_lengths[idx_obj].dir3 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir3;
 					break;
 				case 4:
+					step = (double)((this->pushing_lengths[idx_obj].dir4 + this->pushing_object_distance)/
+			 			(this->pushing_discretization -1));
+					std::cout << "pushing direction 4 the object for a distance of: " << this->pushing_lengths[idx_obj].dir4 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir4;
 					break;
 				default: break;
 			}
-			tmp_pose = pose;
-			
+			pose.header.frame_id = this->frame_id;
+			pose.header.seq += 1;
+			tmp_pose = pose;		
 
-			// add a re pushing pose in roder to avoid collisions
+			// add a pre pushing pose in roder to avoid collisions
 			pose.pose.position.x = 	pose.pose.position.x
 									 - dist_last_pose * this->plane_normal.x;
 			pose.pose.position.y = 	pose.pose.position.y
 									 - dist_last_pose * this->plane_normal.y;
 			pose.pose.position.z = 	pose.pose.position.z
 									 - dist_last_pose * this->plane_normal.z;
+			pose.header.frame_id = this->frame_id;
+			pose.header.seq += 1;
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
+				
 
 			pose = tmp_pose;
 			pose.header.frame_id = this->frame_id;
@@ -1730,6 +1468,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 					break;
 				default: break;
 				}
+				pose.header.seq += 1;
 				pushing.request.pushing_cartesian_trajectory.push_back(pose);
 			}
 			// put the last pose to be above the last one, the robot will not come back to its first pose
@@ -1739,6 +1478,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 									 - dist_last_pose * this->plane_normal.y;
 			pose.pose.position.z = 	pushing.request.pushing_cartesian_trajectory.back().pose.position.z
 									 - dist_last_pose * this->plane_normal.z;
+			pose.header.seq += 1;
 			pushing.request.pushing_cartesian_trajectory.push_back(pose);
 							
 			this->pushing_cartesian_trajectory = pushing.request.pushing_cartesian_trajectory;
@@ -1749,19 +1489,23 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			{
 				case 1:
 					pushing.request.future_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir1;
 					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
 					break;
 				case 2:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir2;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir2;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir2;
 					break;
 				case 3:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir3;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir3;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir3;
 					break;
 				case 4:
-					pushing.request.future_grasp_pose = pgp.grasp_dir1;
-					pushing.request.future_post_grasp_pose = pgp.grasp_dir1;
+					pushing.request.future_grasp_pose = pgp.grasp_dir4;
+					pushing.request.future_pre_grasp_pose = pgp.app_dir4;
+					pushing.request.future_post_grasp_pose = pgp.grasp_dir4;
 					break;
 				default: break;
 			}
@@ -1772,9 +1516,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
 			pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
 
-
 			return 0;
-
 		}
 		else
 		{
