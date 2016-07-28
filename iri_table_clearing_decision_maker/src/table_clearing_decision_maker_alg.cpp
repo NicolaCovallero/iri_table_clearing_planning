@@ -858,19 +858,20 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 	// 	return;
 	// }
 	visualization_msgs::MarkerArray markers;
-	//for (int i = 0; i < this->pushing_discretization + 2; ++i)
-	for (int i = 0; i < this->pushing_cartesian_trajectory.size(); ++i)
+	for (int i = 0; i < this->pushing_discretization + 2; ++i)
+	//for (int i = 0; i < this->pushing_cartesian_trajectory.size(); ++i)
 	{
 		visualization_msgs::Marker marker;
-		marker.header.frame_id = this->pushing_cartesian_trajectory[i].header.frame_id;
-		//marker.header.frame_id = "";
-		marker.header.stamp = ros::Time();
-		marker.header.seq = i;
+		//marker.header.stamp = ros::Time();
+		//marker.header.seq = i;
 		marker.ns = "pushing_trajectory";
 		marker.id = i;
-		
-		if(action_type == 0 || this->pushing_cartesian_trajectory.size() > 0)
+		marker.action = visualization_msgs::Marker::DELETE;
+
+		if(action_type == 0)
 		{
+			std::cout << "aaa\n";
+			marker.header.frame_id = this->pushing_cartesian_trajectory[i].header.frame_id;
 			marker.type = visualization_msgs::Marker::POINTS;
 			marker.action = visualization_msgs::Marker::ADD;
 			marker.color.a = 1.0;
@@ -885,8 +886,8 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 		  	marker.pose.orientation.w = 1;
 		}
 	  	markers.markers.push_back(marker);
-
 	}
+	std::cout << "Number of markers: " << markers.markers.size() << std::endl;
 	trajectory_pub.publish(markers);
 }
 void TableClearingDecisionMakerAlgorithm::showPushingDirectionsRviz(ros::Publisher& pub)
@@ -1017,6 +1018,25 @@ void TableClearingDecisionMakerAlgorithm::showPushingDirectionsRviz(ros::Publish
 			}
 		}
 	}
+
+	// remove the extra markers, these extra markers are the one left from the previous iteration of the system
+	for (uint idx_obj = this->n_objects; idx_obj < this->previous_number_objects; ++idx_obj)
+	{
+		for (uint i = 1; i <= 4; ++i)
+		{
+			visualization_msgs::Marker marker;
+			marker.header.seq = i;
+			marker.id = i;
+			convert.str("");
+			convert << idx_obj;
+			marker.ns = "o" + convert.str();
+			convert.str("");
+			convert << i;
+			marker.ns += "_dir" + convert.str();			
+			marker.action = visualization_msgs::Marker::DELETE;
+		}
+	}
+	
 	pub.publish(pushing_direction_markers);
 }
 void TableClearingDecisionMakerAlgorithm::setOn(bool on)
