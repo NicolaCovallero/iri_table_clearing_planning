@@ -27,6 +27,8 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("pushing_length_limit",alg_.pushing_length_limit,PUSHING_LENGTH_LIMIT);
   this->public_node_handle_.param("resolution",alg_.resolution,RESOLUTION);  
   this->public_node_handle_.param("minimum_distance",alg_.minimum_distance,MINIMUM_DISTANCE);  
+  this->public_node_handle_.param("pushing_until_graspable", this->alg_.pushing_until_graspable, true);
+
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
@@ -44,7 +46,9 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "approaching_distance: " << approaching_distance << std::endl 
             << "pushing_length_limit: " << alg_.pushing_length_limit << std::endl 
             << "resolution: " << alg_.resolution << std::endl
-            << "minimum_distance: " << alg_.minimum_distance << std::endl;
+            << "minimum_distance: " << alg_.minimum_distance << std::endl
+            << "pushing_until_graspable: " << alg_.pushing_until_graspable << std::endl;
+            
             
 
   this->alg_.setPushingStep(pushing_step);

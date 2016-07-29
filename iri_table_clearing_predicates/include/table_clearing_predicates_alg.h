@@ -103,6 +103,7 @@ class TableClearingPredicatesAlgorithm
   public:
 
     double  pushing_length_limit, resolution, minimum_distance, minimum_grasping_distance;
+    bool pushing_until_graspable;
 
    /**
     * \brief define config type

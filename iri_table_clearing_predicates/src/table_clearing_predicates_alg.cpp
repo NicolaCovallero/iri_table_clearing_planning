@@ -98,7 +98,7 @@ void TableClearingPredicatesAlgorithm::computeOnTopPredicates(double th1, double
 
 void TableClearingPredicatesAlgorithm::computeBlockPredicates(bool print)
 {
-	this->tcp.computeBlockPredicates(print,this->pushing_method, resolution, pushing_length_limit, minimum_distance);
+	this->tcp.computeBlockPredicates(print,this->pushing_method, resolution, pushing_length_limit, minimum_distance, pushing_until_graspable);
 }
 
 void TableClearingPredicatesAlgorithm::computeBlockGraspPredicates(bool print)

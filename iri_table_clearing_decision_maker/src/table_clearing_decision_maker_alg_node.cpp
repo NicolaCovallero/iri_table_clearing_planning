@@ -48,7 +48,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 
   // action costs: if we use action costs we need to write the domain pddl file
   this->public_node_handle_.param("use_action_cost", use_action_cost, false);
-    
+   
 
   // [init publishers]
   this->pushing_directions_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("pushing_directions", 1);

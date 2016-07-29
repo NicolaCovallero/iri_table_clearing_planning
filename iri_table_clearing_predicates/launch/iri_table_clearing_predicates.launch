@@ -4,6 +4,7 @@
   <arg name="PUSHING_LIMIT" default="0.2"/>
   <arg name="PUSHING_RESOLUTION" default="0.05"/>
   <arg name="MINIMUM_GRASPING_DISTANCE" default="0.02"/>
+  <arg name="PUSHING_UNTIL_GRASPABLE" default="True"/>
 
   <group ns="$(arg ROBOT)">
     <!-- Launch service for the predicates -->
@@ -26,6 +27,7 @@
          <param name="pushing_length_limit" value="$(arg PUSHING_LIMIT)"/> 
          <param name="resolution" value="$(arg PUSHING_RESOLUTION)"/> 
          <param name="minimum_distance" value="$(arg MINIMUM_GRASPING_DISTANCE)"/> 
+         <param name="pushing_until_graspable" value="$(arg PUSHING_UNTIL_GRASPABLE)"/> 
 
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>

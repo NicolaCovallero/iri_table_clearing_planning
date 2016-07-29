@@ -870,7 +870,6 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 
 		if(action_type == 0)
 		{
-			std::cout << "aaa\n";
 			marker.header.frame_id = this->pushing_cartesian_trajectory[i].header.frame_id;
 			marker.type = visualization_msgs::Marker::POINTS;
 			marker.action = visualization_msgs::Marker::ADD;
