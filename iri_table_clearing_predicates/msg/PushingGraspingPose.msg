@@ -1,0 +1,9 @@
+geometry_msgs/PoseStamped grasp_dir1
+geometry_msgs/PoseStamped grasp_dir2
+geometry_msgs/PoseStamped grasp_dir3
+geometry_msgs/PoseStamped grasp_dir4
+
+geometry_msgs/PoseStamped app_dir1
+geometry_msgs/PoseStamped app_dir2
+geometry_msgs/PoseStamped app_dir3
+geometry_msgs/PoseStamped app_dir4
