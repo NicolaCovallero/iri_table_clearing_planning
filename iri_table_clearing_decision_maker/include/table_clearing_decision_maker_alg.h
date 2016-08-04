@@ -65,6 +65,8 @@
 #include <tf/transform_datatypes.h>
 
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/filters/fast_bilateral.h>
 
 #include "experiment_handler.h"
 

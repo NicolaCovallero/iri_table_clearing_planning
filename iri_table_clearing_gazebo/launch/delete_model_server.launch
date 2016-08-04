@@ -1,0 +1,3 @@
+<launch>
+   <node name="delete_model_service" pkg="iri_table_clearing_gazebo" type="delete_model_service.py" output="screen"/>
+</launch>

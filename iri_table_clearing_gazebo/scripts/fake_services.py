@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Taken from Alejandro Hernandez
+# Author: Alejandro Hernandez
 # This script simulates the joints_move service from the real controller.
 
 import roslib # ; roslib.load_manifest('iri_wam_controller')

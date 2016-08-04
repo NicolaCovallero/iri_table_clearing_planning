@@ -625,9 +625,24 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     sor.setMeanK (10);
     sor.setStddevMulThresh (1.0);
     sor.filter (cloud);
+
+    // pcl::RadiusOutlierRemoval<pcl::PointXYZRGBA> rorfilter (true); // Initializing with true will allow us to extract the removed indices
+    // rorfilter.setInputCloud (cloud.makeShared());
+    // rorfilter.setRadiusSearch (0.02);
+    // rorfilter.setMinNeighborsInRadius (5);
+    // rorfilter.setNegative (false);
+    // rorfilter.filter (cloud);
   
+    // cloud.width = 640;
+    // cloud.height = 480;
+    // pcl::FastBilateralFilter<pcl::PointXYZRGBA> filter;
+    // filter.setInputCloud(cloud.makeShared());
+    // filter.setSigmaS(5);
+    // filter.setSigmaR(5e-3);
+    // filter.applyFilter(cloud);
+
     sensor_msgs::PointCloud2 cloud_msg;
-    pcl::toROSMsg(cloud,cloud_msg);
+    pcl::toROSMsg(cloud,cloud_msg);   
 
     this->alg_.setPointCloud(cloud_msg);
     filtering_time = util::GetTimeMs64() - time_filt_init;

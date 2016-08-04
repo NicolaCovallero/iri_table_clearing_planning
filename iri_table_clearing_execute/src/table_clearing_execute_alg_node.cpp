@@ -45,6 +45,8 @@ TableClearingExecuteAlgNode::TableClearingExecuteAlgNode(void) :
 
   
   // [init clients]
+  remove_object_client_ = this->public_node_handle_.serviceClient<iri_table_clearing_gazebo::DeleteObject>("/estirabot/delete_model");
+
   move_joints_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryJointsMovement>("move_joints");
 
   estirabot_gripper_ik_client_ = this->public_node_handle_.serviceClient<iri_common_drivers_msgs::QueryInverseKinematics>(ik_service);
@@ -150,6 +152,18 @@ void TableClearingExecuteAlgNode::mainNodeThread(void)
 
   
   // [fill srv structure and make request to the server]
+  //remove_object_srv_.request.data = my_var;
+  //ROS_INFO("TableClearingExecuteAlgNode:: Sending New Request!");
+  //if (remove_object_client_.call(remove_object_srv_))
+  //{
+    //ROS_INFO("TableClearingExecuteAlgNode:: Response: %s", remove_object_srv_.response.result);
+  //}
+  //else
+  //{
+    //ROS_INFO("TableClearingExecuteAlgNode:: Failed to Call Server on topic remove_object ");
+  //}
+
+
   //move_joints_srv_.request.data = my_var;
   //ROS_INFO("TableClearingExecuteAlgNode:: Sending New Request!");
   //if (move_joints_client_.call(move_joints_srv_))
@@ -401,6 +415,18 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     {
       return false;
     }
+    // remove the object from the table
+    if( not this->real_robot)
+    {
+      geometry_msgs::PointStamped point;
+      point.point = req.grasping_pose.pose.position;
+      point.header = req.grasping_pose.header;
+      remove_object_srv_.request.point = point;
+      if(not this->remove_object_client_.call(remove_object_srv_)) 
+      {
+        ROS_WARN("Problem deleting the object");
+      }
+    }
   }
   
   // OPEN THE GRIPPER
@@ -432,7 +458,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     {
       return false;
     }
-    ros::Duration(1).sleep(); // sleep for a second
+    //ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
@@ -514,7 +540,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     {
       return false;
     }
-    ros::Duration(1).sleep(); // sleep for a second
+    //ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home
   {
@@ -533,7 +559,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     {
       return false;
     }
-    ros::Duration(1).sleep(); // sleep for a second
+    //ros::Duration(1).sleep(); // sleep for a second
   }
   else // go home 
   {

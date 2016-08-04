@@ -41,6 +41,7 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>iri_base_algorithm</build_depend>
+  <build_depend>iri_table_clearing_gazebo</build_depend>
   <build_depend>actionlib</build_depend>
   <build_depend>iri_common_drivers_msgs</build_depend>
   <build_depend>message_generation</build_depend>
@@ -63,6 +64,7 @@
   <build_depend>moveit_msgs</build_depend>
   
   <run_depend>iri_base_algorithm</run_depend>
+  <run_depend>iri_table_clearing_gazebo</run_depend>
   <run_depend>actionlib</run_depend>
   <run_depend>iri_common_drivers_msgs</run_depend>
   <run_depend>message_generation</run_depend>

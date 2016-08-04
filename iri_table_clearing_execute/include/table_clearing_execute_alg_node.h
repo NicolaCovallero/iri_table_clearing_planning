@@ -33,6 +33,7 @@
 #include <geometry_msgs/PoseStamped.h>
 
 // [service client headers]
+#include <iri_table_clearing_gazebo/DeleteObject.h>
 #include <iri_common_drivers_msgs/QueryInverseKinematics.h>
 #include <iri_wam_common_msgs/QueryWamInverseKinematicsFromPose.h>
 #include <iri_common_drivers_msgs/QueryJointsMovement.h>
@@ -90,6 +91,9 @@ class TableClearingExecuteAlgNode : public algorithm_base::IriBaseAlgorithm<Tabl
 
 
     // [client attributes]
+    ros::ServiceClient remove_object_client_;
+    iri_table_clearing_gazebo::DeleteObject remove_object_srv_;
+
     ros::ServiceClient move_joints_client_;
     iri_common_drivers_msgs::QueryJointsMovement move_joints_srv_;
 
