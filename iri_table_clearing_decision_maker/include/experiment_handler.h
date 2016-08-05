@@ -88,7 +88,7 @@ class ExperimentDataHandler{
 		 */
 		void updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		                bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg,bool save_pcl);
+		                bool ik_feasible, sensor_msgs::PointCloud2Ptr cloud_msg,bool save_pcl);
 
 
 		void writeUnfeasiblePlan();

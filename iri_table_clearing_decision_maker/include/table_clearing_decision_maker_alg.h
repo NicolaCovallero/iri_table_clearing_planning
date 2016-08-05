@@ -326,7 +326,7 @@ class TableClearingDecisionMakerAlgorithm
     void setOn(bool on);
     bool getOn();
     void setPointCloud(sensor_msgs::PointCloud2 point_cloud);
-    sensor_msgs::PointCloud2* getPointCloud();
+    sensor_msgs::PointCloud2Ptr getPointCloud();
 
     void setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step);
 

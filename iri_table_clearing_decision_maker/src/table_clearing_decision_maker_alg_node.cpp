@@ -248,7 +248,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     std::cout << "\n\n------------  STARTING PLANNING FRAMEWORK------------" << std::endl << std::endl;
     this->alg_.resetGoal();
 
-    sensor_msgs::PointCloud2* msg = this->alg_.getPointCloud();
+    sensor_msgs::PointCloud2Ptr msg = this->alg_.getPointCloud();
     iri_tos_supervoxels::object_segmentation tos_srv;
     tos_srv.request.point_cloud = (*msg);
 
@@ -316,7 +316,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPushingGraspingPoses(pre_srv.response.pushing_grasping_poses);
 
       bool feasible = false;
-      while(!feasible) // call the planner until he finds a new solution
+      while(!feasible) // call the planner until it finds a new solution
       {
         if(not use_action_cost)
         {
@@ -590,10 +590,22 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   }
   else // waits enough time to be sure to have a point cloud where there is no the robot's arm
   {
-    if(this->alg_.filtering) // if filtering is on waits more
-      ros::Duration(3).sleep();
-    else
-      ros::Duration(1).sleep();
+    double now_ = ros::Time::now().toSec();
+
+    //ros::Time a = (this->alg_.getPointCloud)->header.stamp;
+
+    // wait until the point cloud has a correct time stamp (it is has a stamp after the robot gone to home)
+    while( this->alg_.getPointCloud()->header.stamp.sec < now_)
+    {
+      ros::Duration(0.1).sleep();
+    }
+    
+
+
+    // if(this->alg_.filtering) // if filtering is on waits more
+    //   ros::Duration(3).sleep();
+    // else
+    //   ros::Duration(1).sleep();
   }
 
 }

@@ -34,6 +34,7 @@ def detectObject(req):
 
   p1 = req.point  
   print p1
+  p1.header.stamp = rospy.Time.now() # fake the time stamp
   p1 = listener.transformPoint('/world',p1)
   print p1
   

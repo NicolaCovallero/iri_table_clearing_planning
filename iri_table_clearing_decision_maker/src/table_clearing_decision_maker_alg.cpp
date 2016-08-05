@@ -651,7 +651,7 @@ void TableClearingDecisionMakerAlgorithm::showObjectsLabelRViz(std::vector<geome
 		marker.text =  object_label;
 		markers.markers.push_back(marker);
 	}
-	std::cout << "n object: " << this->n_objects << " previous: " << previous_number_objects << std::endl;
+	//std::cout << "n object: " << this->n_objects << " previous: " << previous_number_objects << std::endl;
 	for(int i = markers.markers.size() + 1; i <= previous_number_objects; i++)
 	{
 		visualization_msgs::Marker marker;
@@ -739,7 +739,7 @@ void TableClearingDecisionMakerAlgorithm::showFirstActionRViz(ros::Publisher& ac
 	    		tokens.push_back(token);
 			}
 			
-			std::cout << "The tokens are: " << tokens[0] << " " << tokens[1] << " " << tokens[2] << std::endl;
+			//std::cout << "The tokens are: " << tokens[0] << " " << tokens[1] << " " << tokens[2] << std::endl;
 			tokens[2].erase(0,3); //erase the first  3 characters which are "dir"
 			Succeeded = std::sscanf ( tokens[2].c_str(), "%d", &idx_dir );
 			if ( !Succeeded || Succeeded == EOF ) // check if something went wrong during the conversion
@@ -886,7 +886,6 @@ void TableClearingDecisionMakerAlgorithm::showActionTrajectory(ros::Publisher& t
 		}
 	  	markers.markers.push_back(marker);
 	}
-	std::cout << "Number of markers: " << markers.markers.size() << std::endl;
 	trajectory_pub.publish(markers);
 }
 void TableClearingDecisionMakerAlgorithm::showPushingDirectionsRviz(ros::Publisher& pub)
@@ -1050,9 +1049,11 @@ void TableClearingDecisionMakerAlgorithm::setPointCloud(sensor_msgs::PointCloud2
 {
 	this->point_cloud = point_cloud;
 }
-sensor_msgs::PointCloud2* TableClearingDecisionMakerAlgorithm::getPointCloud()
+sensor_msgs::PointCloud2Ptr TableClearingDecisionMakerAlgorithm::getPointCloud()
 {
-	return &(this->point_cloud);
+	sensor_msgs::PointCloud2Ptr cloud_msg( new sensor_msgs::PointCloud2( this->point_cloud ) );
+	//return &(this->point_cloud);
+	return cloud_msg;
 }
 void TableClearingDecisionMakerAlgorithm::setPushingDiscretizationAndStep(int pushing_discretization, double pushing_step)
 {
@@ -1193,15 +1194,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pose.header.frame_id = this->frame_id;
 			pose.header.seq += 1;
 			tmp_pose = pose;
-
-			
-			// std::cout << "x: " << 	pose.pose.position.x << std::endl
-			// 		<< "y: " << 	pose.pose.position.y << std::endl
-			// 	<< "z: " << 	pose.pose.position.z << std::endl
-			// 	<< "quat x: " << 	pose.pose.orientation.x << std::endl
-			// 	<< "quat y: " << 	pose.pose.orientation.y << std::endl
-			// 	<< "quat z: " << 	pose.pose.orientation.z << std::endl
-			// 	<< "quat w: " << 	pose.pose.orientation.w << std::endl;
 				
 
 			// add a pre pushing pose in roder to avoid collisions
@@ -1213,16 +1205,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 									 - dist_last_pose * this->plane_normal.z;
 			pose.header.frame_id = this->frame_id;
 			pose.header.seq += 1;
-			pushing.request.pushing_cartesian_trajectory.push_back(pose);
-
-			// std::cout << "x: " << 	pose.pose.position.x << std::endl
-			// 		<< "y: " << 	pose.pose.position.y << std::endl
-			// 	<< "z: " << 	pose.pose.position.z << std::endl
-			// 	<< "quat x: " << 	pose.pose.orientation.x << std::endl
-			// 	<< "quat y: " << 	pose.pose.orientation.y << std::endl
-			// 	<< "quat z: " << 	pose.pose.orientation.z << std::endl
-			// 	<< "quat w: " << 	pose.pose.orientation.w << std::endl;
-				
+			pushing.request.pushing_cartesian_trajectory.push_back(pose);			
 
 			pose = tmp_pose;
 			pose.header.frame_id = this->frame_id;
@@ -1313,14 +1296,6 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 
 			grasping_pose = this->grasping_poses[idx_obj].grasping_poses[0];
 			grasping_pose.header.frame_id = this->frame_id;
-
-			std::cout << "x: " << 	grasping_pose.pose.position.x << std::endl
-					<< "y: " << 	grasping_pose.pose.position.y << std::endl
-					<< "z: " << 	grasping_pose.pose.position.z << std::endl
-				<< "quat x: " << 	grasping_pose.pose.orientation.x << std::endl
-				<< "quat y: " << 	grasping_pose.pose.orientation.y << std::endl
-				<< "quat z: " << 	grasping_pose.pose.orientation.z << std::endl
-				<< "quat w: " << 	grasping_pose.pose.orientation.w << std::endl;
 
 			approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
 			approaching_pose.header.frame_id = this->frame_id;

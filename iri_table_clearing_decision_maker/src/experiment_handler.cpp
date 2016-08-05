@@ -65,7 +65,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 
 void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		               iri_fast_downward_wrapper::Plan& plan,
-		               bool ik_feasible, sensor_msgs::PointCloud2* cloud_msg,bool save_pcl)
+		               bool ik_feasible, sensor_msgs::PointCloud2Ptr cloud_msg,bool save_pcl)
 {
 	if(this->file.is_open())
 	{

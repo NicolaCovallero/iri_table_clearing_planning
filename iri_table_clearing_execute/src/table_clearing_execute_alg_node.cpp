@@ -482,46 +482,10 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       else
       {
         while (gripper_open){ros::Duration(0.1).sleep();}
-        //ros::Duration(1).sleep();
 
         //ros::Duration(1).sleep(); // sleep for a second
       }
     }
-    // if(this->real_robot)
-    // { 
-    //   ROS_INFO("Closing gripper");
-    //   bool succeded = false;
-    //   uint it = 0;
-    //   while(!succeded)
-    //   {
-    //     if(!this->close_gripperMakeActionRequest())
-    //     {
-    //       ROS_WARN("Closing gripper service not connected");
-    //       succeded = true;
-    //     }
-    //     if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
-    //     { 
-    //       close_gripper_client_.cancelGoal();
-    //       ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
-    //     }
-    //     else
-    //     {
-    //       succeded = true;
-    //     }
-    //     if(it > 10)
-    //     {
-    //       // The user should at this point close the gripper with the axclient.py node
-    //       ROS_ERROR("Failing more than 10 times to close the gripper");
-    //       askForUserInput("Please close the gripper with the axclient.py and go on.");
-    //       succeded = true;
-    //     }
-    //     std::cout << it ;
-
-    //     it++;
-    //   }
-    //   std:cout << std::endl;  
-    //   ros::Duration(1).sleep(); // sleep for a second
-    // }
   }
   else // go home
   {
@@ -627,38 +591,6 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
         //ros::Duration(1).sleep();
       }
     }
-    // if(this->real_robot)
-    // { 
-    //   ROS_INFO("Closing gripper");
-    //   bool succeded = false;
-    //   uint it = 0;
-    //   while(!succeded)
-    //   {
-    //     if(!this->close_gripperMakeActionRequest())
-    //     {
-    //       ROS_WARN("Closing gripper service not connected");
-    //       succeded = true;
-    //     }
-    //     if (!close_gripper_client_.waitForResult(ros::Duration(2.0)))
-    //     { 
-    //       close_gripper_client_.cancelGoal();
-    //       ROS_INFO("Closing gripper action did not finish before the time out. Retrying\n"); 
-    //     }
-    //     else
-    //     {
-    //       succeded = true;
-    //     }
-    //     if(it > 10)
-    //     {
-    //       // The user should at this point close the gripper with the axclient.py node
-    //       ROS_ERROR("Failing more than 10 times to close the gripper");
-    //       askForUserInput("Please close the gripper with the axclient.py and go on.");
-    //       succeded = true;
-    //     }
-    //     it++;
-    //   }
-    //   ros::Duration(1).sleep(); // sleep for a second
-    // }
   }
   else // go home
   {
