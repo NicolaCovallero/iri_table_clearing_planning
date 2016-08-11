@@ -68,7 +68,7 @@
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>0.453491 -6.12743 6.95482 -7.42157e-17 0.725798 1.31219</pose>
+        <pose>0.682251 -0.729053 2.69561 -1.65989e-16 1.2298 1.16819</pose>
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
@@ -330,9 +330,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -380,9 +380,9 @@
       <static>0</static>
     </model>
     <state world_name='default'>
-      <sim_time>1167 53000000</sim_time>
-      <real_time>1588 583611337</real_time>
-      <wall_time>1461250878 993241154</wall_time>
+      <sim_time>1757 805000000</sim_time>
+      <real_time>97 346246062</real_time>
+      <wall_time>1470910644 797009269</wall_time>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <link name='link'>
@@ -420,36 +420,36 @@
         </link>
       </model>
       <model name='wood_cube_10cm'>
-        <pose>0.773975 0.232088 0.724 -0 -0 -2.97097</pose>
+        <pose>0.69204 0.052833 0.724992 9.3e-05 -0.000115 0.132198</pose>
         <link name='link'>
-          <pose>0.773975 0.232088 0.774 -0 -0 -2.97097</pose>
+          <pose>0.692035 0.052828 0.774992 9.3e-05 -0.000115 0.132198</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-1e-06 1e-06 -2e-06 -0 -0 -0</acceleration>
+          <wrench>-0 0 -0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_cube_8cm'>
-        <pose>0.504763 -0.248383 0.729 0 -0 0.197335</pose>
+        <pose>0.618271 0.019389 0.729938 -0.003335 -0.005625 0.136034</pose>
         <link name='link'>
-          <pose>0.504763 -0.248383 0.779 0 -0 0.197335</pose>
+          <pose>0.61797 0.019516 0.779937 -0.003335 -0.005625 0.136034</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-0 0 0 0 -0 0</acceleration>
+          <wrench>-0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_rectangle'>
-        <pose>0.797052 0.046746 0.719 0 -0 -3.08147</pose>
+        <pose>0.569717 0.115101 0.719933 -0.00497 0.006703 1.88865</pose>
         <link name='link'>
-          <pose>0.797052 0.046746 0.769 0 -0 -3.08147</pose>
+          <pose>0.569377 0.115342 0.769931 -0.00497 0.006703 1.88865</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-0 -0 0 0 -0 0</acceleration>
+          <wrench>-0 -0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='yellow_mattress'>
-        <pose>0.85 0 0.67 0 -0 0</pose>
+        <pose>0.866911 -0.035496 0.67 0 -0 0</pose>
         <link name='link'>
-          <pose>0.85 0 0.67 0 -0 0</pose>
+          <pose>0.866911 -0.035496 0.67 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -465,9 +465,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -523,9 +523,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>

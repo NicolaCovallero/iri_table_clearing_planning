@@ -26,20 +26,21 @@
   </include>
 
   <!-- Load the URDF into the ROS Parameter Server -->
-  <param name="robot_description"
+  <!-- <param name="robot_description"
          command="$(find xacro)/xacro.py '$(find estirabot_description)/xacro/estirabot.urdf.xacro'" />
+  -->
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+   <!--<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model estirabot -param robot_description"/>
-
+-->
   <!-- ros_control estirabot launch file -->
-  <include file="$(find estirabot_gazebo)/launch/estirabot_control.launch" />
-
+  <!--<include file="$(find estirabot_gazebo)/launch/estirabot_control.launch" />
+  -->
   <!-- Optional: Tool center point IK for the gripper -->
-  <include file="$(find iri_wam_gazebo)/launch/iri_wam_bringup_gripper_nc.launch" if="$(arg GRIPPER)" >
+  <!--<include file="$(find iri_wam_gazebo)/launch/iri_wam_bringup_gripper_nc.launch" if="$(arg GRIPPER)" >
       <arg name="ROBOT" value="$(arg ROBOT)" />
       <arg name="IK" value="$(arg IK)" />
   </include>
-  
+  -->
 </launch>
