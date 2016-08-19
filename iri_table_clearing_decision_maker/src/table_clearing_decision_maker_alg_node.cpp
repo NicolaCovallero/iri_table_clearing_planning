@@ -610,8 +610,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
 }
 
-
-
 void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
   

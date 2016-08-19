@@ -39,6 +39,7 @@
 
 double on_th1 = ON_TH1;
 double on_th2 = ON_TH2;
+bool refine_segmented_objects;
 
 /**
  * \brief IRI ROS Specific Algorithm Class

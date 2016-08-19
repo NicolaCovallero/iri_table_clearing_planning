@@ -61,6 +61,7 @@ const double  APPROACHING_DISTANCE = 0.1;
 const double  PUSHING_LENGTH_LIMIT = 0.4; // 40 cm
 const double  RESOLUTION = 0.05; // 5 cm
 const double  MINIMUM_DISTANCE = 0.02; // 2 cm
+const bool  REFINE_SEGMENTED_OBJECTS = true;
 
 
 const int PUSHING_METHOD = ORTHOGONAL_PUSHING;
@@ -389,6 +390,12 @@ class TableClearingPredicatesAlgorithm
     void reset();
 
     ExecutionTimes getExecutionTimes();
+
+
+    /** 
+     * @brief Refine the segmented objects by considering only the biggest parallel plane to the table.
+     */
+    void refineSegmentationByBiggestPlane();
 };
 
 #endif

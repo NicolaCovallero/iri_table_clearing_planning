@@ -16,7 +16,7 @@
          <param name="gripper_height" value="0.10"/>
          <param name="closing_region_height" value="0.045"/>
          <param name="finger_deep" value="0.06"/><!--  it hsould be 0.03 but in order to consider the width of the gripper's base -->
-         <param name="pushing_method" value="0"/><!-- vertical/orthogonal pushing method-->
+         <param name="pushing_method" value="1"/><!-- vertical/orthogonal pushing method-->
          <!--
          <param name="pushing_distance_plane" value="0.025"/>
           -->

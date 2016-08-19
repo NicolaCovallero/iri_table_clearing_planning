@@ -29,6 +29,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("minimum_distance",alg_.minimum_distance,MINIMUM_DISTANCE);  
   this->public_node_handle_.param("pushing_until_graspable", this->alg_.pushing_until_graspable, true);
 
+  this->public_node_handle_.param("refine_segmented_objects",refine_segmented_objects,REFINE_SEGMENTED_OBJECTS);
 
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
@@ -47,8 +48,8 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "pushing_length_limit: " << alg_.pushing_length_limit << std::endl 
             << "resolution: " << alg_.resolution << std::endl
             << "minimum_distance: " << alg_.minimum_distance << std::endl
-            << "pushing_until_graspable: " << alg_.pushing_until_graspable << std::endl;
-            
+            << "pushing_until_graspable: " << alg_.pushing_until_graspable << std::endl
+            << "refine_segmented_objects: " << refine_segmented_objects << std::endl;
             
 
   this->alg_.setPushingStep(pushing_step);
@@ -128,6 +129,10 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   this->alg_.setOriginalPointCloud(original_cloud);
   this->alg_.setObjectsPointCloud(segmented_objects);
   this->alg_.setPlaneCoefficients(plane_coefficients);
+  
+  if(refine_segmented_objects)
+    this->alg_.refineSegmentationByBiggestPlane();
+  
 
   // compute the predicates
   this->alg_.computeProjectionsOnTable();
