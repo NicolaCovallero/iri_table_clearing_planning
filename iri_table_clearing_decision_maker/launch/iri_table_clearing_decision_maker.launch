@@ -5,7 +5,7 @@
   <arg name="REPEAT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>--><!-- For gazebo -->
   <!--<arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>--><!-- For real robot -->
-  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="False"/>
   <arg name="FILTERING" default="False"/>
