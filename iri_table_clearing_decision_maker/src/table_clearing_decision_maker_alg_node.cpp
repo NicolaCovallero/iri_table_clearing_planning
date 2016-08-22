@@ -264,6 +264,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     std::cout << n_objs << " Object detected\n";
     if(tos_srv.response.objects.objects.size() > 0) // if we have more than 1 object do the stuff
     {
+      // object matching
+      matchObjects(tos_srv);
+
       this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
       //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
       this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
@@ -325,6 +328,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
           fd_srv.request.goal = this->alg_.prepareGoalMsg();
+          std::cout << "writing goal\n";
+          fd_srv.request.goal = this->alg_.newGoalExperimentComparison();
+          std::cout << "writing written\n";
 
           util::uint64 t_init_planning = util::GetTimeMs64(); 
           plan_feasible = true;
@@ -709,4 +715,69 @@ void TableClearingDecisionMakerAlgNode::addNodeDiagnostics(void)
 int main(int argc,char *argv[])
 {
   return algorithm_base::main<TableClearingDecisionMakerAlgNode>(argc, argv, "table_clearing_decision_maker_alg_node");
+}
+void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object_segmentation & tos_srv)
+{
+
+  // We have the new centroids (centroids) and the old ones (centroids_old)
+  // we now match the new ones to the old ones
+  
+  // if this is the first frame we do not do an object matching
+  if(this->alg_.centroids_old.size() == 0)
+    return; 
+
+  std::vector<geometry_msgs::Point> centroids_objs;
+  for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
+  {
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::fromROSMsg(tos_srv.response.objects.objects[i],*cloud);
+
+    // compute centroid of each obejct
+    pcl::CentroidPoint<pcl::PointXYZRGBA> centroid; 
+    for (uint p = 0; p< cloud->points.size(); ++p)   
+        centroid.add(cloud->points[p]);  // add each point
+    pcl::PointXYZRGBA c;
+    centroid.get(c);
+    geometry_msgs::Point c_;
+    c_.x = c.x; c_.y = c.y; c_.z = c.z;
+    centroids_objs.push_back(c_);
+  }
+
+  // --------------------- matching ------------------
+  if (this->alg_.centroids_old.size() != centroids_objs.size())
+  {
+    ROS_ERROR("Impossible doing matching, the number of objects differs from the previosu frame!");
+    return;
+  }
+
+  std::map<uint,uint> map_; // matching map
+  for (uint i = 0; i < alg_.centroids_old.size(); ++i)
+  {
+    uint idx;
+    double dist_min = std::numeric_limits<double>::max();
+    for (uint o = 0; o < centroids_objs.size(); ++o)    
+    {
+      double dist = sqrt( pow(this->alg_.centroids_old[i].x - centroids_objs[o].x,2) + 
+                          pow(this->alg_.centroids_old[i].y - centroids_objs[o].y,2) + 
+                          pow(this->alg_.centroids_old[i].z - centroids_objs[o].z,2));
+      if (dist < dist_min)
+      {
+        map_.insert(std::make_pair(o,i));
+        dist_min = dist;
+      }
+    } 
+  }
+
+  std::cout << "the map is\n";
+  for (int i = 0; i < map_.size(); ++i)
+  {
+    std::cout << i << " " << map_[i] << std::endl;
+  }
+
+  // substitute
+  iri_tos_supervoxels::segmented_objects tmp;
+  for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
+    tmp.objects.push_back(tos_srv.response.objects.objects[map_[i]]);
+  //tos_srv.response.objects = tmp;
+
 }

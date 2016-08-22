@@ -38,6 +38,8 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <pcl/common/centroid.h>
+#include <map>
 
 // [service client headers]
 #include <iri_fast_downward_wrapper/FastDownwardCompletePlan.h>
@@ -226,6 +228,14 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
     
     // [test functions]
     void preparePredicatesMsg();
+
+
+    /**
+     * @brief Match the objects between consecutive frames
+     * @details The objects are matched by considering the neares centroid with respect the observed ones
+     * an the estimated ones.
+     */
+    void matchObjects(iri_tos_supervoxels::object_segmentation & tos_srv);
 
 };
 

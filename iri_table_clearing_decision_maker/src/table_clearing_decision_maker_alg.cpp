@@ -163,80 +163,6 @@ std::vector<iri_fast_downward_wrapper::SymbolicPredicate> TableClearingDecisionM
 	std::vector<iri_fast_downward_wrapper::SymbolicPredicate> blocks_predicates_msg;
 	iri_fast_downward_wrapper::SymbolicPredicate tmp;
 
-	// // ---------------- Add Blocks Predicates ---------------------------------
-	// tmp.objects.resize(2); // the block predicates only involves 2 objects
-	// for (int i = 0; i < this->blocks_predicates.size(); ++i)
-	// {
-	// 	for (int p = 0; p < this->blocks_predicates[i].dir1.size(); ++p)
-	// 	{
-	// 		tmp.predicate_name = "block_dir1";
-	// 		std::string object_name = "o";
-	// 		std::ostringstream convert;   // stream used for the conversion
-	// 		convert << i;
-	// 		object_name += convert.str();
-	// 		tmp.objects[1] = object_name;
-
-	// 		std::string object_name2 = "o";
-	// 		std::ostringstream convert2;   // stream used for the conversion
-	// 		convert2 << this->blocks_predicates[i].dir1[p];
-	// 		object_name2 += convert2.str();
-	// 		tmp.objects[0] = object_name2;
-
-	// 		blocks_predicates_msg.push_back(tmp);
-	// 	}
-	// 	for (int p = 0; p < this->blocks_predicates[i].dir2.size(); ++p)
-	// 	{
-	// 		tmp.predicate_name = "block_dir2";
-	// 		std::string object_name = "o";
-	// 		std::ostringstream convert;   // stream used for the conversion
-	// 		convert << i;
-	// 		object_name += convert.str();
-	// 		tmp.objects[1] = object_name;
-
-	// 		std::string object_name2 = "o";
-	// 		std::ostringstream convert2;   // stream used for the conversion
-	// 		convert2 << this->blocks_predicates[i].dir2[p];
-	// 		object_name2 += convert2.str();
-	// 		tmp.objects[0] = object_name2;	
-
-	// 		blocks_predicates_msg.push_back(tmp);
-	// 	}
-	// 	for (int p = 0; p < this->blocks_predicates[i].dir3.size(); ++p)
-	// 	{
-	// 		tmp.predicate_name = "block_dir3";
-	// 		std::string object_name = "o";
-	// 		std::ostringstream convert;   // stream used for the conversion
-	// 		convert << i;
-	// 		object_name += convert.str();
-	// 		tmp.objects[1] = object_name;
-
-	// 		std::string object_name2 = "o";
-	// 		std::ostringstream convert2;   // stream used for the conversion
-	// 		convert2 << this->blocks_predicates[i].dir3[p];
-	// 		object_name2 += convert2.str();
-	// 		tmp.objects[0] = object_name2;
-
-	// 		blocks_predicates_msg.push_back(tmp);
-	// 	}
-	// 	for (int p = 0; p < this->blocks_predicates[i].dir4.size(); ++p)
-	// 	{
-	// 		tmp.predicate_name = "block_dir4";
-	// 		std::string object_name = "o";
-	// 		std::ostringstream convert;   // stream used for the conversion
-	// 		convert << i;
-	// 		object_name += convert.str();
-	// 		tmp.objects[1] = object_name;
-
-	// 		std::string object_name2 = "o";
-	// 		std::ostringstream convert2;   // stream used for the conversion
-	// 		convert2 << this->blocks_predicates[i].dir4[p];
-	// 		object_name2 += convert2.str();
-	// 		tmp.objects[0] = object_name2;
-
-	// 		blocks_predicates_msg.push_back(tmp);
-	// 	}
-	// }
-
 	// ---------------- Add Blocks Predicates ---------------------------------
 	tmp.objects.resize(3); // the block predicates only involves 2 objects
 	for (int i = 0; i < this->blocks_predicates.size(); ++i)
@@ -517,6 +443,11 @@ visualization_msgs::Marker TableClearingDecisionMakerAlgorithm::firstActionMarke
 void TableClearingDecisionMakerAlgorithm::setCentroids(std::vector<geometry_msgs::Point> centroids)
 {
 	this->centroids = centroids;
+	this->centroids_old = centroids;
+}
+void TableClearingDecisionMakerAlgorithm::setCentroidsOld(std::vector<geometry_msgs::Point> centroids_old)
+{
+	this->centroids_old = centroids_old;
 }
 void TableClearingDecisionMakerAlgorithm::setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients)
 {
@@ -1170,24 +1101,43 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			 			(this->pushing_discretization -1));
 					std::cout << "pushing direction 1 the object for a distance of: " << this->pushing_lengths[idx_obj].dir1 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir1;
+
+					//update centroids
+					this->centroids_old[idx_obj].x += this->pushing_directions[idx_obj].dir1.x * this->pushing_object_distance;
+					this->centroids_old[idx_obj].y += this->pushing_directions[idx_obj].dir1.y * this->pushing_object_distance;
+					this->centroids_old[idx_obj].z += this->pushing_directions[idx_obj].dir1.z * this->pushing_object_distance;
+
 					break;
 				case 2:
 					step = (double)((this->pushing_lengths[idx_obj].dir2 + this->pushing_object_distance)/
 			 			(this->pushing_discretization -1));
 					std::cout << "pushing direction 2 the object for a distance of: " << this->pushing_lengths[idx_obj].dir2 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir2;
+
+					//update centroids
+					this->centroids_old[idx_obj].x += this->pushing_directions[idx_obj].dir2.x * this->pushing_object_distance;
+					this->centroids_old[idx_obj].y += this->pushing_directions[idx_obj].dir2.y * this->pushing_object_distance;
+					this->centroids_old[idx_obj].z += this->pushing_directions[idx_obj].dir2.z * this->pushing_object_distance;
 					break;
 				case 3:
 					step = (double)((this->pushing_lengths[idx_obj].dir3 + this->pushing_object_distance)/
 			 			(this->pushing_discretization -1));
 					std::cout << "pushing direction 3 the object for a distance of: " << this->pushing_lengths[idx_obj].dir3 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir3;
+
+					this->centroids_old[idx_obj].x += this->pushing_directions[idx_obj].dir3.x * this->pushing_object_distance;
+					this->centroids_old[idx_obj].y += this->pushing_directions[idx_obj].dir3.y * this->pushing_object_distance;
+					this->centroids_old[idx_obj].z += this->pushing_directions[idx_obj].dir3.z * this->pushing_object_distance;
 					break;
 				case 4:
 					step = (double)((this->pushing_lengths[idx_obj].dir4 + this->pushing_object_distance)/
 			 			(this->pushing_discretization -1));
 					std::cout << "pushing direction 4 the object for a distance of: " << this->pushing_lengths[idx_obj].dir4 << std::endl;
 					pose = pushing_poses[idx_obj].pose_dir4;
+
+					this->centroids_old[idx_obj].x += this->pushing_directions[idx_obj].dir4.x * this->pushing_object_distance;
+					this->centroids_old[idx_obj].y += this->pushing_directions[idx_obj].dir4.y * this->pushing_object_distance;
+					this->centroids_old[idx_obj].z += this->pushing_directions[idx_obj].dir4.z * this->pushing_object_distance;
 					break;
 				default: break;
 			}
@@ -1290,6 +1240,8 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 		}
 		else if (strcmp(plan.actions[0].action_name.c_str(),"grasp")==0)
 		{
+			this->centroids_old.resize(0); // we delete the old objects' centroids since the new frame will have less object
+
 			std::cout << "Action to execute: grasp " << "o" << idx_obj << std::endl;
 
 			geometry_msgs::PoseStamped grasping_pose, approaching_pose, post_grasping_pose;
@@ -1607,4 +1559,24 @@ void TableClearingDecisionMakerAlgorithm::resetPredicates()
 	this->blocks_predicates.resize(0);
 	this->on_top_predicates.resize(0);
 	this->block_grasp_predicates.resize(0);
+}
+std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
+{
+	std::vector<uint> n_blocking_objs(this->n_objects, 0);
+		
+	for (uint i = 0; i < this->block_grasp_predicates.size(); ++i)
+		n_blocking_objs[i] = this->block_grasp_predicates[i].object.size();
+
+	// for (int i = 0; i < n_blocking_objs.size(); ++i)
+	// 	std::cout << "object " << i << " has " << n_blocking_objs[i] << " that block its grasping pose\n";
+
+	uint idx =  std::min_element( n_blocking_objs.begin(), n_blocking_objs.end() ) - n_blocking_objs.begin();
+
+	std::ostringstream convert;
+	convert << idx;
+
+	// std::string goal = "(removed o" + convert.str() + ")";
+	// std::cout << "the goal is: " << goal << std::endl;
+	return "(removed o" + convert.str() + ")";
+
 }
