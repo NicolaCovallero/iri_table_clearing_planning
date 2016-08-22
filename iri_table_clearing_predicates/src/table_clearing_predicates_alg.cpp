@@ -515,3 +515,7 @@ std::vector<iri_table_clearing_predicates::PushingLength> TableClearingPredicate
 
 	return pushing_lengths_msg;
 }
+void TableClearingPredicatesAlgorithm::refineSegmentationByBiggestPlane()
+{
+  this->tcp.refineSegmentationByBiggestPlane();
+}

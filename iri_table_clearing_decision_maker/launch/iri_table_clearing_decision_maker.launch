@@ -14,7 +14,7 @@
 
   <!-- services -->
   <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
-    <arg name="screen" value="false"/>
+    <arg name="screen" value="True"/>
   </include>
 
   <!-- Launch the main node to control the process -->

@@ -100,11 +100,11 @@ uint TableClearingDecisionMakerAlgorithm::getCost(double distance)
 	if (distance >= th_max)
 		return 1;
 
-	double th_min = 0.001; // 1 millimeters - Threshold for the minimum distance
-	if (distance <= th_min)
-		return 150;
+	//double th_min = 0.001; // 1 millimeters - Threshold for the minimum distance
+        //if (distance <= th_min)
+	//	return 150;
 
-	return (uint)std::exp(100*(0.05 - distance));
+	return (uint)std::ceil(std::exp(100*(0.05 - distance)));
 }
 
 TableClearingDecisionMakerAlgorithm::TableClearingDecisionMakerAlgorithm(void)

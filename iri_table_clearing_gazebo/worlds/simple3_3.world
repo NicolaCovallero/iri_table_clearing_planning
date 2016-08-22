@@ -68,7 +68,7 @@
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>0.453491 -6.12743 6.95482 -7.42157e-17 0.725798 1.31219</pose>
+        <pose>0.939702 -1.38697 3.62572 -1.65989e-16 1.2298 1.16819</pose>
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
@@ -330,9 +330,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -380,9 +380,9 @@
       <static>0</static>
     </model>
     <state world_name='default'>
-      <sim_time>1167 53000000</sim_time>
-      <real_time>1588 583611337</real_time>
-      <wall_time>1461250878 993241154</wall_time>
+      <sim_time>1822 6000000</sim_time>
+      <real_time>161 714565005</real_time>
+      <wall_time>1470910709 165327795</wall_time>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <link name='link'>
@@ -420,36 +420,36 @@
         </link>
       </model>
       <model name='wood_cube_10cm'>
-        <pose>0.773975 0.232088 0.724 -0 -0 -2.97097</pose>
+        <pose>0.69998 -0.006872 0.724979 0.000136 -0.000181 0.132198</pose>
         <link name='link'>
-          <pose>0.773975 0.232088 0.774 -0 -0 -2.97097</pose>
+          <pose>0.699972 -0.00688 0.774979 0.000136 -0.000181 0.132198</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-0 -0 -0 0 -0 0</acceleration>
+          <wrench>-0 -0 -0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_cube_8cm'>
-        <pose>0.504763 -0.248383 0.729 0 -0 0.197335</pose>
+        <pose>0.618268 0.019389 0.729935 -0.00325 -0.005338 0.136033</pose>
         <link name='link'>
-          <pose>0.504763 -0.248383 0.779 0 -0 0.197335</pose>
+          <pose>0.617982 0.019514 0.779934 -0.00325 -0.005338 0.136033</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-0 0 0 0 -0 0</acceleration>
+          <wrench>-0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_rectangle'>
-        <pose>0.797052 0.046746 0.719 0 -0 -3.08147</pose>
+        <pose>0.525672 0.068465 0.71985 0.005101 0.006395 -3.08538</pose>
         <link name='link'>
-          <pose>0.797052 0.046746 0.769 0 -0 -3.08147</pose>
+          <pose>0.525338 0.068702 0.769848 0.005101 0.006395 -3.08538</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='yellow_mattress'>
-        <pose>0.85 0 0.67 0 -0 0</pose>
+        <pose>0.866911 -0.035496 0.67 0 -0 0</pose>
         <link name='link'>
-          <pose>0.85 0 0.67 0 -0 0</pose>
+          <pose>0.866911 -0.035496 0.67 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -465,9 +465,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
@@ -523,9 +523,9 @@
             <ixx>0.000101167</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>0.000061167</iyy>
+            <iyy>6.1167e-05</iyy>
             <iyz>0</iyz>
-            <izz>0.000061167</izz>
+            <izz>6.1167e-05</izz>
           </inertia>
         </inertial>
         <collision name='collision'>
