@@ -63,6 +63,23 @@ $ rosrun pcl_ros pcd_to_pointcloud name_file.pcd
 ```
 
 
-## TODO: ## 
-1. collision checking along the path for the EE
-2. add costs
+## EXPERIMENT COMPARISON ##
+The code can be launched in order to reproduce a similar plan to the algorithm presented in the paper "A Framework for Push-grasping in Clutter" by Dogar and Srinivasa.
+The part explain in this section talk about how to run the code to obtain a similar plan to their for a table clearing task. Pay ATTENTION that this is *not their algorithm*.
+This part of the codes only attempts to generate a plan that should be the same, or at least similar, to their when solving a table clearing task, this code is used only to compare the final plan, not how the probabilities are taken into account or the planning time and other things, only the final plane.
+To do so, to design the experiment you have to take into account that this code still is based in our algorithm, so you should pay attention how you design the experiments in order to get a plan similar to the one they would obtain.
+
+The algorithm decides to grasp the objects with less objects that block it from being grasped, if there are more objects with the same number of blocking object the goal object is chosen randomly. Then the robots solve the problem to grasp that object, when that object has been grasped, a new object is chosen as goal in the same way until no objects stand on the table.
+In this case, when the objects are moved they are no more pushed until they can be grasped but for a distance equal to the dimension of the manipulated obejct accordingly to the pushing direction(Again, pay attention how you design the experiment).  
+
+In the main launch file "iri_table_clearing_decision_maker.launch" there is an argument:
+```
+#!c++
+roslaunch iri_table_clearing_decision_maker iri_table_clearing_decision_maker.launch EXPERIMENT_COMPARISON:=True
+roslaunch iri_table_clearing_predicates iri_table_clearing_predicates.launch PUSHING_UNTIL_GRASPABLE:=False
+```
+Pay attention that in both the launch files the "pushing_step" parameter is the same.
+
+
+## TODO 
+Use the ros time to measure the time
