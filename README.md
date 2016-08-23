@@ -1,5 +1,7 @@
 # iri_table_clearing_planning #
 
+The DEVELOP branch is much more updated.
+
 This package is the ROS implementation of [table_clearing_planning](https://bitbucket.org/NicolaCov/table_clearing_planning) algorithm. 
 All the process is controlled by the decision_maker node which does the following operations:
 
