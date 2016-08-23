@@ -799,6 +799,7 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
     if(counter[i]>1)
     {
       ROS_WARN("Impossible doing the match between the object, the memory is dropped off.");
+      idx_old == std::numeric_limits<uint>::max();
       return;
     }
 
