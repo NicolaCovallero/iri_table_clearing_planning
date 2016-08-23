@@ -73,6 +73,7 @@
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 static bool use_action_cost; // if we use the costs for the action we need to write the domain
+static bool experiment_comparison; // true to make the algorithm working similar to the paper
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -133,6 +134,7 @@ class TableClearingDecisionMakerAlgorithm
 
 
     int pushing_discretization;
+    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
     double pushing_step;
     double pushing_object_distance;
 
@@ -392,6 +394,13 @@ class TableClearingDecisionMakerAlgorithm
 
     //void clearMarker();
 
+    /**
+     * @brief Update the estimate centroids
+     * @details Update the estimate centroids accordingly to the pushing action it has to be executed
+     */
+    void updateEstimatedCentroids();
+
 };
+
 
 #endif

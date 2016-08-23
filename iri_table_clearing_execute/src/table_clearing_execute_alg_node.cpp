@@ -630,7 +630,7 @@ void TableClearingExecuteAlgNode::execute_grasping_mutex_exit(void)
 bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_execute::ExecutePushing::Request &req, iri_table_clearing_execute::ExecutePushing::Response &res)
 {
   ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: New Request Received!");
-
+  res.executed = false;
   // check input
   if(req.pushing_cartesian_trajectory.size() == 0)
   {
@@ -805,6 +805,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
         case 'N':
             std::cout << "\nYou decided to NOT execute the trajectory\n";
             std::cout << "\nWaiting for new request...\n";
+            res.executed = false;
             return false; // return false because the trajectory is not executed
             break;
         default: break;
@@ -826,58 +827,23 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   //   joints_trajectory[i].header.stamp = ros::Time::now();
 
 
-  
-
-  // // joint names
-  // goal.trajectory.joint_names.resize(7);
-  // goal.trajectory.joint_names[0] = "estirabot_joint_1";
-  // goal.trajectory.joint_names[1] = "estirabot_joint_2";
-  // goal.trajectory.joint_names[2] = "estirabot_joint_3";
-  // goal.trajectory.joint_names[3] = "estirabot_joint_4";
-  // goal.trajectory.joint_names[4] = "estirabot_joint_5";
-  // goal.trajectory.joint_names[5] = "estirabot_joint_6";
-  // goal.trajectory.joint_names[6] = "estirabot_joint_7";  
-
-  // double time_offset = 3.0;
-  // for (int i = 0; i < joints_trajectory.size(); ++i)
-  // {
-  //   if(i == 0)
-  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],time_offset));
-  //   else
-  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-  //                  time_offset + goal.trajectory.points.size() )); 
-  // }
-
-  // // come back to the first point of the trajectory, in order to go home without touching any object
-  // // for (int i = joints_trajectory.size() -2; i >= 0; i--)
-  // // {
-  // //   goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-  // //                     time_offset + goal.trajectory.points.size() )); 
-  // // }
-  
-  // ROS_INFO("sending trajectory trajectory");
-  // // assign time stamp
-  // goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
-  // traj_client_->sendGoal(goal);
-  // if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
-  // { 
-  //     traj_client_->cancelGoal();
-  //     ROS_INFO("Action did not finish before the time out.\n"); 
-  // }
-
   ROS_INFO("Action finished - going home");
+  res.executed = true;
   if(atHomePosition())
+  {
+    std::cout << "\nWaiting for new request...\n";
     return true;
+  }
   else
+  {
+    std::cout << "\nWaiting for new request...\n";
     return false;
+  }
 
   //unlock previously blocked shared variables
   //this->execute_pushing_mutex_exit();
   //this->alg_.unlock();
 
-  std::cout << "\nWaiting for new request...\n";
-
-  return true;
 }
 
 void TableClearingExecuteAlgNode::execute_pushing_mutex_enter(void)

@@ -48,7 +48,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 
   // action costs: if we use action costs we need to write the domain pddl file
   this->public_node_handle_.param("use_action_cost", use_action_cost, false);
-   
+
+  this->public_node_handle_.param("experiment_comparison", experiment_comparison, false);
+     
 
   // [init publishers]
   this->pushing_directions_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("pushing_directions", 1);
@@ -103,7 +105,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
   << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
   << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl
-  << "use_action_cost: " << use_action_cost << std::endl;
+  << "use_action_cost: " << use_action_cost << std::endl
+  << "experiment_comparison: " << experiment_comparison << std::endl;
+  
 
   if(save_experiment)
   {
@@ -321,16 +325,17 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       bool feasible = false;
       while(!feasible) // call the planner until it finds a new solution
       {
+        std::string goal = this->alg_.prepareGoalMsg();
+        if(experiment_comparison)
+          goal = this->alg_.newGoalExperimentComparison();
+
         if(not use_action_cost)
         {
           iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
           fd_srv.request.objects = this->alg_.prepareObjectsMsg();
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
-          fd_srv.request.goal = this->alg_.prepareGoalMsg();
-          std::cout << "writing goal\n";
-          fd_srv.request.goal = this->alg_.newGoalExperimentComparison();
-          std::cout << "writing written\n";
+          fd_srv.request.goal = goal;
 
           util::uint64 t_init_planning = util::GetTimeMs64(); 
           plan_feasible = true;
@@ -358,7 +363,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.objects = this->alg_.prepareObjectsMsg();
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
-          fd_srv.request.goal = this->alg_.prepareGoalMsg();
+          fd_srv.request.goal = goal;
 
           // domain pddl file
           fd_srv.request.add_total_cost = true;
@@ -427,6 +432,10 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                   feasible = true; 
                   ik_time = pushing_srv.response.ik_time;
                   execution_time = pushing_srv.response.execution_time;
+
+                  if(pushing_srv.response.executed)
+                    this->alg_.updateEstimatedCentroids();
+
                 }
               }
               else
@@ -519,9 +528,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         }//execution
 
       }//exit while
-
-
-      
 
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
@@ -724,7 +730,10 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
   
   // if this is the first frame we do not do an object matching
   if(this->alg_.centroids_old.size() == 0)
+  {
+    // std::cout << " no previous frame saved\n";
     return; 
+  }
 
   std::vector<geometry_msgs::Point> centroids_objs;
   for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
@@ -746,9 +755,14 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
   // --------------------- matching ------------------
   if (this->alg_.centroids_old.size() != centroids_objs.size())
   {
-    ROS_ERROR("Impossible doing matching, the number of objects differs from the previosu frame!");
+    ROS_WARN("Impossible doing matching, the number of objects differs from the previosu frame!");
     return;
   }
+
+  // for (int i = 0; i < alg_.centroids_old.size(); ++i)
+  //   std::cout << "Centroids old " << i << " x: " << alg_.centroids_old[i].x << " y: " << alg_.centroids_old[i].y << " z: " << alg_.centroids_old[i].z << std::endl;
+  // for (int i = 0; i < alg_.centroids_old.size(); ++i)
+  //   std::cout << "Centroids " << i << " x: " << centroids_objs[i].x << " y: " << centroids_objs[i].y << " z: " << centroids_objs[i].z << std::endl;
 
   std::map<uint,uint> map_; // matching map
   for (uint i = 0; i < alg_.centroids_old.size(); ++i)
@@ -760,24 +774,38 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
       double dist = sqrt( pow(this->alg_.centroids_old[i].x - centroids_objs[o].x,2) + 
                           pow(this->alg_.centroids_old[i].y - centroids_objs[o].y,2) + 
                           pow(this->alg_.centroids_old[i].z - centroids_objs[o].z,2));
+      // std::cout << " i:" << i << " o:" << o << " dist: " << dist << std::endl;
       if (dist < dist_min)
       {
-        map_.insert(std::make_pair(o,i));
+        idx = o;
         dist_min = dist;
       }
-    } 
+    }
+    map_.insert(std::make_pair(i,idx));
   }
 
-  std::cout << "the map is\n";
+  std::cout << "OBJECT MATCHING -> the map is\n";
   for (int i = 0; i < map_.size(); ++i)
   {
     std::cout << i << " " << map_[i] << std::endl;
   }
 
+  // check if the map is ok, if one object is mapped to 2 there is a problem
+  std::vector < uint > counter(map_.size(),0);
+  for (int i = 0; i < map_.size(); ++i)
+    counter[map_[i]]++;
+  for (int i = 0; i < map_.size(); ++i)
+    if(counter[i]>1)
+    {
+      ROS_WARN("Impossible doing the match between the object, the memory is dropped off.");
+      return;
+    }
+
+
   // substitute
   iri_tos_supervoxels::segmented_objects tmp;
   for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
     tmp.objects.push_back(tos_srv.response.objects.objects[map_[i]]);
-  //tos_srv.response.objects = tmp;
+  tos_srv.response.objects = tmp;
 
 }

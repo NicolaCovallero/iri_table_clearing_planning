@@ -4,5 +4,6 @@ geometry_msgs/PoseStamped future_grasp_pose
 geometry_msgs/PoseStamped future_post_grasp_pose
 --- 
 bool success
+bool executed
 float32 ik_time
 float32 execution_time
