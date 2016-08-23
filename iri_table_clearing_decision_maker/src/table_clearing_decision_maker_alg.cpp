@@ -1590,7 +1590,7 @@ std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
 	std::ostringstream convert;
 	convert << idx;
 	std::string goal = "(and (removed o" + convert.str() + ")";
-	for(uint i = 0; i <= this->n_objects ; i++)
+	for(uint i = 0; i < this->n_objects ; i++)
 		if (i != idx)
 		{
 			convert.str("");
