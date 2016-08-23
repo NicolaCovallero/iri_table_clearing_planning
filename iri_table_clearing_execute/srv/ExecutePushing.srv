@@ -2,6 +2,7 @@ geometry_msgs/PoseStamped[] pushing_cartesian_trajectory
 geometry_msgs/PoseStamped future_pre_grasp_pose
 geometry_msgs/PoseStamped future_grasp_pose
 geometry_msgs/PoseStamped future_post_grasp_pose
+bool pushing_until_graspable
 --- 
 bool success
 bool executed

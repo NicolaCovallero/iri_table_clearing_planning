@@ -180,6 +180,7 @@ class TableClearingDecisionMakerAlgorithm
     std::string goal;
     bool filtering;
     uint previous_number_objects;
+    bool pushing_until_graspable;
 
 
    /**

@@ -15,7 +15,7 @@ iri_table_clearing_predicates/PrincipalDirections[] principal_directions
 float32 pushing_object_distance
 iri_table_clearing_predicates/PushingLength[] pushing_lengths
 iri_table_clearing_predicates/PushingGraspingPose[] pushing_grasping_poses
-
+bool pushing_until_graspable
 
 # times for experiments data
 float32 on_predicates_time

@@ -1041,6 +1041,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 	}
 
 	pushing.request.pushing_cartesian_trajectory.resize(0);
+	pushing.request.pushing_until_graspable = pushing_until_graspable;
 
 	double step;
 

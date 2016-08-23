@@ -162,6 +162,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.pushing_object_distance = this->alg_.getPushingObjectDistance();
   res.pushing_lengths = this->alg_.getPushingLengths();
   res.pushing_grasping_poses = this->alg_.getPushingGraspingPoses();
+  res.pushing_until_graspable= alg_.pushing_until_graspable;
 
   // set times
   res.on_predicates_time = exe_times.on_predicates;
