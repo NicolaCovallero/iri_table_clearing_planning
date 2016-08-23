@@ -77,6 +77,7 @@ In the main launch file "iri_table_clearing_decision_maker.launch" there is an a
 #!c++
 roslaunch iri_table_clearing_decision_maker iri_table_clearing_decision_maker.launch EXPERIMENT_COMPARISON:=True
 roslaunch iri_table_clearing_predicates iri_table_clearing_predicates.launch PUSHING_UNTIL_GRASPABLE:=False
+roslaunch iri_fast_downward_wrapper  iri_fast_downward_server_comparison.launch
 ```
 Pay attention that in both the launch files the "pushing_step" parameter is the same.
 
