@@ -31,6 +31,16 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
 
   this->public_node_handle_.param("refine_segmented_objects",refine_segmented_objects,REFINE_SEGMENTED_OBJECTS);
 
+  std::string pushing_until_graspable_str = "False";
+  if(this->alg_.pushing_until_graspable)
+    pushing_until_graspable_str = "True";
+
+  std::string pushing_method_str;
+  if(pushing_method == 0)
+    pushing_method_str = "Orthogonal to the table plane";
+  else
+    pushing_method_str = "Parallel to the table plane";
+
   std::cout << "Parameters set: \n"
             << "opening_width: " << opening_width << std::endl
             << "closing_width: " << closing_width << std::endl
@@ -43,12 +53,12 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "ee_deep: " << ee_deep << std::endl
             << "pushing_step: " << pushing_step << std::endl
             << "pushing_object_distance: " << pushing_object_distance << std::endl
-            << "pushing_method: " << pushing_method << std::endl
+            << "pushing_method: " << pushing_method_str << " [" << pushing_method << "]" << std::endl
             << "approaching_distance: " << approaching_distance << std::endl 
             << "pushing_length_limit: " << alg_.pushing_length_limit << std::endl 
             << "resolution: " << alg_.resolution << std::endl
             << "minimum_distance: " << alg_.minimum_distance << std::endl
-            << "pushing_until_graspable: " << alg_.pushing_until_graspable << std::endl
+            << "pushing_until_graspable: " << pushing_until_graspable_str << std::endl
             << "refine_segmented_objects: " << refine_segmented_objects << std::endl;
             
 
