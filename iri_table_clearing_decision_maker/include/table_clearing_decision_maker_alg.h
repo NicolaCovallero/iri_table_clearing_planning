@@ -73,6 +73,7 @@
 const std::string GOAL = "(not (exists (?x - obj)(not (grasped ?x))))";
 
 static bool use_action_cost; // if we use the costs for the action we need to write the domain
+static bool experiment_comparison; // true to make the algorithm working similar to the paper
 
 /**
  * \brief IRI ROS Specific Driver Class
@@ -115,8 +116,8 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
     std::vector<iri_table_clearing_predicates::OBB> obbs;
-    std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
     std::vector<geometry_msgs::Point> centroids;
+    std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
     iri_tos_supervoxels::plane_coefficients plane_coefficients;
     geometry_msgs::Vector3 plane_normal;
     std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions;
@@ -170,13 +171,18 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates;
     std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;
 
+    std::vector<geometry_msgs::Point> centroids_old;
+
     iri_fast_downward_wrapper::Plan plan;
     sensor_msgs::Image  image;
 
     std::string goal;
     bool filtering;
     uint previous_number_objects;
+    bool pushing_until_graspable;
 
+    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
+    std::vector<uint> idx_unfeasible; //vector of indices that make the solution of the problem unfeasible
 
    /**
     * \brief define config type
@@ -304,6 +310,7 @@ class TableClearingDecisionMakerAlgorithm
     void setPlan(iri_fast_downward_wrapper::Plan plan);
     void setFrameId(std::string frame_id);
     void setCentroids(std::vector<geometry_msgs::Point> centroids);
+    void setCentroidsOld(std::vector<geometry_msgs::Point> centroids_old);
     void setPlaneCoefficients(iri_tos_supervoxels::plane_coefficients plane_coefficients);
     void setPrincipalDirections(std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions);
 
@@ -378,8 +385,26 @@ class TableClearingDecisionMakerAlgorithm
      */
     void resetPredicates();
 
+    /**
+     * @brief Get the new goal for the experiment comparison.
+     * @details The goal is one object at a time, and the goal is grasping the object with less 
+     *          object that make it ungraspable. Note than in this case we should not use replanning.
+     * @return the new goal string         
+     */
+    std::string newGoalExperimentComparison();
+
+    void updateIndicesUnfeasibleList();
+
+
     //void clearMarker();
 
+    /**
+     * @brief Update the estimate centroids
+     * @details Update the estimate centroids accordingly to the pushing action it has to be executed
+     */
+    void updateEstimatedCentroids();
+
 };
+
 
 #endif

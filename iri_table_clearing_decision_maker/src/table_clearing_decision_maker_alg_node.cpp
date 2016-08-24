@@ -48,7 +48,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
 
   // action costs: if we use action costs we need to write the domain pddl file
   this->public_node_handle_.param("use_action_cost", use_action_cost, false);
-   
+
+  this->public_node_handle_.param("experiment_comparison", experiment_comparison, false);
+     
 
   // [init publishers]
   this->objects_matching_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_matching", 1);
@@ -106,7 +108,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   << "pre_dropping_pose_x: " << pre_dropping_pose_x << std::endl
   << "pre_dropping_pose_y: " << pre_dropping_pose_y << std::endl
   << "pre_dropping_pose_z: " << pre_dropping_pose_z << std::endl
-  << "use_action_cost: " << use_action_cost << std::endl;
+  << "use_action_cost: " << use_action_cost << std::endl
+  << "experiment_comparison: " << experiment_comparison << std::endl;
+  
 
   if(save_experiment)
   {
@@ -273,18 +277,23 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     iri_tos_supervoxels::object_segmentation tos_srv;
     tos_srv.request.point_cloud = (*msg);
 
-    util::uint64 t_init_seg = util::GetTimeMs64(); 
+    // util::uint64 t_init_seg = util::GetTimeMs64(); 
+    double t_init_seg = ros::Time::now().toSec(); 
     if(!segments_objects_client_.call(tos_srv))
     {
       ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
     }
-    segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
+    // segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
+    segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
 
     n_objs = tos_srv.response.objects.objects.size();
     std::cout << n_objs << " Object detected\n";
     if(tos_srv.response.objects.objects.size() > 0) // if we have more than 1 object do the stuff
     {
+      // object matching
+      matchObjects(tos_srv);
+
       this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
       //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
       this->alg_.setNumberObjects(tos_srv.response.objects.objects.size());
@@ -294,14 +303,16 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       pre_srv.request.segmented_objects = tos_srv.response.objects.objects;
       pre_srv.request.plane_coefficients = tos_srv.response.plane_coeff;
 
-      util::uint64 t_init_predicates = util::GetTimeMs64(); 
+      //util::uint64 t_init_predicates = util::GetTimeMs64(); 
+      double t_init_predicates = ros::Time::now().toSec();
       if(!get_symbolic_predicates_client_.call(pre_srv))
       {
         ROS_ERROR("Impossible getting the predicates");
         this->alg_.setOn(false);
         return;
       } 
-      predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
+      // predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
+      predicates_time = (double)(ros::Time::now().toSec() - t_init_predicates);
       on_predicates_time = pre_srv.response.on_predicates_time;
       block_predicates_time = pre_srv.response.block_predicates_time;
       block_grasp_predicates_time = pre_srv.response.block_grasp_predicates_time;
@@ -335,19 +346,25 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPushingObjectDistance(pre_srv.response.pushing_object_distance);
       this->alg_.setPushingLengths(pre_srv.response.pushing_lengths);
       this->alg_.setPushingGraspingPoses(pre_srv.response.pushing_grasping_poses);
+      this->alg_.pushing_until_graspable = pre_srv.response.pushing_until_graspable;
 
       bool feasible = false;
       while(!feasible) // call the planner until it finds a new solution
       {
+        std::string goal = this->alg_.prepareGoalMsg();
+        if(experiment_comparison)
+          goal = this->alg_.newGoalExperimentComparison();
+
         if(not use_action_cost)
         {
           iri_fast_downward_wrapper::FastDownwardPlan fd_srv;
           fd_srv.request.objects = this->alg_.prepareObjectsMsg();
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
-          fd_srv.request.goal = this->alg_.prepareGoalMsg();
+          fd_srv.request.goal = goal;
 
-          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          // util::uint64 t_init_planning = util::GetTimeMs64(); 
+          double t_init_planning = ros::Time::now().toSec();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -360,8 +377,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             plan_feasible = false; //there is no plan
 
           }
-          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-
+          // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          
           this->alg_.setPlan(fd_srv.response.plan);
         }
         else // if we use the cost fot the actions
@@ -373,7 +391,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.objects = this->alg_.prepareObjectsMsg();
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
-          fd_srv.request.goal = this->alg_.prepareGoalMsg();
+          fd_srv.request.goal = goal;
 
           // domain pddl file
           fd_srv.request.add_total_cost = true;
@@ -382,7 +400,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.domain_symbolic_predicates = this->alg_.prepareDomainPredicateMsg();
           fd_srv.request.actions = this->alg_.prepareDomainActionsMsg();
 
-          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          // util::uint64 t_init_planning = util::GetTimeMs64(); 
+          double t_init_planning = ros::Time::now().toSec();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -395,12 +414,20 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             plan_feasible = false; //there is no plan
 
           }
-          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
 
           // TODO: fix the parser opf the plan
           this->alg_.setPlan(fd_srv.response.plan);
 
         }
+
+        if(experiment_comparison and not plan_feasible)
+          alg_.updateIndicesUnfeasibleList();
+        else
+          alg_.idx_unfeasible.resize(0);
+        
+
 
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
@@ -442,6 +469,10 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
                   feasible = true; 
                   ik_time = pushing_srv.response.ik_time;
                   execution_time = pushing_srv.response.execution_time;
+
+                  if(pushing_srv.response.executed)
+                    this->alg_.updateEstimatedCentroids();
+
                 }
               }
               else
@@ -534,9 +565,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         }//execution
 
       }//exit while
-
-
-      
 
       // clear the predicates to be sure there are no interferences
       this->alg_.resetPredicates();
@@ -730,4 +758,92 @@ void TableClearingDecisionMakerAlgNode::addNodeDiagnostics(void)
 int main(int argc,char *argv[])
 {
   return algorithm_base::main<TableClearingDecisionMakerAlgNode>(argc, argv, "table_clearing_decision_maker_alg_node");
+}
+void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object_segmentation & tos_srv)
+{
+
+  // We have the new centroids (centroids) and the old ones (centroids_old)
+  // we now match the new ones to the old ones
+  
+  // if this is the first frame we do not do an object matching
+  if(this->alg_.centroids_old.size() == 0)
+  {
+    // std::cout << " no previous frame saved\n";
+    return; 
+  }
+
+  std::vector<geometry_msgs::Point> centroids_objs;
+  for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
+  {
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::fromROSMsg(tos_srv.response.objects.objects[i],*cloud);
+
+    // compute centroid of each obejct
+    pcl::CentroidPoint<pcl::PointXYZRGBA> centroid; 
+    for (uint p = 0; p< cloud->points.size(); ++p)   
+        centroid.add(cloud->points[p]);  // add each point
+    pcl::PointXYZRGBA c;
+    centroid.get(c);
+    geometry_msgs::Point c_;
+    c_.x = c.x; c_.y = c.y; c_.z = c.z;
+    centroids_objs.push_back(c_);
+  }
+
+  // --------------------- matching ------------------
+  if (this->alg_.centroids_old.size() != centroids_objs.size())
+  {
+    ROS_WARN("Impossible doing matching, the number of objects differs from the previosu frame!");
+    return;
+  }
+
+  // for (int i = 0; i < alg_.centroids_old.size(); ++i)
+  //   std::cout << "Centroids old " << i << " x: " << alg_.centroids_old[i].x << " y: " << alg_.centroids_old[i].y << " z: " << alg_.centroids_old[i].z << std::endl;
+  // for (int i = 0; i < alg_.centroids_old.size(); ++i)
+  //   std::cout << "Centroids " << i << " x: " << centroids_objs[i].x << " y: " << centroids_objs[i].y << " z: " << centroids_objs[i].z << std::endl;
+
+  std::map<uint,uint> map_; // matching map
+  for (uint i = 0; i < alg_.centroids_old.size(); ++i)
+  {
+    uint idx;
+    double dist_min = std::numeric_limits<double>::max();
+    for (uint o = 0; o < centroids_objs.size(); ++o)    
+    {
+      double dist = sqrt( pow(this->alg_.centroids_old[i].x - centroids_objs[o].x,2) + 
+                          pow(this->alg_.centroids_old[i].y - centroids_objs[o].y,2) + 
+                          pow(this->alg_.centroids_old[i].z - centroids_objs[o].z,2));
+      // std::cout << " i:" << i << " o:" << o << " dist: " << dist << std::endl;
+      if (dist < dist_min)
+      {
+        idx = o;
+        dist_min = dist;
+      }
+    }
+    map_.insert(std::make_pair(i,idx));
+  }
+
+  std::cout << "OBJECT MATCHING -> the map is\n";
+  for (int i = 0; i < map_.size(); ++i)
+  {
+    std::cout << i << " " << map_[i] << std::endl;
+  }
+
+  // check if the map is ok, if one object is mapped to 2 there is a problem
+  std::vector < uint > counter(map_.size(),0);
+  for (int i = 0; i < map_.size(); ++i)
+    counter[map_[i]]++;
+  for (int i = 0; i < map_.size(); ++i)
+    if(counter[i]>1)
+    {
+      ROS_WARN("Impossible doing the match between the object, the memory is dropped off.");
+      this->alg_.idx_old == std::numeric_limits<uint>::max();
+      return;
+    }
+
+
+  // substitute
+  iri_tos_supervoxels::segmented_objects tmp;
+  for (uint i = 0; i < tos_srv.response.objects.objects.size(); ++i)
+    tmp.objects.push_back(tos_srv.response.objects.objects[map_[i]]);
+  tos_srv.response.objects = tmp;
+
 }

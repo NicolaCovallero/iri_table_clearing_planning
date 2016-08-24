@@ -311,7 +311,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   std::vector<sensor_msgs::JointState> joints_trajectory;
   joints_trajectory.resize(3);
 
-  util::uint64 t_init_ik = util::GetTimeMs64(); 
+  // util::uint64 t_init_ik = util::GetTimeMs64(); 
+  double t_init_ik = ros::Time::now().toSec();
   res.success = true;
   for (uint i = 0; i < 3; ++i) // we don't care about the dropping pose
   {
@@ -365,13 +366,15 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
         default:break;        
       }
       res.success = false; 
-      res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);  
+      // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);  
+      res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
       return true;
     }
   }
   joints_trajectory.push_back(joints_dropping_pose);
-  res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
-
+  // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
+  res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik); 
+  
 
   // ROS_INFO("Waiting for the joint_trajectory_action server");
   // while(!traj_client_->waitForServer(ros::Duration(5.0))){
@@ -404,7 +407,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     }
   } 
 
-  util::uint64 t_init_grasp = util::GetTimeMs64();
+  // util::uint64 t_init_grasp = util::GetTimeMs64();
+  double t_init_grasp = ros::Time::now().toSec();
 
   
   // Go to pregrasping pose - Approaching pose
@@ -574,7 +578,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
   }
 
   // wait 
-  ros::Duration(1).sleep(); // sleep for a second
+  // ros::Duration(1).sleep(); // sleep for a second
 
   // CLOSE THE GRIPPER
   if(askForUserInput("Closing gripper"))
@@ -600,20 +604,13 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
     else
       return false;
   }
-  
-  // we don't want to go home in order to save time
-  // Go home
-  // ROS_INFO("Going home");
-  // if(atHomePosition())
-  //   return true;
-  // else
-  //   return false;
 
   //unlock previously blocked shared variables
   //this->execute_grasping_mutex_exit();
   //this->alg_.unlock();
 
-  res.execution_time = (float)(util::GetTimeMs64() - t_init_grasp);
+  // res.execution_time = (float)(util::GetTimeMs64() - t_init_grasp);
+  res.execution_time = (float)(ros::Time::now().toSec() - t_init_grasp);
   return true;
 }
 
@@ -630,7 +627,7 @@ void TableClearingExecuteAlgNode::execute_grasping_mutex_exit(void)
 bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_execute::ExecutePushing::Request &req, iri_table_clearing_execute::ExecutePushing::Response &res)
 {
   ROS_INFO("TableClearingExecuteAlgNode::execute_pushingCallback: New Request Received!");
-
+  res.executed = false;
   // check input
   if(req.pushing_cartesian_trajectory.size() == 0)
   {
@@ -670,7 +667,15 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   srv.request.desired_pose.header.stamp = ros::Time::now(); // IMPORTANT
 
   ROS_INFO("Trying calling the IK service");
-  util::uint64 t_init_ik = util::GetTimeMs64();
+  // util::uint64 t_init_ik = util::GetTimeMs64();
+  double t_init_ik = ros::Time::now().toSec();
+  std::cout << "Requesting IK of x: " <<  req.pushing_cartesian_trajectory[0].pose.position.x << " y: " <<
+                                            req.pushing_cartesian_trajectory[0].pose.position.y << " z: " <<
+                                             req.pushing_cartesian_trajectory[0].pose.position.z << std::endl 
+              << "[quat] x:" << req.pushing_cartesian_trajectory[0].pose.orientation.x 
+              << " y: " << req.pushing_cartesian_trajectory[0].pose.orientation.y
+              << " z: " << req.pushing_cartesian_trajectory[0].pose.orientation.z
+              << " w: " << req.pushing_cartesian_trajectory[0].pose.orientation.w << std::endl;
   if (estirabot_gripper_ik_from_pose_client_.call(srv))
   {
     joints_trajectory[0] = srv.response.desired_joints;
@@ -682,13 +687,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     //     " joint 5: " << joints_trajectory[0].position[4] <<
     //     " joint 6: " << joints_trajectory[0].position[5] <<
     //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
-    std::cout << "Requesting IK of x: " <<  req.pushing_cartesian_trajectory[0].pose.position.x << " y: " <<
-                                            req.pushing_cartesian_trajectory[0].pose.position.y << " z: " <<
-                                             req.pushing_cartesian_trajectory[0].pose.position.z << std::endl 
-              << "[quat] x:" << req.pushing_cartesian_trajectory[0].pose.orientation.x 
-              << " y: " << req.pushing_cartesian_trajectory[0].pose.orientation.y
-              << " z: " << req.pushing_cartesian_trajectory[0].pose.orientation.z
-              << " w: " << req.pushing_cartesian_trajectory[0].pose.orientation.w << std::endl;
+    
   }
   else
   {
@@ -703,7 +702,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     //     " joint 7: " << joints_trajectory[0].position[6] << std::endl;
     ROS_ERROR("Impossible calling %s service or solution not found for the pre pushing pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
     res.success = false; 
-    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+    res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
     return true;
   }
 
@@ -738,46 +738,54 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     {
       ROS_ERROR("Impossible calling %s service or solution not found, for pose %d",estirabot_gripper_ik_from_pose_client_.getService().c_str(),i);
       res.success = false; 
-      res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+      // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+      res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
       return true;
     }
   }
 
-  // evaluate if the future grasping, pre grasping and post grasping poses are feasible
-  srv.request.current_joints = this->alg_.home_joint_state;
-  srv.request.desired_pose.header.stamp = ros::Time::now();
-  srv.request.desired_pose = req.future_pre_grasp_pose;
-  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+  if(req.pushing_until_graspable)
   {
-    ROS_ERROR("Impossible calling %s service or solution not found, for future_pre_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-    res.success = false; 
-    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-    return true;
-  }
-  srv.request.current_joints = this->alg_.home_joint_state;
-  srv.request.desired_pose.header.stamp = ros::Time::now();
-  srv.request.desired_pose = req.future_grasp_pose;
-  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
-  {
-    ROS_ERROR("Impossible calling %s service or solution not found, for future_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-    res.success = false; 
-    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-    return true;
-  }
-  srv.request.current_joints = this->alg_.home_joint_state;
-  srv.request.desired_pose.header.stamp = ros::Time::now();
-  srv.request.desired_pose = req.future_post_grasp_pose;
-  if (not estirabot_gripper_ik_from_pose_client_.call(srv))
-  {
-    ROS_ERROR("Impossible calling %s service or solution not found, for future_post_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
-    res.success = false; 
-    res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-    return true;
+    // evaluate if the future grasping, pre grasping and post grasping poses are feasible
+    srv.request.current_joints = this->alg_.home_joint_state;
+    srv.request.desired_pose.header.stamp = ros::Time::now();
+    srv.request.desired_pose = req.future_pre_grasp_pose;
+    if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+    {
+      ROS_ERROR("Impossible calling %s service or solution not found, for future_pre_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+      res.success = false; 
+      // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+      res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      return true;
+    }
+    srv.request.current_joints = this->alg_.home_joint_state;
+    srv.request.desired_pose.header.stamp = ros::Time::now();
+    srv.request.desired_pose = req.future_grasp_pose;
+    if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+    {
+      ROS_ERROR("Impossible calling %s service or solution not found, for future_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+      res.success = false; 
+      // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+      res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      return true;
+    }
+    srv.request.current_joints = this->alg_.home_joint_state;
+    srv.request.desired_pose.header.stamp = ros::Time::now();
+    srv.request.desired_pose = req.future_post_grasp_pose;
+    if (not estirabot_gripper_ik_from_pose_client_.call(srv))
+    {
+      ROS_ERROR("Impossible calling %s service or solution not found, for future_post_grasp_pose",estirabot_gripper_ik_from_pose_client_.getService().c_str());
+      res.success = false; 
+      // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+      res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      return true;
+    }
   }
   
 
-  res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
-
+  // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
+  res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+  
   // ROS_INFO("Waiting for the joint_trajectory_action server");
   // while(!traj_client_->waitForServer(ros::Duration(5.0))){
   //     ROS_INFO("Waiting for the joint_trajectory_action server");
@@ -805,6 +813,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
         case 'N':
             std::cout << "\nYou decided to NOT execute the trajectory\n";
             std::cout << "\nWaiting for new request...\n";
+            res.executed = false;
             return false; // return false because the trajectory is not executed
             break;
         default: break;
@@ -814,70 +823,38 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   // go to the first point of the trajectory -- IMPORTANT !!!!!!!!!!!!!!!!!!!!!
   //move2JointsPose(joints_trajectory[0],0.5,0.5);
-  util::uint64 t_init_push = util::GetTimeMs64();
+  // util::uint64 t_init_push = util::GetTimeMs64();
+  double t_init_push = ros::Time::now().toSec();
   for (int i = 0; i < joints_trajectory.size(); ++i)
   {
    move2JointsPose(joints_trajectory[i],0.5,0.5);
    ros::Duration(0.2).sleep();
   }
-  res.execution_time = (float)(util::GetTimeMs64() - t_init_push);  
+  // res.execution_time = (float)(util::GetTimeMs64() - t_init_push);  
+  res.execution_time = (float)(ros::Time::now().toSec()  - t_init_push);  
+  
   // reset the time stamp for all the trajectory points
   // for (int i = 0; i < joints_trajectory.size(); ++i)
   //   joints_trajectory[i].header.stamp = ros::Time::now();
 
 
-  
-
-  // // joint names
-  // goal.trajectory.joint_names.resize(7);
-  // goal.trajectory.joint_names[0] = "estirabot_joint_1";
-  // goal.trajectory.joint_names[1] = "estirabot_joint_2";
-  // goal.trajectory.joint_names[2] = "estirabot_joint_3";
-  // goal.trajectory.joint_names[3] = "estirabot_joint_4";
-  // goal.trajectory.joint_names[4] = "estirabot_joint_5";
-  // goal.trajectory.joint_names[5] = "estirabot_joint_6";
-  // goal.trajectory.joint_names[6] = "estirabot_joint_7";  
-
-  // double time_offset = 3.0;
-  // for (int i = 0; i < joints_trajectory.size(); ++i)
-  // {
-  //   if(i == 0)
-  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],time_offset));
-  //   else
-  //     goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-  //                  time_offset + goal.trajectory.points.size() )); 
-  // }
-
-  // // come back to the first point of the trajectory, in order to go home without touching any object
-  // // for (int i = joints_trajectory.size() -2; i >= 0; i--)
-  // // {
-  // //   goal.trajectory.points.push_back(this->setTrajectoryPoint(joints_trajectory[i],
-  // //                     time_offset + goal.trajectory.points.size() )); 
-  // // }
-  
-  // ROS_INFO("sending trajectory trajectory");
-  // // assign time stamp
-  // goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
-  // traj_client_->sendGoal(goal);
-  // if (!traj_client_->waitForResult(ros::Duration(3 + 3.0f/joints_trajectory.size() + 4)))
-  // { 
-  //     traj_client_->cancelGoal();
-  //     ROS_INFO("Action did not finish before the time out.\n"); 
-  // }
-
   ROS_INFO("Action finished - going home");
+  res.executed = true;
   if(atHomePosition())
+  {
+    std::cout << "\nWaiting for new request...\n";
     return true;
+  }
   else
+  {
+    std::cout << "\nWaiting for new request...\n";
     return false;
+  }
 
   //unlock previously blocked shared variables
   //this->execute_pushing_mutex_exit();
   //this->alg_.unlock();
 
-  std::cout << "\nWaiting for new request...\n";
-
-  return true;
 }
 
 void TableClearingExecuteAlgNode::execute_pushing_mutex_enter(void)

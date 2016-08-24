@@ -5,12 +5,13 @@
   <arg name="REPEAT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>--><!-- For gazebo -->
   <!--<arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>--><!-- For real robot -->
-  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="INPUT_TOPIC" default="/estirabot/camera/depth_registered/points"/>
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="False"/>
   <arg name="FILTERING" default="False"/>
   <arg name="AUTOMATIC_SAVE" default="False"/>
   <arg name="USE_ACTION_COST" default="False"/>
+  <arg name="EXPERIMENT_COMPARISON" default="False"/>
 
   <!-- services -->
   <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
@@ -46,6 +47,7 @@
         <param name="pre_dropping_pose_z" value="0.3"/>
 
         <param name="use_action_cost" value="$(arg USE_ACTION_COST)"/>
+        <param name="experiment_comparison" value="$(arg EXPERIMENT_COMPARISON)"/>
 
         <!-- Filter the input point cloud -->
         <param name="filtering" value="$(arg FILTERING)"/>
