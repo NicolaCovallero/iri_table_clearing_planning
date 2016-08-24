@@ -256,13 +256,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     iri_tos_supervoxels::object_segmentation tos_srv;
     tos_srv.request.point_cloud = (*msg);
 
-    util::uint64 t_init_seg = util::GetTimeMs64(); 
+    // util::uint64 t_init_seg = util::GetTimeMs64(); 
+    double t_init_seg = ros::Time::now().toSec(); 
     if(!segments_objects_client_.call(tos_srv))
     {
       ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
     }
-    segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
+    // segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
+    segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
 
     n_objs = tos_srv.response.objects.objects.size();
     std::cout << n_objs << " Object detected\n";
@@ -280,14 +282,16 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       pre_srv.request.segmented_objects = tos_srv.response.objects.objects;
       pre_srv.request.plane_coefficients = tos_srv.response.plane_coeff;
 
-      util::uint64 t_init_predicates = util::GetTimeMs64(); 
+      //util::uint64 t_init_predicates = util::GetTimeMs64(); 
+      double t_init_predicates = ros::Time::now().toSec();
       if(!get_symbolic_predicates_client_.call(pre_srv))
       {
         ROS_ERROR("Impossible getting the predicates");
         this->alg_.setOn(false);
         return;
       } 
-      predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
+      // predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
+      predicates_time = (double)(ros::Time::now().toSec() - t_init_predicates);
       on_predicates_time = pre_srv.response.on_predicates_time;
       block_predicates_time = pre_srv.response.block_predicates_time;
       block_grasp_predicates_time = pre_srv.response.block_grasp_predicates_time;
@@ -338,7 +342,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.symbolic_predicates = predicates;
           fd_srv.request.goal = goal;
 
-          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          // util::uint64 t_init_planning = util::GetTimeMs64(); 
+          double t_init_planning = ros::Time::now().toSec();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -351,8 +356,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             plan_feasible = false; //there is no plan
 
           }
-          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-
+          // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          
           this->alg_.setPlan(fd_srv.response.plan);
         }
         else // if we use the cost fot the actions
@@ -373,7 +379,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.domain_symbolic_predicates = this->alg_.prepareDomainPredicateMsg();
           fd_srv.request.actions = this->alg_.prepareDomainActionsMsg();
 
-          util::uint64 t_init_planning = util::GetTimeMs64(); 
+          // util::uint64 t_init_planning = util::GetTimeMs64(); 
+          double t_init_planning = ros::Time::now().toSec();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -386,7 +393,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             plan_feasible = false; //there is no plan
 
           }
-          planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
 
           // TODO: fix the parser opf the plan
           this->alg_.setPlan(fd_srv.response.plan);
@@ -799,7 +807,7 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
     if(counter[i]>1)
     {
       ROS_WARN("Impossible doing the match between the object, the memory is dropped off.");
-      idx_old == std::numeric_limits<uint>::max();
+      this->alg_.idx_old == std::numeric_limits<uint>::max();
       return;
     }
 

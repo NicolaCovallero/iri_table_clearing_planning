@@ -134,7 +134,6 @@ class TableClearingDecisionMakerAlgorithm
 
 
     int pushing_discretization;
-    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
     double pushing_step;
     double pushing_object_distance;
 
@@ -181,6 +180,7 @@ class TableClearingDecisionMakerAlgorithm
     bool filtering;
     uint previous_number_objects;
     bool pushing_until_graspable;
+    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
 
 
    /**
