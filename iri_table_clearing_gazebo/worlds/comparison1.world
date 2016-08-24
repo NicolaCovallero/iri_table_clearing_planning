@@ -68,7 +68,7 @@
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>0.370599 -0.61733 2.0681 -4.4e-05 1.08886 0.832718</pose>
+        <pose>0.455947 -0.576904 1.46462 0 0.81686 0.892718</pose>
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
@@ -556,9 +556,9 @@
       <static>0</static>
     </model>
     <state world_name='default'>
-      <sim_time>2567 764000000</sim_time>
-      <real_time>21 322009664</real_time>
-      <wall_time>1471956793 428407068</wall_time>
+      <sim_time>2628 236000000</sim_time>
+      <real_time>17 323293277</real_time>
+      <wall_time>1472033862 491059157</wall_time>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <link name='link'>
@@ -569,27 +569,27 @@
         </link>
       </model>
       <model name='rectangle_black'>
-        <pose>0.775774 0.075624 0.759921 -0.231046 -1.56972 1.17032</pose>
+        <pose>0.775767 0.075606 0.759981 -0.27705 -1.57066 1.2163</pose>
         <link name='link'>
-          <pose>0.746255 0.035267 0.759973 -0.231046 -1.56972 1.17032</pose>
+          <pose>0.746247 0.03525 0.759988 -0.27705 -1.57066 1.2163</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='rectangle_green'>
-        <pose>0.726743 0.024619 0.769417 1.07697 -1.56856 -1.46873</pose>
+        <pose>0.726794 0.024619 0.769354 0.452575 -1.56788 -0.844343</pose>
         <link name='link'>
-          <pose>0.680531 0.04371 0.76947 1.07697 -1.56856 -1.46873</pose>
+          <pose>0.680582 0.04371 0.769485 0.452575 -1.56788 -0.844343</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='rectangle_orange'>
-        <pose>0.810677 -0.071004 0.774884 2.71598 -1.56753 3.07402</pose>
+        <pose>0.809751 -0.072626 0.774819 2.50738 -1.56814 -3.04086</pose>
         <link name='link'>
-          <pose>0.766636 -0.047333 0.774736 2.71598 -1.56753 3.07402</pose>
+          <pose>0.766699 -0.047199 0.774712 2.50738 -1.56814 -3.04086</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -623,27 +623,27 @@
         </link>
       </model>
       <model name='wood_cube_10cm'>
-        <pose>0.676791 0.145552 0.724998 1.69407e-21 1e-05 -1.76557</pose>
+        <pose>0.676791 0.145552 0.725 2e-06 9e-06 -1.76557</pose>
         <link name='link'>
-          <pose>0.676791 0.145552 0.774998 1.69407e-21 1e-05 -1.76557</pose>
+          <pose>0.676791 0.145551 0.775 2e-06 9e-06 -1.76557</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_cylinder_5x2cm'>
-        <pose>1.42792 -0.03886 0.714621 -0.00547 0.000312 3.01315</pose>
+        <pose>1.42794 -0.038892 0.714935 -0.004291 0.001163 3.01319</pose>
         <link name='link'>
-          <pose>1.42787 -0.039129 0.76462 -0.00547 0.000312 3.01315</pose>
+          <pose>1.42785 -0.039097 0.764935 -0.004291 0.001163 3.01319</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_rectangle'>
-        <pose>0.647239 -0.043528 0.719987 -0.000156 -3.8e-05 -2.11396</pose>
+        <pose>0.647236 -0.043529 0.719985 -0.000148 -0.000143 -2.11396</pose>
         <link name='link'>
-          <pose>0.647246 -0.04353 0.769987 -0.000156 -3.8e-05 -2.11396</pose>
+          <pose>0.647246 -0.043527 0.769985 -0.000148 -0.000143 -2.11396</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>

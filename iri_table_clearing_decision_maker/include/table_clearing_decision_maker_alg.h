@@ -180,8 +180,9 @@ class TableClearingDecisionMakerAlgorithm
     bool filtering;
     uint previous_number_objects;
     bool pushing_until_graspable;
-    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
 
+    uint idx_old; // used only to remember what is the object to grasp, used only to simulate the algorithm of the other paper
+    std::vector<uint> idx_unfeasible; //vector of indices that make the solution of the problem unfeasible
 
    /**
     * \brief define config type
@@ -391,6 +392,8 @@ class TableClearingDecisionMakerAlgorithm
      * @return the new goal string         
      */
     std::string newGoalExperimentComparison();
+
+    void updateIndicesUnfeasibleList();
 
 
     //void clearMarker();

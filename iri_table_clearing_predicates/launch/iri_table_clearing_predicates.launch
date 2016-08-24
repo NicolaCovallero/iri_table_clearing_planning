@@ -24,7 +24,7 @@
          <param name="pushing_distance_plane" value="0.01"/><!-- 1cm from the plane -->
 
          # this is only for the orthogonal pushing method
-         <param name="pushing_object_distance" value="0.05"/>
+         <param name="pushing_object_distance" value="0.03"/>
          <param name="pushing_length_limit" value="$(arg PUSHING_LIMIT)"/> 
          <param name="resolution" value="$(arg PUSHING_RESOLUTION)"/> 
          <param name="minimum_distance" value="$(arg MINIMUM_GRASPING_DISTANCE)"/> 

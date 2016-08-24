@@ -151,7 +151,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   this->alg_.computeOBBObjects(true);
   this->alg_.computeSimpleHeuristicGraspingPoses();
 
-  this->alg_.computeBlockPredicates(true);
+  this->alg_.computeBlockPredicates(false);
   this->alg_.computeOnTopPredicates(on_th1, on_th2, true);
   this->alg_.computeBlockGraspPredicates(true);
 

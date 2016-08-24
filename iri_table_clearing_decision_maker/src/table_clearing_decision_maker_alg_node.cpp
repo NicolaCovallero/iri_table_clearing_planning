@@ -401,6 +401,13 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
         }
 
+        if(experiment_comparison and not plan_feasible)
+          alg_.updateIndicesUnfeasibleList();
+        else
+          alg_.idx_unfeasible.resize(0);
+        
+
+
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
 

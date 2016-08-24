@@ -1552,7 +1552,7 @@ void TableClearingDecisionMakerAlgorithm::resetPredicates()
 std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
 {	
 	uint idx;
-	if(idx_old == std::numeric_limits<uint>::max())
+	if(idx_old == std::numeric_limits<uint>::max() || idx_unfeasible.size() > 0)
 	{
 		// get the object with less objects that make it ungraspable
 		std::vector<uint> n_blocking_objs(this->n_objects, 0);
@@ -1565,7 +1565,13 @@ std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
 			if(n_blocking_objs[i] == n_blocking_objs[idx])
 				min_indices.push_back(i);
 		//print the object
-		std::cout << "-----------------------------------\n";	
+		std::cout << "The unfeasible elements are: ";
+		for (uint i = 0; i < idx_unfeasible.size(); ++i)
+		{
+			std::cout << " o" << idx_unfeasible[i];
+			min_indices.erase(std::remove(min_indices.begin(), min_indices.end(), idx_unfeasible[i]), min_indices.end());
+		}
+		std::cout << "\n-----------------------------------\n";	
 		std::cout << "Possible goal objects candidates are: ";
 		for (uint i = 0; i < min_indices.size(); ++i)
 			std::cout << "o" << min_indices[i] << " ";
@@ -1604,6 +1610,12 @@ std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
 	return goal;
 
 }
+void TableClearingDecisionMakerAlgorithm::updateIndicesUnfeasibleList()
+{
+	std::cout << "With the goal object " << idx_old << " is Impossible finishing the task, trying with another one\n";
+	idx_unfeasible.push_back(idx_old);
+}
+
 void TableClearingDecisionMakerAlgorithm::updateEstimatedCentroids()
 {
 	int idx_obj;
