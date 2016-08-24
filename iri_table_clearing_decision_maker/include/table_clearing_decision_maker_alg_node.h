@@ -96,6 +96,15 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
 {
   private:
     // [publisher attributes]
+    ros::Publisher objects_matching_publisher_;
+    visualization_msgs::MarkerArray objects_matching_MarkerArray_msg_;
+
+    ros::Publisher new_objects_centroid_publisher_;
+    visualization_msgs::MarkerArray new_objects_centroid_MarkerArray_msg_;
+
+    ros::Publisher old_objects_centroid_publisher_;
+    visualization_msgs::MarkerArray old_objects_centroid_MarkerArray_msg_;
+
     ros::Publisher pushing_directions_publisher_;
     visualization_msgs::MarkerArray pushing_directions_MarkerArray_msg_;
 

@@ -51,6 +51,9 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
    
 
   // [init publishers]
+  this->objects_matching_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("objects_matching", 1);
+  this->new_objects_centroid_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("new_objects_centroid", 1);
+  this->old_objects_centroid_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("old_objects_centroid", 1);
   this->pushing_directions_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("pushing_directions", 1);
   this->action_trajectory_publisher_ = this->public_node_handle_.advertise<visualization_msgs::MarkerArray>("action_trajectory", 1);
   this->action_marker_publisher_ = this->public_node_handle_.advertise<visualization_msgs::Marker>("action_marker", 1);
@@ -133,6 +136,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
 
   // [fill msg structures]
+  // Initialize the topic message structure
+  //this->objects_matching_MarkerArray_msg_.data = my_var;
+
+  // Initialize the topic message structure
+  //this->new_objects_centroid_MarkerArray_msg_.data = my_var;
+
+  // Initialize the topic message structure
+  //this->old_objects_centroid_MarkerArray_msg_.data = my_var;
+
   // Initialize the topic message structure
   //this->pushing_directions_MarkerArray_msg_.data = my_var;
 
@@ -226,6 +238,15 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
   // [fill action structure and make request to the action server]
 
   // [publish messages]
+  // Uncomment the following line to publish the topic message
+  //this->objects_matching_publisher_.publish(this->objects_matching_MarkerArray_msg_);
+
+  // Uncomment the following line to publish the topic message
+  //this->new_objects_centroid_publisher_.publish(this->new_objects_centroid_MarkerArray_msg_);
+
+  // Uncomment the following line to publish the topic message
+  //this->old_objects_centroid_publisher_.publish(this->old_objects_centroid_MarkerArray_msg_);
+
   // Uncomment the following line to publish the topic message
   //this->pushing_directions_publisher_.publish(this->pushing_directions_MarkerArray_msg_);
 
