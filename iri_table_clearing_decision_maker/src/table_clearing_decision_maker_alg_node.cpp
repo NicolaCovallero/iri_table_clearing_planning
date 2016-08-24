@@ -8,6 +8,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   this->loop_rate_ = 2;//in [Hz]
   this->alg_.setOn(false);
   time_start = util::GetTimeMs64();
+  previous_centroid_size = 0;
 
   std::string input_topic;
   this->public_node_handle_.param("input_topic",input_topic,INPUT_TOPIC);
@@ -784,8 +785,27 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
         centroid.add(cloud->points[p]);  // add each point
     pcl::PointXYZRGBA c;
     centroid.get(c);
+    // now the centorid is translated, this because in the table_clearing_planning the centorid is the average between the segmented object ad the projection, 
+    // it is a little hack, but it works
+    Eigen::Vector3f proj_eigen_point;
+    Eigen::Vector3f plane_origin;
+    // set plane origin
+    plane_origin[0] = 1.0;
+    plane_origin[1] = 1.0;
+    // ax+by+cz+d=0 => z = (ax+by+d)/(-c)
+    plane_origin[2] = (this->alg_.plane_coefficients.a * plane_origin[0] +
+                            this->alg_.plane_coefficients.b * plane_origin[1] +
+                                                   this->alg_.plane_coefficients.d) / (- this->alg_.plane_coefficients.c); 
+    Eigen::Vector3f plane_normal;
+    plane_normal[0] = this->alg_.plane_normal.x;
+    plane_normal[1] = this->alg_.plane_normal.y;
+    plane_normal[2] = this->alg_.plane_normal.z;
+    Eigen::Vector3f c_eigen(c.x,c.y,c.z);
+    pcl::geometry::project(c_eigen,plane_origin,plane_normal,proj_eigen_point);
+    double distance_to_table = (c_eigen - proj_eigen_point).norm();
+    c_eigen += plane_normal * distance_to_table/2;
     geometry_msgs::Point c_;
-    c_.x = c.x; c_.y = c.y; c_.z = c.z;
+    c_.x = c_eigen[0]; c_.y = c_eigen[1]; c_.z = c_eigen[2];
     centroids_objs.push_back(c_);
   }
 
@@ -821,6 +841,11 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
     map_.insert(std::make_pair(i,idx));
   }
 
+  // public current centroids
+  publicCurrentCentroids(centroids_objs);
+
+  publicPreviousCentroids(this->alg_.centroids);
+  
   std::cout << "OBJECT MATCHING -> the map is\n";
   for (int i = 0; i < map_.size(); ++i)
   {
@@ -847,3 +872,99 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
   tos_srv.response.objects = tmp;
 
 }
+
+void TableClearingDecisionMakerAlgNode::publicCurrentCentroids(std::vector<geometry_msgs::Point> centroids_objs)
+{
+  
+  visualization_msgs::MarkerArray markers;
+  // delete all the previous markers
+  for(uint i=0; i < previous_centroid_size; i++)
+  {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = this->alg_.frame_id;;
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "current_centroid";
+    marker.id = i;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.action = visualization_msgs::Marker::DELETE;
+    markers.markers.push_back(marker);
+  }
+  this->new_objects_centroid_publisher_.publish(markers); 
+  this->previous_centroid_size = centroids_objs.size();//save new size of objects
+
+  //publish the markers
+  for(uint i=0; i < centroids_objs.size(); i++)
+  {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = this->alg_.frame_id;;
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "current_centroid";
+    marker.id = i;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.position.x = centroids_objs[i].x; 
+    marker.pose.position.y = centroids_objs[i].y; 
+    marker.pose.position.z = centroids_objs[i].z; 
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.03;// this is the redaius, they ahve to be all the same to be sphere
+    marker.scale.y = 0.03;
+    marker.scale.z = 0.03;
+    marker.color.a = 1.0; // Don't forget to set the alpha!
+    marker.color.r = 0.0;
+    marker.color.g = 0.0;
+    marker.color.b = 1.0;
+    markers.markers.push_back(marker);
+  }
+  this->new_objects_centroid_publisher_.publish(markers);
+}
+
+void TableClearingDecisionMakerAlgNode::publicPreviousCentroids(std::vector<geometry_msgs::Point> centroids_objs)
+{
+  visualization_msgs::MarkerArray markers;
+  // delete all the previous markers                                                       }
+  for(uint i=0; i < previous_centroid_size; i++)
+  {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = this->alg_.frame_id;;
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "previous_centroid";
+    marker.id = i;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.action = visualization_msgs::Marker::DELETE;
+    markers.markers.push_back(marker);
+  }
+  this->old_objects_centroid_publisher_.publish(markers); 
+  
+  this->previous_centroid_size = centroids_objs.size();//save new size of objects
+
+  //publish the markers
+  for(uint i=0; i < centroids_objs.size(); i++)
+  {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = this->alg_.frame_id;;
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "previous_centroid";
+    marker.id = i;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.position.x = centroids_objs[i].x; 
+    marker.pose.position.y = centroids_objs[i].y; 
+    marker.pose.position.z = centroids_objs[i].z; 
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.03;// this is the redaius, they ahve to be all the same to be sphere
+    marker.scale.y = 0.03;
+    marker.scale.z = 0.03;
+    marker.color.a = 1.0; // Don't forget to set the alpha!
+    marker.color.r = 0.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
+    markers.markers.push_back(marker);
+  }
+  this->old_objects_centroid_publisher_.publish(markers);
+}  

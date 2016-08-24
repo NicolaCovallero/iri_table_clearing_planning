@@ -1610,6 +1610,7 @@ std::string TableClearingDecisionMakerAlgorithm::newGoalExperimentComparison()
 	return goal;
 
 }
+
 void TableClearingDecisionMakerAlgorithm::updateIndicesUnfeasibleList()
 {
 	std::cout << "With the goal object " << idx_old << " is Impossible finishing the task, trying with another one\n";

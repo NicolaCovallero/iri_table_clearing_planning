@@ -116,15 +116,11 @@ class TableClearingDecisionMakerAlgorithm
     std::vector<iri_table_clearing_predicates::GraspingPoses> approaching_poses;
     std::vector<iri_table_clearing_predicates::PushingPoses> pushing_poses;
     std::vector<iri_table_clearing_predicates::OBB> obbs;
-    std::vector<geometry_msgs::Point> centroids;
     std::vector<IKUnfeasiblePredicate> ik_unfeasible_predicates;
-    iri_tos_supervoxels::plane_coefficients plane_coefficients;
-    geometry_msgs::Vector3 plane_normal;
     std::vector<iri_table_clearing_predicates::PrincipalDirections> principal_directions;
     std::vector<iri_table_clearing_predicates::PushingLength> pushing_lengths;
     std::vector<iri_table_clearing_predicates::PushingGraspingPose> pushing_grasping_poses;
 
-    std::string frame_id;   
 
     sensor_msgs::PointCloud2 point_cloud;
 
@@ -167,6 +163,12 @@ class TableClearingDecisionMakerAlgorithm
 
   public:
 
+    
+    std::string frame_id;   
+
+    iri_tos_supervoxels::plane_coefficients plane_coefficients;
+    std::vector<geometry_msgs::Point> centroids;
+    geometry_msgs::Vector3 plane_normal;
     std::vector<iri_table_clearing_predicates::BlockPredicate> blocks_predicates;
     std::vector<iri_table_clearing_predicates::OnTopPredicate> on_top_predicates;
     std::vector<iri_table_clearing_predicates::BlockGraspPredicate> block_grasp_predicates;

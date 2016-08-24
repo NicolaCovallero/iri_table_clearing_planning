@@ -171,6 +171,7 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
             objects_collisions_time, ee_collisions_time, average_objects_collision_time,
             average_ee_collision_time;
     bool plan_feasible,ik_feasible;
+    uint previous_centroid_size;
 
    /**
     * \brief config variable
@@ -245,6 +246,10 @@ class TableClearingDecisionMakerAlgNode : public algorithm_base::IriBaseAlgorith
      * an the estimated ones.
      */
     void matchObjects(iri_tos_supervoxels::object_segmentation & tos_srv);
+
+    void publicCurrentCentroids(std::vector<geometry_msgs::Point> centroids_objs);
+
+    void publicPreviousCentroids(std::vector<geometry_msgs::Point> centroids_objs);
 
 };
 
