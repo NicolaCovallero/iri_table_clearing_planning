@@ -3,15 +3,19 @@
   <arg name="RQT" default="false"/>
   <arg name="EXECUTION" default="True"/>
   <arg name="REPEAT" default="False"/>
+  <arg name="REAL_ROBOT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>--><!-- For gazebo -->
   <!--<arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>--><!-- For real robot -->
-  <arg name="INPUT_TOPIC" default="/estirabot/kinect/depth_registered/points"/>
+  <arg name="CAMERA" default="kinect"/><!-- Kinect for the simulation, "camera" for the real robot  -->
+  <arg name="INPUT_TOPIC" default="/estirabot/$(arg CAMERA)/depth_registered/points"/>--><!-- For real robot -->
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="False"/>
   <arg name="FILTERING" default="False"/>
   <arg name="AUTOMATIC_SAVE" default="False"/>
   <arg name="USE_ACTION_COST" default="False"/>
   <arg name="EXPERIMENT_COMPARISON" default="False"/>
+
+  
 
   <!-- services -->
   <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
@@ -22,7 +26,8 @@
   <group ns="$(arg ROBOT)">
     <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
          name="iri_table_clearing_decision_maker" output="screen">
-         <param name="input_topic" value="$(arg INPUT_TOPIC)"/>
+
+        <param name="input_topic" value="$(arg INPUT_TOPIC)"/>
 
         
         <!-- Passing as input the name of the services (It was better doing with a remap) -->
