@@ -3,16 +3,15 @@
   <arg name="RQT" default="false"/>
   <arg name="EXECUTION" default="True"/>
   <arg name="REPEAT" default="False"/>
-  <arg name="REAL_ROBOT" default="False"/>
   <!--<arg name="input_topic" default="/estirabot/kinect/depth_registered/points"/>--><!-- For gazebo -->
   <!--<arg name="input_topic" default="/estirabot/camera/depth_registered/points"/>--><!-- For real robot -->
   <arg name="CAMERA" default="kinect"/><!-- Kinect for the simulation, "camera" for the real robot  -->
   <arg name="INPUT_TOPIC" default="/estirabot/$(arg CAMERA)/depth_registered/points"/>--><!-- For real robot -->
   <arg name="ROBOT" default="estirabot"/>
   <arg name="SAVE_EXPERIMENT" default="False"/>
-  <arg name="FILTERING" default="False"/>
-  <arg name="AUTOMATIC_SAVE" default="False"/>
-  <arg name="USE_ACTION_COST" default="False"/>
+  <arg name="FILTERING" default="True"/>
+  <arg name="AUTOMATIC_SAVE" default="True"/>
+  <arg name="USE_ACTION_COST" default="True"/>
   <arg name="EXPERIMENT_COMPARISON" default="False"/>
 
   

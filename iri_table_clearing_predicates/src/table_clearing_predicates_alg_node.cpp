@@ -4,7 +4,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   algorithm_base::IriBaseAlgorithm<TableClearingPredicatesAlgorithm>()
 {
   //init class attributes if necessary
-  this->loop_rate_ = 2;//in [Hz]
+  this->loop_rate_ = 30;//in [Hz]
 
   double  opening_width, finger_width, gripper_height, closing_region_height, closing_width,
           finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_step, 
@@ -141,10 +141,17 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   this->alg_.setPlaneCoefficients(plane_coefficients);
   
   if(refine_segmented_objects)
+  {
+    std::cout << "Refining objects...";
+    double sec_ini = ros::Time().now().toSec();
     this->alg_.refineSegmentationByBiggestPlane();
+    double sec_end = ros::Time().now().toSec();
+    std::cout << " Elapsed time for refining objects: " << sec_end - sec_ini << std::endl;
+  }
   
 
   // compute the predicates
+  std::clock_t t_init_predicates = std::clock();
   this->alg_.computeProjectionsOnTable();
   this->alg_.computeRichConvexHulls();
   this->alg_.computePrincipalDirections();
@@ -182,6 +189,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.ee_collisions_time = exe_times.ee_collisions;
   res.average_objects_collision_time = exe_times.average_objects_collision;
   res.average_ee_collision_time = exe_times.average_ee_collision;
+  res.predicates_time = (double)(std::clock() - t_init_predicates) / CLOCKS_PER_SEC;
 
 
   for (int i = 0; i < res.grasping_poses.size(); ++i)

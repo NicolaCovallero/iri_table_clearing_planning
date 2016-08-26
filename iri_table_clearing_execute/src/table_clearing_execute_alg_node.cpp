@@ -313,6 +313,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   // util::uint64 t_init_ik = util::GetTimeMs64(); 
   double t_init_ik = ros::Time::now().toSec();
+  // std::clock_t t_init_ik = std::clock();
   res.success = true;
   for (uint i = 0; i < 3; ++i) // we don't care about the dropping pose
   {
@@ -368,12 +369,15 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       res.success = false; 
       // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);  
       res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
       return true;
     }
   }
   joints_trajectory.push_back(joints_dropping_pose);
   // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik); 
   res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik); 
+  // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
+
   
 
   // ROS_INFO("Waiting for the joint_trajectory_action server");
@@ -409,8 +413,28 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   // util::uint64 t_init_grasp = util::GetTimeMs64();
   double t_init_grasp = ros::Time::now().toSec();
+  // std::clock_t t_init_grasp = std::clock();
 
   
+  // Go to the post grasping pose, this is in order to help the robot avoiding collisions
+  if(askForUserInput("Going to post_grasping_pose"))
+  {
+    ROS_INFO("Going to post grasping pose again");
+    if(!move2JointsPose(joints_trajectory[2],config_.velocity_max,config_.acceleration_max))
+    {
+      return false;
+    }
+    //ros::Duration(1).sleep(); // sleep for a second
+  }
+  else // go home
+  {
+    ROS_INFO("Going home");
+    if(atHomePosition())
+      return true;
+    else
+      return false;
+  }
+
   // Go to pregrasping pose - Approaching pose
   if(askForUserInput("Going to pre grasping pose"))
   {
@@ -500,7 +524,7 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
       return false;
   }
 
-  // Go to Pregrasping pose again
+  // Go to post grasping pose
   if(askForUserInput("Going to post_grasping_pose"))
   {
     ROS_INFO("Going to post grasping pose again");
@@ -611,6 +635,8 @@ bool TableClearingExecuteAlgNode::execute_graspingCallback(iri_table_clearing_ex
 
   // res.execution_time = (float)(util::GetTimeMs64() - t_init_grasp);
   res.execution_time = (float)(ros::Time::now().toSec() - t_init_grasp);
+  // res.execution_time = (float)(std::clock() - t_init_grasp) / CLOCKS_PER_SEC;
+
   return true;
 }
 
@@ -669,6 +695,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   ROS_INFO("Trying calling the IK service");
   // util::uint64 t_init_ik = util::GetTimeMs64();
   double t_init_ik = ros::Time::now().toSec();
+  // std::clock_t t_init_ik = std::clock();
   std::cout << "Requesting IK of x: " <<  req.pushing_cartesian_trajectory[0].pose.position.x << " y: " <<
                                             req.pushing_cartesian_trajectory[0].pose.position.y << " z: " <<
                                              req.pushing_cartesian_trajectory[0].pose.position.z << std::endl 
@@ -704,6 +731,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
     res.success = false; 
     // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
     res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+    // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
     return true;
   }
 
@@ -740,6 +768,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       res.success = false; 
       // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
       return true;
     }
   }
@@ -756,6 +785,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       res.success = false; 
       // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
       return true;
     }
     srv.request.current_joints = this->alg_.home_joint_state;
@@ -767,6 +797,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       res.success = false; 
       // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
       return true;
     }
     srv.request.current_joints = this->alg_.home_joint_state;
@@ -778,6 +809,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
       res.success = false; 
       // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
       res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+      // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
       return true;
     }
   }
@@ -785,6 +817,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
 
   // res.ik_time = (float)(util::GetTimeMs64() - t_init_ik);
   res.ik_time = (float)(ros::Time::now().toSec() - t_init_ik);
+  // res.ik_time = (float)(std::clock() - t_init_ik) / CLOCKS_PER_SEC;
   
   // ROS_INFO("Waiting for the joint_trajectory_action server");
   // while(!traj_client_->waitForServer(ros::Duration(5.0))){
@@ -825,6 +858,7 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   //move2JointsPose(joints_trajectory[0],0.5,0.5);
   // util::uint64 t_init_push = util::GetTimeMs64();
   double t_init_push = ros::Time::now().toSec();
+  // std::clock_t t_init_push = std::clock();
   for (int i = 0; i < joints_trajectory.size(); ++i)
   {
    move2JointsPose(joints_trajectory[i],0.5,0.5);
@@ -832,6 +866,8 @@ bool TableClearingExecuteAlgNode::execute_pushingCallback(iri_table_clearing_exe
   }
   // res.execution_time = (float)(util::GetTimeMs64() - t_init_push);  
   res.execution_time = (float)(ros::Time::now().toSec()  - t_init_push);  
+  // res.execution_time = (float)(std::clock() - t_init_push) / CLOCKS_PER_SEC;
+
   
   // reset the time stamp for all the trajectory points
   // for (int i = 0; i < joints_trajectory.size(); ++i)

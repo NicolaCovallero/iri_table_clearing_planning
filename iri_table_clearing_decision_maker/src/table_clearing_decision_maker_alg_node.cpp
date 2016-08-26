@@ -279,14 +279,16 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     tos_srv.request.point_cloud = (*msg);
 
     // util::uint64 t_init_seg = util::GetTimeMs64(); 
-    double t_init_seg = ros::Time::now().toSec(); 
+    // double t_init_seg = ros::Time::now().toSec(); 
+    std::clock_t t_init_seg = std::clock();
     if(!segments_objects_client_.call(tos_srv))
     {
       ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
     }
     // segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
-    segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
+    // segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
+    segmentation_time = (double)(std::clock() - t_init_seg) / CLOCKS_PER_SEC;
 
     n_objs = tos_srv.response.objects.objects.size();
     std::cout << n_objs << " Object detected\n";
@@ -306,6 +308,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
       //util::uint64 t_init_predicates = util::GetTimeMs64(); 
       double t_init_predicates = ros::Time::now().toSec();
+      // std::clock_t t_init_predicates_clock = std::clock();
       if(!get_symbolic_predicates_client_.call(pre_srv))
       {
         ROS_ERROR("Impossible getting the predicates");
@@ -314,6 +317,12 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       } 
       // predicates_time = (double)(util::GetTimeMs64() - t_init_predicates);
       predicates_time = (double)(ros::Time::now().toSec() - t_init_predicates);
+      //predicates_time = (double)(std::clock() - t_init_predicates) / CLOCKS_PER_SEC;
+      // predicates_time = pre_srv.response.predicates_time;
+      // float predicates_time_clock = (float)(std::clock() - t_init_predicates_clock) / CLOCKS_PER_SEC;
+      std::cout << "predicates_time: " << predicates_time << "     clock: " << predicates_time_clock << std::endl;
+
+
       on_predicates_time = pre_srv.response.on_predicates_time;
       block_predicates_time = pre_srv.response.block_predicates_time;
       block_grasp_predicates_time = pre_srv.response.block_grasp_predicates_time;
@@ -365,7 +374,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.goal = goal;
 
           // util::uint64 t_init_planning = util::GetTimeMs64(); 
-          double t_init_planning = ros::Time::now().toSec();
+          // double t_init_planning = ros::Time::now().toSec();
+          std::clock_t t_init_planning = std::clock();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -379,8 +389,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           }
           // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
-          
+          // planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
+
           this->alg_.setPlan(fd_srv.response.plan);
         }
         else // if we use the cost fot the actions
@@ -402,7 +413,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.actions = this->alg_.prepareDomainActionsMsg();
 
           // util::uint64 t_init_planning = util::GetTimeMs64(); 
-          double t_init_planning = ros::Time::now().toSec();
+          // double t_init_planning = ros::Time::now().toSec();
+          std::clock_t t_init_planning = std::clock();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -416,9 +428,9 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           }
           // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          // planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
 
-          // TODO: fix the parser opf the plan
           this->alg_.setPlan(fd_srv.response.plan);
 
         }
@@ -672,7 +684,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   
   if(this->alg_.filtering)
   {
-    long time_filt_init = util::GetTimeMs64();
+    //long time_filt_init = util::GetTimeMs64();
+    std::clock_t time_filt_init = std::clock();
     if(!this->alg_.getOn())
       ROS_INFO("New Point cloud received - Let's filter it! :)");
     // http://pointclouds.org/documentation/tutorials/statistical_outlier.php
@@ -705,7 +718,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
     pcl::toROSMsg(cloud,cloud_msg);   
 
     this->alg_.setPointCloud(cloud_msg);
-    filtering_time = util::GetTimeMs64() - time_filt_init;
+    //filtering_time = util::GetTimeMs64() - time_filt_init;
+    filtering_time = float(std::clock() - time_filt_init) / CLOCKS_PER_SEC;
   }
   else
   {
@@ -785,7 +799,7 @@ void TableClearingDecisionMakerAlgNode::matchObjects(iri_tos_supervoxels::object
         centroid.add(cloud->points[p]);  // add each point
     pcl::PointXYZRGBA c;
     centroid.get(c);
-    // now the centorid is translated, this because in the table_clearing_planning the centorid is the average between the segmented object ad the projection, 
+    // now the centroid is translated, this because in the table_clearing_planning the centorid is the average between the segmented object ad the projection, 
     // it is a little hack, but it works
     Eigen::Vector3f proj_eigen_point;
     Eigen::Vector3f plane_origin;

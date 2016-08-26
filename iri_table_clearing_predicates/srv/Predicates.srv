@@ -25,3 +25,4 @@ float32 objects_collisions_time
 float32 ee_collisions_time
 float32 average_objects_collision_time
 float32 average_ee_collision_time
+float32 predicates_time

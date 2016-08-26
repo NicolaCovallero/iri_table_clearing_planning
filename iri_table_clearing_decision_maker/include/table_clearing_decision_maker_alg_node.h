@@ -40,6 +40,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl/common/centroid.h>
 #include <map>
+#include <ctime>
 
 // [service client headers]
 #include <iri_fast_downward_wrapper/FastDownwardCompletePlan.h>
@@ -88,7 +89,7 @@ std::string segmentation_service, predicates_service, planner_service, execute_p
 bool execution; //true if it is the execution wanted
 bool repeat; // true if repeats without waiting for the user input
 long time_from_start, time_start;
-long filtering_time;
+float filtering_time;
 
 /**
  * \brief IRI ROS Specific Algorithm Class

@@ -42,10 +42,10 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	}
 
 	labels.push_back("n_objects");
-	labels.push_back("filtering_time[ms]");
-	labels.push_back("seg_time[ms]");
-	labels.push_back("predicates_time[ms]");
-	labels.push_back("planning_time[ms]");
+	labels.push_back("filtering_time[s]");
+	labels.push_back("seg_time[s]");
+	labels.push_back("predicates_time[s]");
+	labels.push_back("planning_time[s]");
 	labels.push_back("IK[ms]");
 	labels.push_back("on_predicates[ms]");
 	labels.push_back("block_predicates[ms]");
@@ -54,7 +54,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	labels.push_back("ee_collisions[ms]");
 	labels.push_back("average_objects_collision[ms]");
 	labels.push_back("average_ee_collision[ms]");
-	labels.push_back("action_execution_time[ms]");
+	labels.push_back("action_execution_time[s]");
 	labels.push_back("time_from_start[ms]");
 	labels.push_back("action");
 	labels.push_back("ik_feasible");
@@ -74,7 +74,7 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		{
 			std::ostringstream exp_num_str;
 			exp_num_str << exp_num; 
-			file << "--exp" + exp_num_str.str() + "\n";
+			file << "--exp" + exp_num_str.str() + " format v1.0\n";
 
 			// ask for user for comments about the experiment
 			//std::cout << "\nNew experiment, please write some comments about this experiment:";
@@ -100,7 +100,6 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 			}
 			file << "\n";
 
-
 		}
 
 		//write time and executed action 
@@ -113,6 +112,7 @@ void ExperimentDataHandler::updateExperiment(std::vector<double>& data,
 		}
 
 		// write plan action
+		std::cout << "plan: ";
 		if(plan.actions.size() > 0)
 			file << plan.actions[0].action_name + "-" + plan.actions[0].objects[0] + " ";
 		else 
@@ -189,6 +189,8 @@ void ExperimentDataHandler::newExperiment()
 		return;
 	exp_iteration = 0;
 	exp_num++;
+
+	file << "-- Table Cleared!\n";
 }
 
 void ExperimentDataHandler::writeUnfeasiblePlan()

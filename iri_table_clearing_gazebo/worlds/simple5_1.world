@@ -68,7 +68,7 @@
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>0.681657 0.754762 1.5053 1.46372e-16 0.709799 -1.99181</pose>
+        <pose>0.64279 0.178428 1.4703 0 1.2858 -2.57181</pose>
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
@@ -498,9 +498,9 @@
       <static>0</static>
     </model>
     <state world_name='default'>
-      <sim_time>2077 873000000</sim_time>
-      <real_time>210 412745596</real_time>
-      <wall_time>1471525958 781054337</wall_time>
+      <sim_time>2136 396000000</sim_time>
+      <real_time>58 769559524</real_time>
+      <wall_time>1472199157 274012411</wall_time>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <link name='link'>
@@ -511,12 +511,12 @@
         </link>
       </model>
       <model name='rectangle_green'>
-        <pose>0.61499 0.14787 0.70968 0.001692 0.000138 -2.22627</pose>
+        <pose>0.621769 0.156688 0.709678 0.001692 6.8e-05 -2.22627</pose>
         <link name='link'>
-          <pose>0.614918 0.147916 0.75968 0.001692 0.000138 -2.22627</pose>
+          <pose>0.6217 0.156737 0.759678 0.001692 6.8e-05 -2.22627</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -0 0 -0 0</acceleration>
-          <wrench>0 0 -0 0 -0 0</wrench>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='table_1'>
@@ -547,39 +547,39 @@
         </link>
       </model>
       <model name='wood_cube_10cm'>
-        <pose>0.654008 0.01153 0.724968 -0.000373 -0.000508 -0.731081</pose>
+        <pose>0.660525 0.005666 0.724922 -0.001329 -0.002124 -0.731109</pose>
         <link name='link'>
-          <pose>0.654002 0.011561 0.774968 -0.000373 -0.000508 -0.731081</pose>
+          <pose>0.66049 0.005787 0.774922 -0.001329 -0.002124 -0.731109</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-0.011964 0.018316 -0.014208 -0.005304 -0.0021 -1.9e-05</acceleration>
-          <wrench>-0.00012 0.000183 -0.000142 0 -0 0</wrench>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_cube_5cm'>
-        <pose>0.617511 0.0699 0.714923 -0.002856 0.000318 0.173915</pose>
+        <pose>0.617509 0.069896 0.714922 -0.002993 0.000435 0.173918</pose>
         <link name='link'>
-          <pose>0.617502 0.070043 0.764923 -0.002856 0.000318 0.173915</pose>
+          <pose>0.617504 0.070047 0.764922 -0.002993 0.000435 0.173918</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 -0 -0 0 -0 0</acceleration>
-          <wrench>0 -0 -0 0 -0 0</wrench>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_cylinder_5x2cm'>
-        <pose>0.627592 -0.012689 0.784608 -0.000799 -0.001759 2.76397</pose>
+        <pose>0.627427 -0.012641 0.784752 0.003953 -0.005142 2.76363</pose>
         <link name='link'>
-          <pose>0.627659 -0.012758 0.834608 -0.000799 -0.001759 2.76397</pose>
+          <pose>0.627739 -0.012553 0.834751 0.003953 -0.005142 2.76363</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0.011221 -0.031569 -0.015862 0.010909 0.000487 5.9e-05</acceleration>
-          <wrench>0.000112 -0.000316 -0.000159 0 -0 0</wrench>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wood_rectangle'>
-        <pose>0.555154 0.084606 0.719992 2.3e-05 -4.2e-05 -2.87705</pose>
+        <pose>0.547195 0.08245 0.719991 6.9e-05 -0.000139 -2.87705</pose>
         <link name='link'>
-          <pose>0.555156 0.084608 0.769992 2.3e-05 -4.2e-05 -2.87705</pose>
+          <pose>0.547201 0.082455 0.769991 6.9e-05 -0.000139 -2.87705</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 -0 -0 0 -0 0</acceleration>
-          <wrench>0 -0 -0 0 -0 0</wrench>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='yellow_mattress'>
