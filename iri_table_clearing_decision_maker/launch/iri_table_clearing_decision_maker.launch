@@ -58,7 +58,7 @@
 
         <!-- experiment -->
         <param name="save_experiment" value="$(arg SAVE_EXPERIMENT)"/>
-        <param name="working_folder" value="/home/nicola/iri_ws/src/iri_table_clearing_planning/iri_table_clearing_decision_maker/experiments_data"/>
+        <param name="working_folder" value="/home/ncovallero/iri-lab/iri_ws/src/iri_table_clearing_planning/iri_table_clearing_decision_maker/experiments_data"/>
         <param name="automatic_save" value="$(arg AUTOMATIC_SAVE)"/>
                                  
     </node>

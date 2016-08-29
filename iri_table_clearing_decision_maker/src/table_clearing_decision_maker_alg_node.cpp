@@ -5,7 +5,7 @@ TableClearingDecisionMakerAlgNode::TableClearingDecisionMakerAlgNode(void) :
   algorithm_base::IriBaseAlgorithm<TableClearingDecisionMakerAlgorithm>()
 {
   //init class attributes if necessary
-  this->loop_rate_ = 2;//in [Hz]
+  this->loop_rate_ = 30;//in [Hz]
   this->alg_.setOn(false);
   time_start = util::GetTimeMs64();
   previous_centroid_size = 0;
@@ -279,16 +279,16 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     tos_srv.request.point_cloud = (*msg);
 
     // util::uint64 t_init_seg = util::GetTimeMs64(); 
-    // double t_init_seg = ros::Time::now().toSec(); 
-    std::clock_t t_init_seg = std::clock();
+    double t_init_seg = ros::Time::now().toSec(); 
+    // std::clock_t t_init_seg = std::clock();
     if(!segments_objects_client_.call(tos_srv))
     {
       ROS_ERROR("Impossible segmenting the image - Failed to call the service or the are no objects");
       this->alg_.setOn(false);
     }
     // segmentation_time = (double)(util::GetTimeMs64() - t_init_seg);
-    // segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
-    segmentation_time = (double)(std::clock() - t_init_seg) / CLOCKS_PER_SEC;
+    segmentation_time = (double)(ros::Time::now().toSec() - t_init_seg);
+    // segmentation_time = (double)(std::clock() - t_init_seg) / CLOCKS_PER_SEC;
 
     n_objs = tos_srv.response.objects.objects.size();
     std::cout << n_objs << " Object detected\n";
@@ -374,8 +374,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.goal = goal;
 
           // util::uint64 t_init_planning = util::GetTimeMs64(); 
-          // double t_init_planning = ros::Time::now().toSec();
-          std::clock_t t_init_planning = std::clock();
+          double t_init_planning = ros::Time::now().toSec();
+          // std::clock_t t_init_planning = std::clock();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -389,8 +389,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           }
           // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-          // planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
-          planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          // planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
 
           this->alg_.setPlan(fd_srv.response.plan);
         }
@@ -413,8 +413,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           fd_srv.request.actions = this->alg_.prepareDomainActionsMsg();
 
           // util::uint64 t_init_planning = util::GetTimeMs64(); 
-          // double t_init_planning = ros::Time::now().toSec();
-          std::clock_t t_init_planning = std::clock();
+          double t_init_planning = ros::Time::now().toSec();
+          // std::clock_t t_init_planning = std::clock();
           plan_feasible = true;
           // reset plan
           alg_.plan.actions.resize(0);
@@ -428,8 +428,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
 
           }
           // planning_time = (double)(util::GetTimeMs64() - t_init_planning);
-          // planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
-          planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
+          planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
+          // planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
 
           this->alg_.setPlan(fd_srv.response.plan);
 
@@ -685,7 +685,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
   if(this->alg_.filtering)
   {
     //long time_filt_init = util::GetTimeMs64();
-    std::clock_t time_filt_init = std::clock();
+    // std::clock_t time_filt_init = std::clock();
+    double t_filt_init = ros::Time().now().toSec();
     if(!this->alg_.getOn())
       ROS_INFO("New Point cloud received - Let's filter it! :)");
     // http://pointclouds.org/documentation/tutorials/statistical_outlier.php
@@ -719,7 +720,8 @@ void TableClearingDecisionMakerAlgNode::kinect_callback(const sensor_msgs::Point
 
     this->alg_.setPointCloud(cloud_msg);
     //filtering_time = util::GetTimeMs64() - time_filt_init;
-    filtering_time = float(std::clock() - time_filt_init) / CLOCKS_PER_SEC;
+    //filtering_time = float(std::clock() - time_filt_init) / CLOCKS_PER_SEC;
+    filtering_time = ros::Time().now().toSec() - t_filt_init;
   }
   else
   {
