@@ -46,7 +46,7 @@ void ExperimentDataHandler::setUp(std::string working_folder)
 	labels.push_back("seg_time[s]");
 	labels.push_back("predicates_time[s]");
 	labels.push_back("planning_time[s]");
-	labels.push_back("IK[ms]");
+	labels.push_back("IK[s]");
 	labels.push_back("on_predicates[ms]");
 	labels.push_back("block_predicates[ms]");
 	labels.push_back("block_grasp_predicates[ms]");

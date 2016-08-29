@@ -320,7 +320,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       //predicates_time = (double)(std::clock() - t_init_predicates) / CLOCKS_PER_SEC;
       // predicates_time = pre_srv.response.predicates_time;
       // float predicates_time_clock = (float)(std::clock() - t_init_predicates_clock) / CLOCKS_PER_SEC;
-      std::cout << "predicates_time: " << predicates_time << "     clock: " << predicates_time_clock << std::endl;
+      std::cout << "predicates_time: " << predicates_time << std::endl;
 
 
       on_predicates_time = pre_srv.response.on_predicates_time;

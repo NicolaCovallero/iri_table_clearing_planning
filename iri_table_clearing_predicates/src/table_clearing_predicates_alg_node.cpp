@@ -116,6 +116,9 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
 
   ROS_INFO("TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback: Processing New Request!");
 
+  double t_1 = ros::Time().now().toSec();
+
+  std::cout << "Converting the pointcloud format ... \n";
   // process the request  
   pcl::PointCloud<pcl::PointXYZRGBA> original_cloud;
   pcl::fromROSMsg(req.original_cloud,original_cloud);
@@ -128,6 +131,8 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
     pcl::fromROSMsg(req.segmented_objects[i],segmented_objects[i]);
   }
 
+  double t_2 = ros::Time().now().toSec();
+
   pcl::ModelCoefficients plane_coefficients;
   plane_coefficients.values.resize(4);
   plane_coefficients.values[0] = req.plane_coefficients.a;
@@ -136,6 +141,7 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   plane_coefficients.values[3] = req.plane_coefficients.d;
 
   // set the necessary stuff for the algorithm
+  std::cout << "Initializing the perception module ... \n";
   this->alg_.setOriginalPointCloud(original_cloud);
   this->alg_.setObjectsPointCloud(segmented_objects);
   this->alg_.setPlaneCoefficients(plane_coefficients);
@@ -150,8 +156,9 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   }
   
 
+  double t_3 = ros::Time().now().toSec();
   // compute the predicates
-  std::clock_t t_init_predicates = std::clock();
+  //std::clock_t t_init_predicates = std::clock();
   this->alg_.computeProjectionsOnTable();
   this->alg_.computeRichConvexHulls();
   this->alg_.computePrincipalDirections();
@@ -189,8 +196,8 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   res.ee_collisions_time = exe_times.ee_collisions;
   res.average_objects_collision_time = exe_times.average_objects_collision;
   res.average_ee_collision_time = exe_times.average_ee_collision;
-  res.predicates_time = (double)(std::clock() - t_init_predicates) / CLOCKS_PER_SEC;
-
+  res.predicates_time = ros::Time().now().toSec() - t_3; 
+ 
 
   for (int i = 0; i < res.grasping_poses.size(); ++i)
   {
@@ -204,6 +211,10 @@ bool TableClearingPredicatesAlgNode::get_symbolic_predicatesCallback(iri_table_c
   //unlock previously blocked shared variables
   //this->get_symbolic_predicates_mutex_exit();
   //this->alg_.unlock();
+
+  std::cout << "Time to convert from sensor_msgs::PointCloud2 to pcl::PointCloud: " << t_2 - t_1 << std::endl;
+  std::cout << "Time to refine objetcs : " << t_3 - t_2 << std::endl;
+  std::cout << "Time to compute the predicates : " << res.predicates_time << std::endl;
 
   return true;
 }
