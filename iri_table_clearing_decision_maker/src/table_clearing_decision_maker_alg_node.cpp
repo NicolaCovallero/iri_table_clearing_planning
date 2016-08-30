@@ -296,6 +296,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
     {
       // object matching
       matchObjects(tos_srv);
+      std::cout << std::endl;
 
       this->alg_.showObjectsRViz(tos_srv.response.objects.objects, msg->header, this->cloud_publisher_);
       //this->showObjectsRViz(tos_srv.response.objects.objects, msg->header);
@@ -320,7 +321,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       //predicates_time = (double)(std::clock() - t_init_predicates) / CLOCKS_PER_SEC;
       // predicates_time = pre_srv.response.predicates_time;
       // float predicates_time_clock = (float)(std::clock() - t_init_predicates_clock) / CLOCKS_PER_SEC;
-      std::cout << "predicates_time: " << predicates_time << std::endl;
+      std::cout << "State generated in " << predicates_time << " seconds." << std::endl;
 
 
       on_predicates_time = pre_srv.response.on_predicates_time;
@@ -358,7 +359,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
       this->alg_.setPushingGraspingPoses(pre_srv.response.pushing_grasping_poses);
       this->alg_.pushing_until_graspable = pre_srv.response.pushing_until_graspable;
 
-      bool feasible = false;
+      bool feasible = false; // is related to the IK
       while(!feasible) // call the planner until it finds a new solution
       {
         std::string goal = this->alg_.prepareGoalMsg();
@@ -396,14 +397,14 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         }
         else // if we use the cost fot the actions
         {
-          std::cout << "Complete plan. The use_action_cost variable is set to: " << use_action_cost << std::endl;
+          std::cout << "Planning using the costs in the action. "; 
           iri_fast_downward_wrapper::FastDownwardCompletePlan fd_srv; 
 
           // problem pddl file
           fd_srv.request.objects = this->alg_.prepareObjectsMsg();
           std::vector<iri_fast_downward_wrapper::SymbolicPredicate> predicates = this->alg_.prepareSymbolicPredicatesMsg();
           fd_srv.request.symbolic_predicates = predicates;
-          fd_srv.request.goal = goal;
+          fd_srv. request.goal = goal;
 
           // domain pddl file
           fd_srv.request.add_total_cost = true;
@@ -431,6 +432,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           planning_time = (double)(ros::Time::now().toSec() - t_init_planning);
           // planning_time = (double)(std::clock() - t_init_planning) / CLOCKS_PER_SEC;
 
+          std::cout << "Planed in " << planning_time << " seconds." << std::endl;
+
           this->alg_.setPlan(fd_srv.response.plan);
 
         }
@@ -440,11 +443,8 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         else
           alg_.idx_unfeasible.resize(0);
         
-
-
         // if(!fd_srv.response.feasible)
         //   ROS_ERROR("There is not a feasible plan for such a problem");
-
           
         this->alg_.showFirstActionRViz(this->action_marker_publisher_, use_action_cost);
         this->alg_.showPushingDirectionsRviz(this->pushing_directions_publisher_);
@@ -452,7 +452,6 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
         iri_table_clearing_execute::ExecuteGrasping grasping_srv;
         iri_table_clearing_execute::ExecutePushing pushing_srv;
         int action_type = this->alg_.setAction(grasping_srv,pushing_srv,use_action_cost);
-        
         
         this->alg_.showActionTrajectory(action_trajectory_publisher_, action_type);
         
@@ -464,7 +463,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
           switch(action_type)
           {
             case 0:
-              ROS_INFO("Calling execution service for pushing action");
+              // ROS_INFO("Calling execution service for pushing action");
               if(execute_pushing_client_.call(pushing_srv)) 
               {
                 if(!pushing_srv.response.success) // because the IK had no solution
@@ -494,7 +493,7 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
               }
               break;
             case 1:
-              ROS_INFO("Calling execution service for graspingaction");
+              //ROS_INFO("Calling execution service for grasping action");
               if(execute_grasping_client_.call(grasping_srv)) 
               { 
                 if(!grasping_srv.response.success) 
@@ -573,9 +572,17 @@ void TableClearingDecisionMakerAlgNode::mainNodeThread(void)
             eh.savePredicates(this->alg_.blocks_predicates,this->alg_.on_top_predicates,this->alg_.block_grasp_predicates);
             // if(!fd_srv.response.success)
             //   eh.writeUnfeasiblePlan();
-            
+          
+            // if there is one object and there exists no plan we consider the table cleared
+            if(n_objs == 1 && alg_.plan.actions.size() == 0)
+            {
+              std::cout << "There is one object but the robot is not able to approach it, the experiment is finished.\n";
+              eh.newExperiment();
+            }
+
           }// endif save_experiment
         }//execution
+
 
       }//exit while
 
