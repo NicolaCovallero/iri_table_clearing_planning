@@ -1003,6 +1003,29 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 	pred.object = plan.actions[0].objects[0];
 
 	// FINISH THIS
+	// if(strcmp(plan.actions[0].action_name.c_str(),"push") == 0)
+	// {
+	// 	pred.action = "ik_unfeasible_dir";
+	// 	if(strcmp(plan.actions[0].objects[1].c_str(),"dir1") == 0)
+	// 		pred.direction = "dir1";
+	// 	else if(strcmp(plan.actions[0].objects[1].c_str(),"dir2") == 0)
+	// 		pred.direction = "dir2";
+	// 	else if(strcmp(plan.actions[0].objects[1].c_str(),"dir3") == 0)
+	// 		pred.direction = "dir3";
+	// 	else if(strcmp(plan.actions[0].objects[1].c_str(),"dir4") == 0)
+	// 		pred.direction = "dir4";
+			
+	// }
+	// else if(strcmp(plan.actions[0].action_name.c_str(),"grasp") == 0)
+	// {
+	// 	pred.action = "ik_unfeasible_grasp";
+	// 	pred.direction = "";
+	// }
+	// else
+	// {
+	// 	ROS_ERROR("Error trying to set the IK unfeasible predicate.");
+	// }
+
 	if(strcmp(plan.actions[0].action_name.c_str(),"push") == 0)
 	{
 		pred.action = "ik_unfeasible_dir";
@@ -1025,6 +1048,7 @@ void TableClearingDecisionMakerAlgorithm::setIKUnfeasiblePredicate()
 	{
 		ROS_ERROR("Error trying to set the IK unfeasible predicate.");
 	}
+
 
 	ik_unfeasible_predicates.push_back(pred);
 
@@ -1319,6 +1343,11 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			grasping.request.pre_dropping_pose = this->pre_dropping_pose;
 
 			idx_old = std::numeric_limits<uint>::max();
+			plan.actions[0].action_name = "grasp";
+			plan.actions[0].objects.resize(0);
+			std::ostringstream conv;
+			conv << idx_obj;
+			plan.actions[0].objects.push_back("o" + conv.str());
 			return 1;	
 		}
 		else if(strcmp(tokens[0].c_str(),"push") == 0)
@@ -1472,6 +1501,15 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			pushing.request.future_post_grasp_pose.pose.position.x = pushing.request.future_post_grasp_pose.pose.position.x - 0.3 * this->plane_normal.x;
 			pushing.request.future_post_grasp_pose.pose.position.y = pushing.request.future_post_grasp_pose.pose.position.y - 0.3 * this->plane_normal.y;
 			pushing.request.future_post_grasp_pose.pose.position.z = pushing.request.future_post_grasp_pose.pose.position.z - 0.3 * this->plane_normal.z;
+
+			plan.actions[0].action_name = "push";
+			plan.actions[0].objects.resize(0);
+			std::ostringstream conv;
+			conv << idx_obj;
+			plan.actions[0].objects.push_back("o" + conv.str());
+			conv.str("");
+			conv << idx_dir;
+			plan.actions[0].objects.push_back("dir" + conv.str());
 
 			return 0;
 		}

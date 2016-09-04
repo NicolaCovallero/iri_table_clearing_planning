@@ -2,7 +2,7 @@
 
   <arg name="ROBOT" default="estirabot"/>
   <arg name="PUSHING_LIMIT" default="0.6"/>
-  <arg name="PUSHING_RESOLUTION" default="0.01"/>
+  <arg name="PUSHING_RESOLUTION" default="0.03"/>
   <arg name="MINIMUM_GRASPING_DISTANCE" default="0.02"/>
   <arg name="PUSHING_UNTIL_GRASPABLE" default="True"/>
 
