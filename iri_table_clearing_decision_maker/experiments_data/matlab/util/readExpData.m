@@ -1,9 +1,10 @@
 function [data, original_plan, plans] = readExpData( experiment_name )
 %UNTITLED7 Summary of this function goes here
 %   Detailed explanation goes here
+labelsIndices
 
 fileID = fopen(strcat(experiment_name,'/data.txt'));
-tline = fgets(fileID)
+tline = fgets(fileID);
 new_experiment = false;
 if(strcmp(tline(1:5),'--exp'))
    new_experiment = true;
@@ -13,34 +14,38 @@ else
 end
 r = 1; % row counter
 exit = false;
-data = []
+data = [];
 
-tline = fgets(fileID)
+tline = fgets(fileID);
 if(strcmp(tline(1:5),'plan:'))
-    original_plan = readOriginalPlan(tline)
+    original_plan = readOriginalPlan(tline);
 end
 
 plans = []; % this is a cell array that contains a plan for each possible iteration, for each frame the plan could be different from the original one
 
 while(~exit)
-    tline = fgets(fileID)
+    tline = fgets(fileID);
     if (length(tline) >= 17)
         if (strcmp(tline(1:17),'-- Table Cleared!'))
             exit = true;
             break;
         end  
     end
-    r = r + 1
+    r = r + 1;
     
     label = getNamespace(tline);
      if(strcmp(label,'data'))
-         data = [data; readData(tline)];
+         tmp = readData(tline);
+         if ~tmp{ACTION_IK_FEASIBLE} % the èrogram to save the data had a bug and saved a time also when no action was executed
+             tmp{ACTION_EXECUTION_TIME} = 0;
+         end
+         data = [data; tmp];
      elseif (~strcmp(label,'labels'))
-         plan_tmp = strsplit(tline(1:end))
+         plan_tmp = strsplit(tline(1:end));
           for i = 1:1:length(plan_tmp)
                plan_tmp{i} = plan_tmp{i}(2:end);
           end
-          plan_tmp = plan_tmp(~cellfun('isempty',plan_tmp)) %remove empty elements     
+          plan_tmp = plan_tmp(~cellfun('isempty',plan_tmp)); %remove empty elements     
           
           plans{length(plans) + 1} =  plan_tmp;
           
