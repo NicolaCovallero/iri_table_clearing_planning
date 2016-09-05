@@ -1,11 +1,44 @@
-function createBarPlots_v2( data, exp_number, neglect, experiment_name)
-% create bar plots of the experiment indexed by "exp_number", 
-% and create the bar plots of the experiment, if "neglect" is set to true
-% This version shows 2 bar plots:
-% 1) The time are divided in: perception module, planning subsystem,
-% execution system (see the paper)
-% 2) The different stages of the planning system are shown
+function createBarPlots_v2( data, exp_number, neglect)
+% Create bar plots of the elapsed times for each iteration, this function creates 3 bar plots:
+% 1) Elapsed times for the perception, planning and execution sybsystems
+% 2) Elapsed times fot state generation, planning (get a plan), IK of
+% first action
+% 3) Elapsed times for planning (get a plan), IK of first action
+% Note: the backtracking is considered as an iteration, we can notice when
+% a backtracking is done since the perception time is 0.
+%
+%       data : data of a series of experiment (cell)
+%       exp_number : number of the experiment in the data cell
+%       neglect[optional] : true(default) to neglect the cases the
+%       segmentation was bad and no plan was found.
+%
+%   Usage:
+%       series_of_exp; % number of the series of experiments
+%       n_exp; % number of the experiment of the series
+%       example: series_of_exp = 1; n_exp = 2; there will be shown the elapsed
+%       times of the experiment 'exp3_2_real'
+%       createBarPlots_v2(data{series_of_exp},n_exp); 
+%       neglect = false; % let's show also the cases the segmentation is
+%       bad
+%       createBarPlots_v2(data{series_of_exp},n_exp,neglect); 
 
+
+% Check number of inputs.
+if nargin >3
+    error('createBarPlots_v2:TooManyInputs', ...
+        'requires at most 1 optional inputs');
+end
+
+% Fill in unset optional values.
+switch nargin
+    case 2
+        neglect = 1;
+     
+if (neglect) 
+    disp('Neglecting cases in which the segmentation was bad and no plan was found')
+end
+
+        
 data = data{exp_number};
 labelsIndices
 % fix the data, for the case the IK is not feasible, we set to 0 all the
@@ -111,6 +144,24 @@ set(t,'FontSize',12);
 % set(P(n),'facecolor',C(n));
 % end
 l=legend('State Generation','Planning','IK')
+set(l,'FontSize',12);
+
+%% plot showing only the planning and IK for each iteration
+figure()
+grid on
+
+data_tmp = [data_tmp(:,1) data_tmp(:,3:end)]
+
+bar(data_tmp(:,2:end),'stacked')
+%xlabel('<Iteration - Number of segmented objects>','FontSize',15)%if you save with .eps if will see the right size
+xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+ylabel('Time [seconds]','FontSize',15)
+set(gca,'YGrid','on')
+set(gca,'XTick',1:size(data_,1)) 
+set(gca,'XTickLabel',str_);
+t = title('Planning elapsed times')
+set(t,'FontSize',12);
+l=legend('Planning','IK')
 set(l,'FontSize',12);
 
 
