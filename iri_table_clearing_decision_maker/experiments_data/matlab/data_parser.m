@@ -22,6 +22,8 @@ for h = 1:1:size(experiments_,2)
     for i = 1:1:length(experiments)
         str = strcat('Reading eperiment: ',experiments{i});
         disp(str)
+        % there is bug to read the plans since the first action is not saved
+         % correctly in data.txt
         [data{h}{i}, orignal_plan{h}{i}, plans{h}{i}] = readExpData(experiments{i});
     end
     disp('computing statistics...')
@@ -45,6 +47,11 @@ end
 % times of the experiment 'exp3_2_real'
 % createBarPlots_v2(data{series_of_exp},n_exp);
 
+close all
+series_of_exp = 5;
+n_exp = 1;
+createBarPlots_v2(data{series_of_exp},n_exp);
+
 %% DISPLAY DATA
 clc
 format short
@@ -55,22 +62,33 @@ disp('n objects:     3            4             5            6            7')
 i = 1;
 str = sprintf('n actions:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
-i = 2;
+disp(' ') % new line
+
+i= 2;
 str = sprintf('perception [s]:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
+disp(' ') % new line
+
 i = 3;
 str = sprintf('planning [s]:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
+disp(' ') % new line
 
 i = 4;
 str = sprintf('execution [s]:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
-i = 5;
+disp(' ') % new line
+
+i= 5;
 str = sprintf('total [s]:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
+disp(' ') % new line
+
 i = 6;
 str = sprintf('decision making [s]:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)
+disp(' ') % new line
+
 i = 7;
 str = sprintf('n backtrackings:   %0.4d   +/- %0.4d    |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d   |   %0.4d   +/- %0.4d     ',mean(elapsed_times{1}{i}),std(elapsed_times{1}{i}),mean(elapsed_times{2}{i}),std(elapsed_times{2}{i}),mean(elapsed_times{3}{i}), std(elapsed_times{3}{i}),mean(elapsed_times{4}{i}),std(elapsed_times{4}{i}),mean(elapsed_times{5}{i}),std(elapsed_times{5}{i}));
 disp(str)

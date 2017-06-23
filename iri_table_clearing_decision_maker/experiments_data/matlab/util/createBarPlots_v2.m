@@ -1,4 +1,5 @@
 function createBarPlots_v2( data, exp_number, neglect)
+% createBarPlots_v2
 % Create bar plots of the elapsed times for each iteration, this function creates 3 bar plots:
 % 1) Elapsed times for the perception, planning and execution sybsystems
 % 2) Elapsed times fot state generation, planning (get a plan), IK of
@@ -6,6 +7,8 @@ function createBarPlots_v2( data, exp_number, neglect)
 % 3) Elapsed times for planning (get a plan), IK of first action
 % Note: the backtracking is considered as an iteration, we can notice when
 % a backtracking is done since the perception time is 0.
+%
+% Usage:  createBarPlots_v2( data, exp_number, neglect)
 %
 %       data : data of a series of experiment (cell)
 %       exp_number : number of the experiment in the data cell
@@ -89,14 +92,16 @@ figure()
 grid on
 bar(data_,'stacked')
 %xlabel('<Iteration - Number of segmented objects>','FontSize',15)%if you save with .eps if will see the right size
-xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+%xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+xlabel('Number of the iteration','FontSize',15)%if you save with .eps if will see the right size
+
 ylabel('Time [seconds]','FontSize',15)
 l = legend('Perception subsystem','Planning subsystem','Execution subsystem')
 set(l,'FontSize',12);
 set(gca,'YGrid','on')
 %title(experiment_name)
-t = title('Subsystems elapsed times')
-set(t,'FontSize',12);
+%t = title('Subsystems elapsed times')
+%set(t,'FontSize',12);
 
 % get the x tick label
 for i = 1:length(n_objs)
@@ -105,7 +110,7 @@ for i = 1:length(n_objs)
 end
 
 set(gca,'XTick',1:size(data_,1)) 
-set(gca,'XTickLabel',str_);
+%set(gca,'XTickLabel',str_);
 %set(gca, 'FontSize', 40)
 i = 1;
 data_2 = [str2num(data{i,N_OBJECTS}),  str2num(data{i,PREDICATES_TIME}) , str2num(data{i,PLANNING_TIME}) , str2num(data{i,IK_TIME})];
@@ -129,13 +134,16 @@ grid on
 
 bar(data_tmp(:,2:end),'stacked')
 %xlabel('<Iteration - Number of segmented objects>','FontSize',15)%if you save with .eps if will see the right size
-xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+%xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+xlabel('Number of the iteration','FontSize',15)%if you save with .eps if will see the right size
 ylabel('Time [seconds]','FontSize',15)
 set(gca,'YGrid','on')
 set(gca,'XTick',1:size(data_,1)) 
-set(gca,'XTickLabel',str_);
-t = title('Planning and state generation elapsed times')
-set(t,'FontSize',12);
+
+%set(gca,'XTick',1:size(data_,1)) 
+%set(gca,'XTickLabel',str_);
+%t = title('Planning and state generation elapsed times')
+%set(t,'FontSize',12);
 %title(strcat(experiment_name,'  Planning Subsystem Elapsed Times'))
 % 
 % P=findobj(gca,'type','patch');
@@ -154,13 +162,17 @@ data_tmp = [data_tmp(:,1) data_tmp(:,3:end)]
 
 bar(data_tmp(:,2:end),'stacked')
 %xlabel('<Iteration - Number of segmented objects>','FontSize',15)%if you save with .eps if will see the right size
-xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+%xlabel('Number of segmented objects','FontSize',15)%if you save with .eps if will see the right size
+xlabel('Number of the iteration','FontSize',15)%if you save with .eps if will see the right size
+
 ylabel('Time [seconds]','FontSize',15)
 set(gca,'YGrid','on')
 set(gca,'XTick',1:size(data_,1)) 
-set(gca,'XTickLabel',str_);
-t = title('Planning elapsed times')
-set(t,'FontSize',12);
+set(gca,'XTick',1:size(data_,1)) 
+
+%set(gca,'XTickLabel',str_);
+%t = title('Planning elapsed times')
+%set(t,'FontSize',12);
 l=legend('Planning','IK')
 set(l,'FontSize',12);
 
