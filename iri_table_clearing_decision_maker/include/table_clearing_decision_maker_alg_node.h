@@ -58,7 +58,7 @@
 const std::string FRAME_ID = "/base_link";
 const std::string INPUT_TOPIC = "/camera/depth_registered/points";
 const int PUSHING_DISCRETIZATION = 10; // 10 points 
-const double PUSHING_STEP = 1.5; // 0.1 meters
+const double PUSHING_STEP = 1.5; // 1.5 times the OBB dimension relative to the pushing direction
 
 const std::string SEGMENTATION_SERVICE = "/iri_tos_supervoxels_alg/object_segmentation";
 const std::string PREDICATES_SERVICE = "/table_clearing_predicates_alg_node/get_symbolic_predicates";

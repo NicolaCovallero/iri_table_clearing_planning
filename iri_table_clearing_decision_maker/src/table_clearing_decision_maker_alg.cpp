@@ -1263,7 +1263,7 @@ int TableClearingDecisionMakerAlgorithm::setAction( iri_table_clearing_execute::
 			approaching_pose = this->approaching_poses[idx_obj].grasping_poses[0];
 			approaching_pose.header.frame_id = this->frame_id;
 
-			// post grasping pose is translated by other 10 cm
+			// post grasping pose is translated by other 30 cm
 			post_grasping_pose = grasping_pose;
 			post_grasping_pose.header.frame_id = this->frame_id;
 

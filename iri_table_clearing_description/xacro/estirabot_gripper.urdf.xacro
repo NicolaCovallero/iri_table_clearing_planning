@@ -24,6 +24,8 @@
        the origin block defines where the component is w.r.t its parent (in this case the parent 
        is the world frame). For more, see http://www.ros.org/wiki/xacro -->
 
+  <property name="robot_name" value="estirabot"/>
+  <property name="JointInterface" value="EffortJointInterface"/>
        
   <!-- This will attach the robot to the world link -->
   <link name="world"/>
@@ -34,9 +36,6 @@
     <axis xyz="0 0 1" />
     <limit lower="0.0" upper="0.0" effort="0" velocity="0"/>
   </joint>
-
-  <property name="robot_name" value="estirabot"/>
-  <property name="JointInterface" value="EffortJointInterface"/>
 
   <xacro:wambase    prefix="${robot_name}"/>
   <xacro:wam1       prefix="${robot_name}" parent="${robot_name}_link_base" controller="{JointInterface}"/>
