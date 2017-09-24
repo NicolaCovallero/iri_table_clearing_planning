@@ -2,7 +2,7 @@
 
   <arg name="ROBOT" default="estirabot"/>
   <arg name="PUSHING_LIMIT" default="0.6"/>
-  <arg name="PUSHING_RESOLUTION" default="0.03"/>
+  <arg name="PUSHING_RESOLUTION" default="0.03"/><!-- centimetres -->
   <arg name="MINIMUM_GRASPING_DISTANCE" default="0.02"/>
   <arg name="PUSHING_UNTIL_GRASPABLE" default="True"/>
 
@@ -18,9 +18,6 @@
          <param name="finger_deep" value="0.06"/><!--  it hsould be 0.03 but in order to consider the width of the gripper's base -->
          <param name="pushing_method" value="0"/><!-- [0] vertical/orthogonal pushing method, parallel[1]-->
 
-         <!--
-         <param name="pushing_distance_plane" value="0.025"/>
-          -->
          <param name="pushing_distance_plane" value="0.01"/><!-- 1cm from the plane -->
 
          # this is only for the orthogonal pushing method
