@@ -14,21 +14,30 @@
   <arg name="USE_ACTION_COST" default="True"/>
   <arg name="EXPERIMENT_COMPARISON" default="False"/>
 
+  <!-- if STEREO is true then launch launch the tos_supervoxels server using the point cloud of the stereo system-->
+  <arg name="STEREO" default="False"/>
   
 
-  <!-- services -->
-  <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
-    <arg name="screen" value="True"/>
-  </include>
+  <!-- tos_supervoxels services -->
+
+  <group if="$(arg STEREO)">
+    <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_stereo_server.launch">
+        <arg name="screen" value="True"/>
+    </include>
+  </group>
+  <group unless="$(arg STEREO)">
+      <include file="$(find iri_table_clearing_decision_maker)/launch/tos_supervoxels_server.launch">
+        <arg name="screen" value="True"/>
+    </include>
+  </group>
+
+
 
   <!-- Launch the main node to control the process -->
   <group ns="$(arg ROBOT)">
     <node pkg="iri_table_clearing_decision_maker" type="iri_table_clearing_decision_maker"
          name="iri_table_clearing_decision_maker" output="screen">
-
-        <param name="input_topic" value="$(arg INPUT_TOPIC)"/>
-
-        
+            <param name="input_topic" value="$(arg INPUT_TOPIC)"/>              
         <!-- Passing as input the name of the services (It was better doing with a remap) -->
         <param name="execute_pushing_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_pushing"/>
         <param name="execute_grasping_service" value="/$(arg ROBOT)/iri_table_clearing_execute/execute_grasping"/>

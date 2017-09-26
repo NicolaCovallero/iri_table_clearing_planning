@@ -9,7 +9,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   double  opening_width, finger_width, gripper_height, closing_region_height, closing_width,
           finger_deep, pushing_distance_plane, ee_height, ee_deep, pushing_step, 
           pushing_object_distance, approaching_distance;
-  int pushing_method;
+  int pushing_method, on_th1,on_th2;
 
   this->public_node_handle_.param("pushing_method",pushing_method,PUSHING_METHOD);
   this->public_node_handle_.param("closing_width",closing_width,CLOSING_WIDTH);
@@ -28,6 +28,9 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->public_node_handle_.param("resolution",alg_.resolution,RESOLUTION);  
   this->public_node_handle_.param("minimum_distance",alg_.minimum_distance,MINIMUM_DISTANCE);  
   this->public_node_handle_.param("pushing_until_graspable", this->alg_.pushing_until_graspable, true);
+  this->public_node_handle_.param("on_th1", on_th1, 100);
+  this->public_node_handle_.param("on_th2", on_th2, 100);
+
 
   this->public_node_handle_.param("refine_segmented_objects",refine_segmented_objects,REFINE_SEGMENTED_OBJECTS);
 
@@ -59,7 +62,9 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
             << "resolution: " << alg_.resolution << std::endl
             << "minimum_distance: " << alg_.minimum_distance << std::endl
             << "pushing_until_graspable: " << pushing_until_graspable_str << std::endl
-            << "refine_segmented_objects: " << refine_segmented_objects << std::endl;
+            << "refine_segmented_objects: " << refine_segmented_objects << std::endl
+            << "on_th1: " << on_th1 << std::endl
+            << "on_th2: " << on_th2 << std::endl;
             
 
   this->alg_.setPushingStep(pushing_step);
@@ -68,7 +73,7 @@ TableClearingPredicatesAlgNode::TableClearingPredicatesAlgNode(void) :
   this->alg_.setPushingObjectDistance(pushing_object_distance);
   this->alg_.setGripperSimpleModel(ee_height, ee_deep, opening_width + 2 * finger_width, pushing_distance_plane);         
   this->alg_.setGripperModel(opening_width, closing_width, finger_width, finger_deep, gripper_height, closing_region_height);
-
+  this->alg_.setOnTopParameters(on_th1,on_th2);
 
   // [init publishers]
   

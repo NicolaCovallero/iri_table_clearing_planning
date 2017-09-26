@@ -30,6 +30,10 @@
          <param name="ee_height" value="0.1"/>
          <param name="ee_deep" value="0.15"/>
          <param name="pushing_step" value="1.0"/>
+
+         <param name="on_th1" value="20"/>
+         <param name="on_th2" value="20"/>
+
     </node>
   </group>
   
